@@ -185,7 +185,7 @@ AI 와 사람이 함께 더 잘 생각할 수 있도록 돕는 사람" 입니다
 
 > 그래서 — 요즘은 *유전학* 과 *물리학* 도 다시 들여다보고 있습니다.
 > 한 장 인터랙티브로 정리해 본 것 :
-> [📎 **`gene vs DNA — 한 장 인터랙티브`**](file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html)
+> [📎 **`gene vs DNA — 한 장 인터랙티브`**](gene-dna-interactive/index.html)
 > (DNA 이중 나선 / 발현 / 부모-자식 / 파동 간섭 — 5 섹션, 마우스 인터랙션)
 
 ---

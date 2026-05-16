@@ -4,7 +4,7 @@ date: 2026-05-16
 subject: 유전학 / 세포생물학 / 염색체
 type: interactive
 author: jarvis (for Kenny)
-ref_html: ../../../projects/presentation/therapist-2026-05-16/chromosome-gene-dna/index.html
+ref_html: ../presentation/chromosome-gene-dna/index.html
 source: NIH/NCBI · Nature Scitable · NIH StatPearls
 ---
 
@@ -19,7 +19,7 @@ source: NIH/NCBI · Nature Scitable · NIH StatPearls
 
 **한 장 인터랙티브 HTML** (5 섹션, day/dark + 한/영 toggle):
 
-[`chromosome-gene-dna/index.html`](../../../projects/presentation/therapist-2026-05-16/chromosome-gene-dna/index.html)
+[`chromosome-gene-dna/index.html`](../presentation/chromosome-gene-dna/index.html)
 
 본진 파일:
 ```
@@ -79,7 +79,7 @@ C:\NewtonHQ\04_newtonschool\projects\presentation\therapist-2026-05-16\
 
 ## ref
 
-- research 요약: `../../../projects/presentation/therapist-2026-05-16/chromosome-gene-dna/notes.md`
+- research 요약: `../presentation/chromosome-gene-dna/notes.md`
 - 출처 1: https://www.ncbi.nlm.nih.gov/books/NBK26834/ (NIH/NCBI)
 - 출처 2: https://www.nature.com/scitable/topicpage/dna-packaging-nucleosomes-and-chromatin-310/ (Nature Scitable)
 - 출처 3: https://www.ncbi.nlm.nih.gov/books/NBK534207/ (NIH StatPearls)

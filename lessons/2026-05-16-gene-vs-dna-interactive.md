@@ -4,7 +4,7 @@ date: 2026-05-16
 subject: 유전학 / 분자생물학 / 발현
 type: interactive
 author: jarvis (for Kenny)
-ref_html: ../../../projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html
+ref_html: ../presentation/gene-dna-interactive/index.html
 source: WebSearch + Nature 2024 DNA 양자 파동 연구
 ---
 
@@ -19,7 +19,7 @@ source: WebSearch + Nature 2024 DNA 양자 파동 연구
 
 **한 장 인터랙티브 HTML** (5 섹션, 마우스 인터랙션):
 
-[`gene-dna-interactive/index.html`](../../../projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html)
+[`gene-dna-interactive/index.html`](../presentation/gene-dna-interactive/index.html)
 
 본진 파일:
 ```
@@ -65,6 +65,6 @@ C:\NewtonHQ\04_newtonschool\projects\presentation\therapist-2026-05-16\
 
 ## ref
 
-- research 요약: `../../../projects/presentation/therapist-2026-05-16/gene-dna-interactive/notes.md`
-- 발표 본문: `../../../projects/presentation/therapist-2026-05-16/slides.md`
+- research 요약: `../presentation/gene-dna-interactive/notes.md`
+- 발표 본문: `../presentation/slides.md`
 - 자매 lesson: `2026-05-16-each-mind-a-house.md` (뇌 기억 novella)
