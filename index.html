@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<!--
+  STUDENT PORTAL STANDARD (Evelyn-spec adapted)
+  Newton School / Student #0 — Kenny portal v4 (2026-05-16)
+  Student: Kenny Baek
+  Theme: deep indigo (#4f46e5 / #eef2ff / #3730a3) — masculine, academic
+  Pattern: Evelyn Yoo lesson library (masthead + timeline + interactive cards)
+  Features: light/dark toggle, ko/en toggle, search, localStorage
+  v4: hero = 감사의 말씀 / timeline scrollable / About section added
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenny Baek — 학생 0호 · Newton School</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ── */
+  :root {
+    /* brand */
+    --student:      #6366f1;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(99,102,241,0.18);
+    /* surface */
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+    /* type */
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'Cascadia Code', 'Consolas', monospace;
+    /* shape */
+    --radius: 10px;
+    --max-w:  720px;
+  }
+  [data-theme="light"] {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+  body.modal-open { overflow: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.75rem;
+    height: 52px;
+  }
+  .nav-brand {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--student);
+    text-transform: uppercase;
+  }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-actions { display: flex; gap: 0.6rem; align-items: center; }
+  .btn-sm {
+    background: var(--student-soft);
+    border: 1px solid var(--line);
+    color: var(--student);
+    border-radius: 6px;
+    padding: 0.28rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+  /* ── WRAPPER ── */
+  .wrap {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    background: var(--paper);
+    box-shadow: 0 2px 24px rgba(0,0,0,0.18);
+  }
+
+  /* ── MASTHEAD ── */
+  .masthead {
+    text-align: center;
+    padding: 52px 32px 28px;
+    border-bottom: 3px double var(--student);
+    position: relative;
+  }
+  .masthead .school {
+    font-size: 10px;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--student);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 7vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .masthead .subtitle {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .masthead .info {
+    margin-top: 16px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+  }
+  .masthead .info span { margin: 0 8px; }
+  .zero-badge {
+    display: inline-block;
+    background: var(--student-soft);
+    color: var(--student-deep);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+  }
+
+  /* ── HERO PILLS ── */
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+  }
+  .pill {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 0.22rem 0.72rem;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+  }
+  .pill.a { border-color: var(--student); color: var(--student); background: var(--student-soft); }
+
+  /* ── SECTION ── */
+  section.s {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .s-label {
+    font-size: 10px;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--student);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .s-title {
+    font-family: var(--serif);
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    line-height: 1.25;
+  }
+  .s-desc { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.7; }
+
+  /* ── GRATITUDE HERO ── */
+  .gratitude-hero {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--student);
+    border-radius: var(--radius);
+    padding: 2rem 2rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .gratitude-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--student), transparent);
+  }
+  .gratitude-hero .g-label {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--student);
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+  }
+  .gratitude-hero .g-address {
+    font-family: var(--serif);
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+  .gratitude-hero .g-body {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--ink);
+  }
+  .gratitude-hero .g-body p { margin-bottom: 0.75rem; }
+  .gratitude-hero .g-body p:last-child { margin-bottom: 0; }
+  .gratitude-hero .g-body .em-dash { color: var(--student); }
+  .gratitude-hero .g-divider {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 1.25rem 0;
+    width: 60px;
+  }
+  .gratitude-hero .g-bridge {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    line-height: 1.75;
+  }
+
+  /* ── SEARCH ── */
+  .search-bar {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: var(--sans);
+  }
+  .search-bar::placeholder { color: var(--ink-soft); }
+  .search-bar:focus { border-color: var(--student); }
+  .hidden { display: none !important; }
+
+  /* ── TIMELINE (scrollable) ── */
+  .timeline-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 4px;
+    border-radius: 6px;
+  }
+  .timeline-scroll::-webkit-scrollbar { width: 6px; }
+  .timeline-scroll::-webkit-scrollbar-track { background: var(--card-bg); border-radius: 3px; }
+  .timeline-scroll::-webkit-scrollbar-thumb { background: var(--student); border-radius: 3px; }
+  .timeline-scroll::-webkit-scrollbar-thumb:hover { background: var(--student-deep); }
+
+  ul.timeline { list-style: none; padding-left: 18px; border-left: 2px solid var(--student); }
+  ul.timeline li {
+    padding: 10px 0 10px 18px;
+    position: relative;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  ul.timeline li::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    top: 16px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--student);
+  }
+  .tl-date {
+    font-weight: 700;
+    color: var(--student);
+    margin-right: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  /* ── LESSON LINK ── */
+  .lesson-link {
+    font-weight: 500;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.15s;
+    cursor: pointer;
+    flex: 1;
+  }
+  .lesson-link:hover { color: var(--student); border-bottom-color: var(--student); }
+  .type-badge {
+    display: inline-block;
+    margin-left: 7px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    background: var(--student-soft);
+    color: var(--student-deep);
+    border-radius: 3px;
+    padding: 1px 5px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  /* ── INTERACTIVE CARDS (2-col grid — same as Evelyn) ── */
+  .lesson-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  @media (max-width: 560px) { .lesson-cards { grid-template-columns: 1fr; } }
+  .lc {
+    display: block;
+    padding: 16px 18px;
+    background: var(--student-soft);
+    border: 1px solid transparent;
+    border-left: 3px solid var(--student);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.15s;
+    cursor: pointer;
+    position: relative;
+  }
+  .lc:hover {
+    background: var(--paper);
+    border-color: var(--student);
+    box-shadow: 0 4px 16px var(--student-glow);
+    transform: translateY(-2px);
+  }
+  .lc-icon { font-size: 24px; margin-bottom: 6px; line-height: 1; }
+  .lc-title {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--student-deep);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  [data-theme="dark"] .lc-title { color: var(--student); }
+  .lc-desc { font-size: 12px; color: var(--ink-soft); line-height: 1.55; padding-right: 22px; }
+  .lc-arrow {
+    position: absolute;
+    top: 18px;
+    right: 16px;
+    color: var(--student);
+    font-size: 16px;
+    font-weight: 700;
+    transition: transform 0.15s;
+  }
+  .lc:hover .lc-arrow { transform: translateX(3px); }
+
+  /* ── LINEAGE BLOCK ── */
+  .lineage {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.4rem;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    line-height: 2;
+  }
+  .lineage .yr { color: var(--student); font-weight: 600; min-width: 3.5rem; display: inline-block; }
+  .lineage .name { color: var(--ink); }
+  .lineage .now { color: var(--student); font-weight: 700; }
+
+  /* ── DIMENSIONS GRID ── */
+  .dim-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .dim-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .dim-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--student);
+  }
+  .dim-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--student);
+    margin-bottom: 4px;
+  }
+  .dim-desc { font-size: 0.8rem; color: var(--ink-soft); line-height: 1.5; }
+
+  /* ── TEACHER NOTE ── */
+  .teacher-note {
+    background: var(--card-bg);
+    padding: 16px 20px;
+    border-radius: 8px;
+    border-left: 3px solid var(--student);
+    font-style: italic;
+    color: var(--ink);
+    font-size: 0.88rem;
+    line-height: 1.75;
+  }
+  .teacher-note cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-style: normal;
+    font-size: 0.72rem;
+    color: var(--student);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 28px 32px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer .cr { margin-top: 6px; font-style: italic; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,20,0.82);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--paper);
+    border-radius: 12px;
+    width: 92vw;
+    max-width: 1100px;
+    height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    border: 1px solid var(--student);
+  }
+  .modal-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+    background: var(--paper);
+  }
+  .modal-title { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .modal-esc { font-size: 10.5px; color: var(--ink-soft); opacity: 0.55; white-space: nowrap; margin-left: 8px; }
+  .modal-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    padding: 0 6px;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--student); }
+  .modal-maximize {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    padding: 0 6px;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.15s;
+    margin-right: 4px;
+  }
+  .modal-maximize:hover { color: var(--student); }
+  .modal-box.maximized {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    border-radius: 0;
+    border: none;
+  }
+  .modal-iframe { flex: 1; border: none; width: 100%; }
+
+  /* ── BACK TO TOP ── */
+  #btt {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--student);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+    box-shadow: 0 4px 14px var(--student-glow);
+    transition: opacity 0.2s;
+  }
+  #btt.show { display: flex; }
+  #btt:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Newton School <span>/ Student Portal</span></div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="zero-badge" data-ko="학생 0호" data-en="Student #0">학생 0호</div>
+    <div class="school" data-ko="Newton School · 학생 포탈" data-en="Newton School · Student Portal">Newton School · 학생 포탈</div>
+    <h1>Kenny Baek</h1>
+    <div class="subtitle" data-ko="가르치는 걸 가르친다" data-en="Teaching the act of teaching">가르치는 걸 가르친다</div>
+    <div class="info">
+      <span data-ko="2026 봄" data-en="Spring 2026">2026 봄</span>
+      <span>&middot;</span>
+      <span data-ko="Cognitive Architect" data-en="Cognitive Architect">Cognitive Architect</span>
+      <span>&middot;</span>
+      <span data-ko="학문·AI·교육" data-en="Math · AI · Education">학문·AI·교육</span>
+    </div>
+  </header>
+
+  <!-- HERO — 감사의 말씀 -->
+  <section class="s">
+    <div class="s-label" data-ko="감사의 말씀" data-en="A Note of Gratitude">감사의 말씀</div>
+
+    <div class="gratitude-hero">
+      <div class="g-label" data-ko="오늘 · 2026년 5월 16일" data-en="Today · May 16, 2026">오늘 · 2026년 5월 16일</div>
+      <div class="g-address" data-ko="선생님께 —" data-en="To the therapist —">선생님께 —</div>
+      <div class="g-body">
+        <p data-ko="그동안 정말 감사했습니다." data-en="Thank you — for everything.">그동안 정말 감사했습니다.</p>
+        <p data-ko="그동안 소연이가 — 자기 마음을 터놓고 이야기할 수 있었던 유일한 사람이 — 선생님이셨습니다." data-en="She had one person she could truly open her heart to — and that was you.">그동안 소연이가 — 자기 마음을 터놓고 이야기할 수 있었던 유일한 사람이 — 선생님이셨습니다.</p>
+        <p data-ko="아이한테 — 너무나 큰 힘이 되었습니다. 부모로서 — 그 자리를 만들어 주신 것에 — 진심으로 감사드립니다." data-en="That was an immense source of strength for her. As a parent — I am deeply grateful for the space you created.">아이한테 — 너무나 큰 힘이 되었습니다. 부모로서 — 그 자리를 만들어 주신 것에 — 진심으로 감사드립니다.</p>
+      </div>
+      <hr class="g-divider">
+      <div class="g-bridge" data-ko="오늘 이 자리에서 — 제가 요즘 하고 있는 일을 잠깐 나누고 싶었습니다." data-en="Today — I wanted to briefly share what I have been working on lately.">오늘 이 자리에서 — 제가 요즘 하고 있는 일을 잠깐 나누고 싶었습니다.</div>
+    </div>
+  </section>
+
+  <!-- LESSONS — TIMELINE LIST (scrollable) -->
+  <section class="s">
+    <div class="s-label" data-ko="수업 기록" data-en="Lesson Archive">수업 기록</div>
+    <div class="s-title" data-ko="이번 달 — 2026년 5월" data-en="This Month — May 2026">이번 달 — 2026년 5월</div>
+    <input
+      class="search-bar"
+      id="search"
+      type="text"
+      placeholder="제목 검색..."
+      oninput="filterLessons()"
+      data-ko-placeholder="제목 검색..."
+      data-en-placeholder="Search lessons..."
+    />
+    <div class="timeline-scroll">
+      <ul class="timeline" id="lesson-list">
+
+        <li data-filter="기억 memory 마음 house novella ep 뇌">
+          <span class="tl-date">05-16</span>
+          <a class="lesson-link"
+             href="lessons/2026-05-16-each-mind-a-house.md"
+             data-ko="기억이 잠든 밤 — 마음의 집 ep.1"
+             data-en="Night the Memory Sleeps — Each Mind a House ep.1">기억이 잠든 밤 — 마음의 집 ep.1</a>
+          <span class="type-badge">novella</span>
+        </li>
+
+        <li data-filter="gene dna interactive 유전자 발현 파동 간섭">
+          <span class="tl-date">05-16</span>
+          <a class="lesson-link"
+             href="../../projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html"
+             data-ko="Gene vs DNA — 한 장 인터랙티브"
+             data-en="Gene vs DNA — Interactive">Gene vs DNA — 한 장 인터랙티브</a>
+          <span class="type-badge">interactive</span>
+        </li>
+
+        <li data-filter="dimensional ladder 차원 사다리 3d 2d atgc">
+          <span class="tl-date">05-16</span>
+          <a class="lesson-link"
+             href="../../projects/presentation/therapist-2026-05-16/dimensional-ladder/index.html"
+             data-ko="Dimensional Ladder — 차원 사다리"
+             data-en="Dimensional Ladder">Dimensional Ladder — 차원 사다리</a>
+          <span class="type-badge">interactive</span>
+        </li>
+
+        <li data-filter="chromosome gene dna hierarchical zoom 염색체 유전자 karyotype">
+          <span class="tl-date">05-16</span>
+          <a class="lesson-link"
+             href="../../projects/presentation/therapist-2026-05-16/chromosome-gene-dna/index.html"
+             data-ko="Chromosome / Gene / DNA — 계층 확대"
+             data-en="Chromosome / Gene / DNA — Hierarchical Zoom">Chromosome / Gene / DNA — 계층 확대</a>
+          <span class="type-badge">interactive</span>
+        </li>
+
+        <li data-filter="발표 허브 hub presentation 마음 기억 정신과 감사">
+          <span class="tl-date">05-16</span>
+          <a class="lesson-link"
+             href="../../projects/presentation/therapist-2026-05-16/hub/index.html"
+             data-ko="발표 허브 — 마음을 기억하는 방법"
+             data-en="Presentation Hub — How Memory Holds the Mind">발표 허브 — 마음을 기억하는 방법</a>
+          <span class="type-badge">hub</span>
+        </li>
+
+        <li data-filter="뇌 brain mapping 12 행 interactive 해마 시냅스 수면 재응고 감정">
+          <span class="tl-date">05-16</span>
+          <a class="lesson-link"
+             href="../../projects/presentation/therapist-2026-05-16/brain-mapping/index.html"
+             data-ko="뇌 ↔ 시스템 — 12 행 매핑"
+             data-en="Brain ↔ System — 12-Row Mapping">뇌 ↔ 시스템 — 12 행 매핑</a>
+          <span class="type-badge">interactive</span>
+        </li>
+
+      </ul>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE CARDS (2-col grid) -->
+  <section class="s">
+    <div class="s-label" data-ko="직접 탐색" data-en="Play With It">직접 탐색</div>
+    <div class="s-title" data-ko="인터랙티브 — 움직이는 수업" data-en="Interactive — Math in Motion">인터랙티브 — 움직이는 수업</div>
+    <p class="s-desc" data-ko="클릭하고, 드래그하고, 직접 바꿔 보세요. 수식이 아니라 직관이 먼저입니다." data-en="Click, drag, and change. Intuition before formula.">
+      클릭하고, 드래그하고, 직접 바꿔 보세요. 수식이 아니라 직관이 먼저입니다.
+    </p>
+    <div class="lesson-cards">
+
+      <a class="lc"
+         href="../../projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html">
+        <div class="lc-icon">🧬</div>
+        <div class="lc-title" data-ko="Gene vs DNA" data-en="Gene vs DNA">Gene vs DNA</div>
+        <div class="lc-desc" data-ko="유전자 / DNA / 발현 / 파동 간섭 — 5 섹션 마우스 인터랙션" data-en="Gene / DNA / Expression / Wave interference — 5 sections, mouse interactive">유전자 / DNA / 발현 / 파동 간섭 — 5 섹션 마우스 인터랙션</div>
+        <div class="lc-arrow">&rarr;</div>
+      </a>
+
+      <a class="lc"
+         href="../../projects/presentation/therapist-2026-05-16/dimensional-ladder/index.html">
+        <div class="lc-icon">🌊</div>
+        <div class="lc-title" data-ko="Dimensional Ladder" data-en="Dimensional Ladder">Dimensional Ladder</div>
+        <div class="lc-desc" data-ko="3D 연속 → 2D 중첩 → digital → ATGC — Kenny 통찰 cascade" data-en="3D continuum → 2D superposition → digital → ATGC — insight cascade">3D 연속 → 2D 중첩 → digital → ATGC — Kenny 통찰 cascade</div>
+        <div class="lc-arrow">&rarr;</div>
+      </a>
+
+      <a class="lc"
+         href="../../projects/presentation/therapist-2026-05-16/chromosome-gene-dna/index.html">
+        <div class="lc-icon">🔬</div>
+        <div class="lc-title" data-ko="계층 확대" data-en="Hierarchical Zoom">계층 확대</div>
+        <div class="lc-desc" data-ko="세포 → 핵 → 염색체 23 쌍 → DNA → 유전자 — 5 단계 zoom" data-en="Cell → Nucleus → Chromosome 23 pairs → DNA → Gene — 5-level zoom">세포 → 핵 → 염색체 23 쌍 → DNA → 유전자 — 5 단계 zoom</div>
+        <div class="lc-arrow">&rarr;</div>
+      </a>
+
+      <a class="lc"
+         href="../../projects/presentation/therapist-2026-05-16/brain-mapping/index.html">
+        <div class="lc-icon">🧠</div>
+        <div class="lc-title" data-ko="뇌 ↔ 시스템" data-en="Brain ↔ System">뇌 ↔ 시스템</div>
+        <div class="lc-desc" data-ko="뇌 영역 클릭 → 시스템 짝 highlight · 랜덤 spotlight · 12 행 매핑" data-en="Click brain region → system match highlight · random spotlight · 12-row map">뇌 영역 클릭 → 시스템 짝 highlight · 랜덤 spotlight · 12 행 매핑</div>
+        <div class="lc-arrow">&rarr;</div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ABOUT — 옛 hero 정체 (학생 0호) -->
+  <section class="s">
+    <div class="s-label" data-ko="학생 0호 정체" data-en="About Student #0">학생 0호 정체</div>
+    <div class="s-title" data-ko="4 차원 — Kenny 의 좌표" data-en="4 Dimensions — Kenny's Coordinates">4 차원 — Kenny 의 좌표</div>
+    <div class="hero-pills" style="justify-content:flex-start; margin-bottom: 1.25rem;">
+      <span class="pill a" data-ko="수학 · 물리 · 25년" data-en="Math · Physics · 25 yrs">수학 · 물리 · 25년</span>
+      <span class="pill" data-ko="뇌 / 기억 / 마음" data-en="Brain / Memory / Mind">뇌 / 기억 / 마음</span>
+      <span class="pill" data-ko="AI 시스템 설계" data-en="AI System Design">AI 시스템 설계</span>
+      <span class="pill" data-ko="부동산 협상" data-en="Real Estate Negotiation">부동산 협상</span>
+      <span class="pill" data-ko="통계 · 게임 이론" data-en="Stats · Game Theory">통계 · 게임 이론</span>
+    </div>
+    <div class="dim-grid">
+      <div class="dim-card">
+        <div class="dim-label">Cognitive Architect</div>
+        <div class="dim-desc" data-ko="사람의 기억망·사고 구조 설계" data-en="Designing human memory networks & cognitive structures">사람의 기억망·사고 구조 설계</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">AI Agent Designer</div>
+        <div class="dim-desc" data-ko="Claude Code 위 시스템 (NewtonHQ)" data-en="Systems built on Claude Code (NewtonHQ)">Claude Code 위 시스템</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">Educator</div>
+        <div class="dim-desc" data-ko="Newton School · Claude Code Academy" data-en="Newton School · Claude Code Academy">Newton School · Claude Code Academy</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-label">Knowledge Worker</div>
+        <div class="dim-desc" data-ko="PKM · 자기 발견 시스템" data-en="PKM · self-discovery systems">PKM · 자기 발견 시스템</div>
+      </div>
+    </div>
+
+    <!-- Lineage -->
+    <div class="s-label" style="margin-top: 1.5rem;" data-ko="학문 계보" data-en="Academic Lineage">학문 계보</div>
+    <div class="lineage" style="margin-top: 0.5rem;">
+      <div><span class="yr">1960</span> <span class="name">Licklider</span> — "Man-Computer Symbiosis"</div>
+      <div><span class="yr">1960s</span> <span class="name">Engelbart</span> — "Augmenting Human Intellect"</div>
+      <div><span class="yr">1986</span> <span class="name">Minsky</span> — "Society of Mind"</div>
+      <div><span class="yr">2014</span> <span class="name">Tiago Forte</span> — "Building a Second Brain"</div>
+      <div><span class="yr">2023</span> <span class="name">MemGPT &rarr; Letta</span> — UC Berkeley</div>
+      <div><span class="yr">2026</span> <span class="now">Kenny Baek</span> — <span data-ko="open territory" data-en="open territory">open territory</span></div>
+    </div>
+  </section>
+
+  <!-- CLOSING QUOTE -->
+  <section class="s">
+    <div class="s-label" data-ko="오늘의 한 마디" data-en="A Note">오늘의 한 마디</div>
+    <div class="teacher-note">
+      <span data-ko="기억은 박혀 있는 게 아니라, 매 회상마다 다시 박힌다." data-en="Memory is not fixed — it is re-written with every act of remembering.">기억은 박혀 있는 게 아니라, 매 회상마다 다시 박힌다.</span>
+      <cite>— Each Mind a House · ep.1 에서</cite>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div data-ko="Newton School · 학생 포탈 · 2026 봄" data-en="Newton School · Student Portal · Spring 2026">Newton School · 학생 포탈 · 2026 봄</div>
+    <div class="cr" data-ko="Kenny Baek · 학생 0호 — open territory" data-en="Kenny Baek · Student #0 — open territory">Kenny Baek · 학생 0호 — open territory</div>
+  </footer>
+
+</div><!-- /.wrap -->
+
+<!-- BACK TO TOP -->
+<button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+
+<!-- MODAL (for future lesson popups) -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
+        <span class="modal-title" id="modalTitle"></span>
+        <span class="modal-esc">ESC to close</span>
+      </div>
+      <button class="modal-maximize" id="modalMaximize" aria-label="Maximize" title="Maximize / Restore">⛶</button>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="modal-iframe" id="modalIframe" src="about:blank"></iframe>
+  </div>
+</div>
+
+<script>
+  /* ── THEME ── */
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+
+  /* ── LANGUAGE ── */
+  let lang = localStorage.getItem('kenny-lang') || 'ko';
+
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.textContent = el.getAttribute('data-' + lang);
+    });
+    const s = document.getElementById('search');
+    s.placeholder = lang === 'ko'
+      ? s.getAttribute('data-ko-placeholder')
+      : s.getAttribute('data-en-placeholder');
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('kenny-lang', lang);
+    applyLang();
+  }
+
+  // init lang on load (if EN was saved)
+  if (lang === 'en') applyLang();
+
+  /* ── SEARCH ── */
+  function filterLessons() {
+    const q = document.getElementById('search').value.toLowerCase().trim();
+    document.querySelectorAll('#lesson-list li').forEach(li => {
+      if (!q) { li.classList.remove('hidden'); return; }
+      const f = li.getAttribute('data-filter') || '';
+      const ko = li.querySelector('[data-ko]')?.getAttribute('data-ko') || '';
+      const en = li.querySelector('[data-en]')?.getAttribute('data-en') || '';
+      const combined = (f + ' ' + ko + ' ' + en).toLowerCase();
+      li.classList.toggle('hidden', !combined.includes(q));
+    });
+  }
+
+  /* ── BACK TO TOP ── */
+  const btt = document.getElementById('btt');
+  window.addEventListener('scroll', () => {
+    btt.classList.toggle('show', window.scrollY > 300);
+  });
+
+  /* ── MODAL ── */
+  const overlay = document.getElementById('modalOverlay');
+  const iframe  = document.getElementById('modalIframe');
+  const titleEl = document.getElementById('modalTitle');
+
+  function openModal(src, label) {
+    iframe.src = src;
+    titleEl.textContent = label;
+    overlay.classList.add('open');
+    document.body.classList.add('modal-open');
+  }
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.classList.remove('modal-open');
+    iframe.src = 'about:blank';
+    document.querySelector('.modal-box').classList.remove('maximized');
+  }
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  document.getElementById('modalMaximize').addEventListener('click', () => {
+    document.querySelector('.modal-box').classList.toggle('maximized');
+  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>

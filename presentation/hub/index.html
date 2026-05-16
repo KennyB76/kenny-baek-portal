@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark" data-lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>마음을 기억하는 방법 — Kenny Baek · 발표 허브</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg:         #f5f0e8;
+  --surface:    #ebe5d7;
+  --paper:      #faf7f2;
+  --ink:        #2c2118;
+  --ink-2:      #4a3728;
+  --ink-light:  #7a6552;
+  --border:     #d4c5b0;
+  --accent:     #5c4033;
+  --accent-2:   #7b5e4a;
+  --accent-glow:rgba(92,64,51,0.10);
+  --note-bg:    #fff9ee;
+  --note-border:#c9a96e;
+  --radius: 10px;
+  --serif: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+}
+[data-theme="dark"] {
+  --bg:         #0e0b08;
+  --surface:    #161208;
+  --paper:      #1a1510;
+  --ink:        #e8ddd0;
+  --ink-2:      #c4b49e;
+  --ink-light:  #8a7868;
+  --border:     #2e2418;
+  --accent:     #c8a87a;
+  --accent-2:   #a08860;
+  --accent-glow:rgba(200,168,122,0.08);
+  --note-bg:    #1e1810;
+  --note-border:#6e5030;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.88;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ─── CONTROLS ─── */
+.controls {
+  position: fixed;
+  top: 1.1rem; right: 1.2rem;
+  z-index: 200;
+  display: flex;
+  gap: 0.5rem;
+}
+.ctrl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.04em;
+}
+.ctrl-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+
+/* ─── PROGRESS ─── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--accent);
+  z-index: 300;
+  transition: width 0.25s;
+}
+
+/* ─── WRAPPER ─── */
+.wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── SECTION ─── */
+.section {
+  padding: 6rem 0 4rem;
+}
+.section + .section {
+  border-top: 1px solid var(--border);
+}
+
+.sec-tag {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 0.7rem;
+}
+.sec-title {
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.22;
+  margin-bottom: 0.45rem;
+}
+.sec-sub {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
+/* ─── HEADER § I ─── */
+#header {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem;
+}
+.header-inner { max-width: 600px; }
+.header-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 1.2rem;
+}
+.header-title {
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1.18;
+  margin-bottom: 0.6rem;
+}
+.header-sub {
+  font-size: 1rem;
+  color: var(--ink-2);
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+.header-date {
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  letter-spacing: 0.12em;
+}
+.divider {
+  width: 48px;
+  height: 1px;
+  background: var(--border);
+  margin: 2rem auto;
+}
+.scroll-hint {
+  margin-top: 3rem;
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  letter-spacing: 0.14em;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+/* ─── NOTE BOX ─── */
+.note-box {
+  background: var(--note-bg);
+  border-left: 3px solid var(--note-border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.1rem 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.8;
+}
+.note-box cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+  letter-spacing: 0.06em;
+}
+
+/* ─── PROSE ─── */
+.prose {
+  font-size: 1rem;
+  color: var(--ink-2);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.prose p { margin-bottom: 1.4rem; }
+.prose em { color: var(--ink); font-style: italic; }
+
+/* ─── § III INTRO ─── */
+.intro-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.8rem;
+  margin: 2rem 0;
+  font-size: 0.92rem;
+  line-height: 1.9;
+  color: var(--ink-2);
+}
+.intro-block .line { display: block; }
+.intro-block .arrow { color: var(--accent); margin-right: 0.4rem; }
+
+/* ─── § IV GRID ─── */
+.grid-section { }
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.1rem;
+  margin-top: 2.2rem;
+}
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.4rem 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--border);
+  transition: background 0.2s;
+}
+.card:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+  transform: translateY(-2px);
+}
+.card:hover::before { background: var(--accent); }
+
+.card-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.2rem;
+  line-height: 1;
+}
+.card-title-ko {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.card-title-en {
+  font-size: 0.82rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+.card-desc {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  line-height: 1.65;
+  flex: 1;
+}
+.card-open {
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+/* ─── § V CLOSING ─── */
+.closing {
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.closing-line {
+  font-size: 1.1rem;
+  color: var(--ink-2);
+  font-style: italic;
+  line-height: 1.75;
+  margin-bottom: 2.5rem;
+}
+.sig-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.25rem;
+}
+.sig-contact {
+  font-size: 0.78rem;
+  color: var(--ink-light);
+  letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+  <button class="ctrl-btn" id="theme-btn" onclick="toggleTheme()">낮</button>
+</div>
+
+<!-- § I · HEADER -->
+<section id="header">
+  <div class="header-inner">
+    <div class="header-eyebrow">Kenny Baek · 2026-05-16</div>
+    <h1 class="header-title">
+      <span data-ko="마음을 기억하는 방법" data-en="How Memory Holds the Mind">마음을 기억하는 방법</span>
+    </h1>
+    <p class="header-sub" data-ko="뇌의 구조를 — 컴퓨터 위에 옮기는 일" data-en="Mapping the structure of the brain — onto a computer">
+      뇌의 구조를 — 컴퓨터 위에 옮기는 일
+    </p>
+    <div class="divider"></div>
+    <div class="header-date" data-ko="정신과 선생님께 드리는 자료" data-en="A collection for our session together">
+      정신과 선생님께 드리는 자료
+    </div>
+    <div class="scroll-hint" data-ko="↓ 아래로" data-en="↓ scroll">↓ 아래로</div>
+  </div>
+</section>
+
+<!-- § II · 감사의 말씀 -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-tag" data-ko="§ II · 감사의 말씀" data-en="§ II · A Word of Thanks">§ II · 감사의 말씀</div>
+    <h2 class="sec-title" data-ko="선생님께" data-en="To the Doctor">선생님께</h2>
+    <p class="sec-sub" data-ko="그동안 정말 감사했습니다" data-en="Thank you — truly">그동안 정말 감사했습니다</p>
+
+    <div class="prose">
+      <p>
+        <span data-ko="소연이가 — 자기 마음을 터놓고 이야기할 수 있었던 유일한 사람이 선생님이셨습니다." data-en="She had one person she could truly open up to — and that was you.">
+          소연이가 — 자기 마음을 터놓고 이야기할 수 있었던 유일한 사람이 선생님이셨습니다.
+        </span>
+      </p>
+      <p>
+        <span data-ko="아이한테 너무나 큰 힘이 되었습니다. 부모로서 — 그 자리를 만들어 주신 것에 진심으로 감사드립니다." data-en="That space meant everything to her. As a parent, I am deeply grateful you created it.">
+          아이한테 너무나 큰 힘이 되었습니다. 부모로서 — 그 자리를 만들어 주신 것에 진심으로 감사드립니다.
+        </span>
+      </p>
+      <p>
+        <span data-ko="오늘 이 자리에서 — 제가 요즘 하고 있는 일을 잠깐 나누고 싶었습니다. 선생님이 보시는 마음의 결 — 과 제가 만들고 있는 기억의 구조가 — 어쩌면 가까운 자리에 있을 수도 있겠다는 생각이 들어서요." data-en="Today I wanted to share what I have been building — a system that maps memory the way the brain does it. Your work with the mind and mine may be closer than they appear.">
+          오늘 이 자리에서 — 제가 요즘 하고 있는 일을 잠깐 나누고 싶었습니다. 선생님이 보시는 <em>마음의 결</em> — 과 제가 만들고 있는 <em>기억의 구조</em>가 — 어쩌면 가까운 자리에 있을 수도 있겠다는 생각이 들어서요.
+        </span>
+      </p>
+    </div>
+
+    <div class="note-box">
+      <span data-ko="두 자리 중 한 자리만 열려도 — 정말 감사한 일입니다." data-en="If even one door opens from this meeting — that is more than enough.">
+        두 자리 중 한 자리만 열려도 — 정말 감사한 일입니다.
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- § III · 인트로 -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-tag" data-ko="§ III · Kenny 의 학습 인트로" data-en="§ III · How It Started">§ III · Kenny 의 학습 인트로</div>
+    <h2 class="sec-title" data-ko="10개월 전 — YouTube 부터" data-en="10 months ago — starting from YouTube">10개월 전 — YouTube 부터</h2>
+
+    <div class="intro-block">
+      <span class="line">
+        <span class="arrow">›</span>
+        <span data-ko="처음엔 정말 아무것도 몰랐습니다. YouTube 영상 하나 보고, 따라 만들고, 부수고 — 그 반복이었습니다." data-en="I knew nothing at first. Watch a video, build something, break it — repeat.">
+          처음엔 정말 아무것도 몰랐습니다. YouTube 영상 하나 보고, 따라 만들고, 부수고 — 그 반복이었습니다.
+        </span>
+      </span>
+      <span class="line">
+        <span class="arrow">›</span>
+        <span data-ko="몇 달 그러다 보니 — 어렴풋이 원리가 보이기 시작했습니다." data-en="After a few months — the underlying pattern began to surface.">
+          몇 달 그러다 보니 — 어렴풋이 <em>원리</em>가 보이기 시작했습니다.
+        </span>
+      </span>
+      <span class="line">
+        <span class="arrow">›</span>
+        <span data-ko="원리를 알아낸 것 같다는 느낌이 든 게 — 한 2주 정도 됐습니다. 그 후로 계속 — 진화 중입니다." data-en="The feeling that I had finally understood the principle — that was about two weeks ago. Since then, it keeps evolving.">
+          원리를 알아낸 것 같다는 느낌이 든 게 — 한 2주 정도 됐습니다. 그 후로 계속 — <em>진화 중</em>입니다.
+        </span>
+      </span>
+    </div>
+
+    <div class="prose">
+      <p>
+        <span data-ko="저는 25년째 수학과 물리를 가르치고 있습니다. 그런데 요즘은 한 가지에 깊이 빠져 있습니다 — AI 와 함께 사람의 기억 구조를 설계하고 가르치는 일." data-en="I have been teaching math and physics for 25 years. But lately I have been absorbed by one thing — designing memory structures, with AI as a partner.">
+          저는 25년째 수학과 물리를 가르치고 있습니다. 그런데 요즘은 한 가지에 깊이 빠져 있습니다 — <em>AI 와 함께 사람의 기억 구조를 설계하고 가르치는 일.</em>
+        </span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- § IV · 자료 grid -->
+<section class="section">
+  <div class="wrap">
+    <div class="sec-tag" data-ko="§ IV · 오늘 자료" data-en="§ IV · Today's Materials">§ IV · 오늘 자료</div>
+    <h2 class="sec-title" data-ko="6 가지 — 함께 둘러보세요" data-en="6 pieces — take a look">6 가지 — 함께 둘러보세요</h2>
+    <p class="sec-sub" data-ko="각 자료를 클릭하면 새 탭에서 열립니다" data-en="Click any card to open in a new tab">각 자료를 클릭하면 새 탭에서 열립니다</p>
+
+    <div class="card-grid">
+
+      <!-- 1. 발표 본문 -->
+      <a class="card"
+         href="file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/index.html"
+         target="_blank" rel="noopener">
+        <div class="card-icon">📜</div>
+        <div class="card-title-ko" data-ko="발표 본문" data-en="Presentation Paper">발표 본문</div>
+        <div class="card-title-en" data-ko="slides" data-en="slides">slides</div>
+        <div class="card-desc" data-ko="뇌 ↔ 시스템 전체 흐름. 오늘 이야기의 본진." data-en="The full brain ↔ system arc. The heart of today's talk.">
+          뇌 ↔ 시스템 전체 흐름. 오늘 이야기의 본진.
+        </div>
+        <div class="card-open" data-ko="열기 →" data-en="Open →">열기 →</div>
+      </a>
+
+      <!-- 2. 단편 -->
+      <a class="card"
+         href="file:///C:/NewtonHQ/04_newtonschool/students/kenny-baek/lessons/2026-05-16-each-mind-a-house.md"
+         target="_blank" rel="noopener">
+        <div class="card-icon">📚</div>
+        <div class="card-title-ko" data-ko="단편 — 기억이 잠든 밤" data-en="Short Story — Night the Memory Sleeps">단편 — 기억이 잠든 밤</div>
+        <div class="card-title-en" data-ko="Each Mind a House · ep.1" data-en="Each Mind a House · ep.1">Each Mind a House · ep.1</div>
+        <div class="card-desc" data-ko="뇌가 밤마다 기억을 다시 쓰는 이야기. 학문을 이야기로 풀었습니다." data-en="A story about how the brain rewrites memory every night — science told as narrative.">
+          뇌가 밤마다 기억을 다시 쓰는 이야기. 학문을 이야기로 풀었습니다.
+        </div>
+        <div class="card-open" data-ko="열기 →" data-en="Open →">열기 →</div>
+      </a>
+
+      <!-- 3. Gene vs DNA -->
+      <a class="card"
+         href="file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html"
+         target="_blank" rel="noopener">
+        <div class="card-icon">🧬</div>
+        <div class="card-title-ko" data-ko="Gene vs DNA" data-en="Gene vs DNA">Gene vs DNA</div>
+        <div class="card-title-en" data-ko="한 장 인터랙티브" data-en="Interactive">한 장 인터랙티브</div>
+        <div class="card-desc" data-ko="DNA 이중 나선 / 발현 / 부모-자식 / 파동 간섭 — 마우스로 직접 조작." data-en="Double helix / expression / parent-child / wave interference — hands-on interactive.">
+          DNA 이중 나선 / 발현 / 부모-자식 / 파동 간섭 — 마우스로 직접 조작.
+        </div>
+        <div class="card-open" data-ko="열기 →" data-en="Open →">열기 →</div>
+      </a>
+
+      <!-- 4. 차원 사다리 -->
+      <a class="card"
+         href="file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/dimensional-ladder/index.html"
+         target="_blank" rel="noopener">
+        <div class="card-icon">🌊</div>
+        <div class="card-title-ko" data-ko="차원 사다리" data-en="Dimensional Ladder">차원 사다리</div>
+        <div class="card-title-en" data-ko="Dimensional Ladder" data-en="Dimensional Ladder">Dimensional Ladder</div>
+        <div class="card-desc" data-ko="3D 연속 → 2D 중첩 → digital → ATGC → 더 깊은 층. Kenny 핵심 통찰." data-en="3D continuum → 2D superposition → digital → ATGC → deeper. Kenny's core insight.">
+          3D 연속 → 2D 중첩 → digital → ATGC → 더 깊은 층. Kenny 핵심 통찰.
+        </div>
+        <div class="card-open" data-ko="열기 →" data-en="Open →">열기 →</div>
+      </a>
+
+      <!-- 5. Chromosome -->
+      <a class="card"
+         href="file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/chromosome-gene-dna/index.html"
+         target="_blank" rel="noopener">
+        <div class="card-icon">🔬</div>
+        <div class="card-title-ko" data-ko="염색체 / 유전자 / DNA" data-en="Chromosome / Gene / DNA">염색체 / 유전자 / DNA</div>
+        <div class="card-title-en" data-ko="계층 확대" data-en="Hierarchical Zoom">계층 확대</div>
+        <div class="card-desc" data-ko="세포 → 핵 → 염색체 23쌍 → DNA → 유전자 — 5단계 zoom." data-en="Cell → Nucleus → 23 chromosomes → DNA → Gene — 5-level zoom.">
+          세포 → 핵 → 염색체 23쌍 → DNA → 유전자 — 5단계 zoom.
+        </div>
+        <div class="card-open" data-ko="열기 →" data-en="Open →">열기 →</div>
+      </a>
+
+      <!-- 6. Identity -->
+      <a class="card"
+         href="file:///C:/NewtonHQ/04_newtonschool/students/kenny-baek/identity/index.html"
+         target="_blank" rel="noopener">
+        <div class="card-icon">🪞</div>
+        <div class="card-title-ko" data-ko="Kenny 정체" data-en="Kenny — Who I Am">Kenny 정체</div>
+        <div class="card-title-en" data-ko="Identity" data-en="Identity">Identity</div>
+        <div class="card-desc" data-ko="Cognitive Architect · 선생님 · 에이전트 설계자. 25년의 나침반." data-en="Cognitive Architect · Teacher · Agent Designer. The compass of 25 years.">
+          Cognitive Architect · 선생님 · 에이전트 설계자. 25년의 나침반.
+        </div>
+        <div class="card-open" data-ko="열기 →" data-en="Open →">열기 →</div>
+      </a>
+
+    </div>
+
+    <!-- 추가: 뇌 매핑 인터랙티브 -->
+    <div style="margin-top: 2rem; padding: 1.2rem 1.5rem; border: 1px dashed var(--border); border-radius: var(--radius);">
+      <div style="font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-light); margin-bottom:0.5rem;"
+           data-ko="보너스 인터랙티브" data-en="Bonus Interactive">보너스 인터랙티브</div>
+      <a href="file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/brain-mapping/index.html"
+         target="_blank" rel="noopener"
+         style="text-decoration:none; display:flex; align-items:center; gap:0.75rem; color:inherit;">
+        <span style="font-size:1.4rem;">🧠</span>
+        <span>
+          <div style="font-size:0.96rem; font-weight:700;" data-ko="뇌 ↔ 시스템 — 12 행 매핑" data-en="Brain ↔ System — 12-Row Mapping">뇌 ↔ 시스템 — 12 행 매핑</div>
+          <div style="font-size:0.8rem; color:var(--ink-2);"
+               data-ko="뇌 영역 클릭 → 시스템 짝 highlight. 사람 본능 vs Kenny 설계 구분."
+               data-en="Click a brain region → highlights the system match. Human instinct vs Kenny's design.">
+            뇌 영역 클릭 → 시스템 짝 highlight. 사람 본능 vs Kenny 설계 구분.
+          </div>
+        </span>
+        <span style="margin-left:auto; font-size:0.72rem; color:var(--accent); letter-spacing:0.1em;"
+              data-ko="열기 →" data-en="Open →">열기 →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- § V · 마무리 -->
+<section class="section">
+  <div class="closing">
+    <div class="sec-tag" style="text-align:center;" data-ko="§ V · 마무리" data-en="§ V · Closing">§ V · 마무리</div>
+    <div class="divider"></div>
+    <p class="closing-line">
+      <span data-ko="두 자리 중 한 자리만 열려도 — 정말 감사한 일입니다." data-en="If even one door opens from this meeting — that is more than enough.">
+        두 자리 중 한 자리만 열려도 — 정말 감사한 일입니다.
+      </span>
+    </p>
+    <div class="sig-name">Kenny Baek</div>
+    <div class="sig-contact">kenny@newtonschool.net</div>
+    <div class="sig-contact" style="margin-top:0.2rem;"
+         data-ko="Newton School · Bergen County, NJ" data-en="Newton School · Bergen County, NJ">
+      Newton School · Bergen County, NJ
+    </div>
+  </div>
+</section>
+
+<script>
+/* ─── THEME ─── */
+(function() {
+  const saved = localStorage.getItem('hub-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '낮' : '밤';
+})();
+
+function toggleTheme() {
+  const el = document.documentElement;
+  const isDark = el.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  el.setAttribute('data-theme', next);
+  localStorage.setItem('hub-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '낮' : '밤';
+}
+
+/* ─── LANG ─── */
+let _lang = localStorage.getItem('hub-lang') || 'ko';
+(function() {
+  if (_lang !== 'ko') applyLang('en');
+})();
+
+function toggleLang() {
+  _lang = _lang === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('hub-lang', _lang);
+  applyLang(_lang);
+  document.getElementById('lang-btn').textContent = _lang === 'ko' ? 'EN' : 'KO';
+}
+function applyLang(l) {
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + l) || el.textContent;
+  });
+}
+
+/* ─── PROGRESS ─── */
+window.addEventListener('scroll', () => {
+  const p = document.getElementById('progress');
+  const h = document.documentElement;
+  const pct = (h.scrollTop || document.body.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  p.style.width = Math.min(pct, 100) + '%';
+});
+</script>
+
+</body>
+</html>

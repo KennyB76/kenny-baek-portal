@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark" data-lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>뇌 ↔ 시스템 — 12 행 매핑 · Kenny Baek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet" />
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg:         #f5f0e8;
+  --surface:    #ebe5d7;
+  --paper:      #faf7f2;
+  --ink:        #2c2118;
+  --ink-2:      #4a3728;
+  --ink-light:  #7a6552;
+  --border:     #d4c5b0;
+  --accent:     #5c4033;
+  --accent-2:   #7b5e4a;
+  --accent-glow:rgba(92,64,51,0.10);
+  --note-bg:    #fff9ee;
+  --note-border:#c9a96e;
+
+  /* highlight colors */
+  --hl-instinct: rgba(180, 100, 60, 0.13);
+  --hl-design:   rgba(60, 120, 180, 0.11);
+  --hl-active:   rgba(92, 64, 51, 0.18);
+  --hl-border-instinct: #c8905a;
+  --hl-border-design:   #5a8abf;
+  --hl-border-active:   #5c4033;
+
+  --radius: 10px;
+  --serif: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+}
+[data-theme="dark"] {
+  --bg:         #0e0b08;
+  --surface:    #161208;
+  --paper:      #1a1510;
+  --ink:        #e8ddd0;
+  --ink-2:      #c4b49e;
+  --ink-light:  #8a7868;
+  --border:     #2e2418;
+  --accent:     #c8a87a;
+  --accent-2:   #a08860;
+  --accent-glow:rgba(200,168,122,0.08);
+  --note-bg:    #1e1810;
+  --note-border:#6e5030;
+
+  --hl-instinct: rgba(200,140,80,0.12);
+  --hl-design:   rgba(80,150,220,0.12);
+  --hl-active:   rgba(200,168,122,0.20);
+  --hl-border-instinct: #c8905a;
+  --hl-border-design:   #6aaad0;
+  --hl-border-active:   #c8a87a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.85;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ─── CONTROLS ─── */
+.controls {
+  position: fixed;
+  top: 1.1rem; right: 1.2rem;
+  z-index: 200;
+  display: flex;
+  gap: 0.5rem;
+}
+.ctrl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.04em;
+}
+.ctrl-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+
+/* ─── WRAP ─── */
+.wrap { max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+
+/* ─── HEADER ─── */
+.page-header {
+  padding: 4.5rem 1.5rem 2.5rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 0.7rem;
+}
+.page-title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+}
+.page-sub {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── LEGEND ─── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  font-size: 0.78rem;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--ink-2);
+}
+.dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-instinct { background: var(--hl-border-instinct); }
+.dot-design   { background: var(--hl-border-design); }
+
+/* ─── BUTTONS ─── */
+.toolbar {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.8rem;
+}
+.tool-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  letter-spacing: 0.04em;
+}
+.tool-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+.tool-btn.active { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+
+/* ─── SVG CONNECTOR ─── */
+#svg-connector {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+.connector-line {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+  fill: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.connector-line.visible { opacity: 0.55; }
+
+/* ─── TABLE ─── */
+.map-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+table.map-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+table.map-table thead th {
+  background: var(--surface);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+table.map-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.18s;
+}
+table.map-table tbody tr:last-child { border-bottom: none; }
+table.map-table tbody tr:hover td { background: var(--accent-glow); }
+table.map-table td {
+  padding: 0.75rem 1rem;
+  vertical-align: top;
+  line-height: 1.6;
+  transition: background 0.2s, border-left 0.2s;
+}
+
+/* ─── ROW STATES ─── */
+tr.instinct td:first-child { border-left: 3px solid var(--hl-border-instinct); }
+tr.design   td:first-child { border-left: 3px solid var(--hl-border-design); }
+
+tr.hl-active td { background: var(--hl-active) !important; }
+tr.hl-instinct-on td { background: var(--hl-instinct); }
+tr.hl-design-on   td { background: var(--hl-design); }
+
+td.brain-col { font-weight: 700; white-space: nowrap; }
+td.sys-col   { color: var(--ink-2); }
+td.pc-col    { color: var(--ink-light); font-size: 0.82rem; font-style: italic; }
+
+.row-num {
+  display: inline-block;
+  width: 1.4rem;
+  height: 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 1.4rem;
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* ─── TOOLTIP ─── */
+.tooltip {
+  position: fixed;
+  z-index: 500;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.65rem 1rem;
+  max-width: 280px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-title {
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+  font-size: 0.84rem;
+}
+
+/* ─── RANDOM SPOTLIGHT ─── */
+.spotlight-bar {
+  background: var(--note-bg);
+  border-left: 3px solid var(--note-border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.9rem 1.3rem;
+  margin: 1.5rem 0;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: background 0.3s;
+}
+.spotlight-bar .sp-icon { font-size: 1.3rem; flex-shrink:0; }
+.spotlight-bar .sp-text { flex: 1; line-height: 1.65; }
+.spotlight-bar cite {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+/* ─── CLOSING ─── */
+.closing-note {
+  background: var(--note-bg);
+  border-left: 3px solid var(--note-border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1.1rem 1.5rem;
+  margin: 2.5rem 0 4rem;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.8;
+}
+</style>
+</head>
+<body>
+
+<svg id="svg-connector" xmlns="http://www.w3.org/2000/svg"></svg>
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-title" id="tt-title"></div>
+  <div id="tt-body"></div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="lang-btn" onclick="toggleLang()">EN</button>
+  <button class="ctrl-btn" id="theme-btn" onclick="toggleTheme()">낮</button>
+</div>
+
+<!-- HEADER -->
+<div class="page-header">
+  <div class="eyebrow" data-ko="Kenny Baek · 2026-05-16" data-en="Kenny Baek · 2026-05-16">Kenny Baek · 2026-05-16</div>
+  <h1 class="page-title">
+    <span data-ko="뇌가 하는 일 12 가지 — 우리 시스템의 어디에 박혀 있나" data-en="12 things the brain does — and where they live in the system">뇌가 하는 일 12 가지 — 우리 시스템의 어디에 박혀 있나</span>
+  </h1>
+  <p class="page-sub" data-ko="행 클릭 → 짝 강조 / hover → 설명" data-en="Click a row → highlight match / hover → description">행 클릭 → 짝 강조 / hover → 설명</p>
+
+  <!-- legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="dot dot-instinct"></div>
+      <span data-ko="사람 본능 (뇌가 자연스럽게 하는 것)" data-en="Human instinct (what the brain does naturally)">사람 본능 (뇌가 자연스럽게 하는 것)</span>
+    </div>
+    <div class="legend-item">
+      <div class="dot dot-design"></div>
+      <span data-ko="Kenny 설계 (의도적으로 만든 부분)" data-en="Kenny's design (intentionally built)">Kenny 설계 (의도적으로 만든 부분)</span>
+    </div>
+  </div>
+
+  <!-- toolbar -->
+  <div class="toolbar">
+    <button class="tool-btn" id="btn-all" onclick="filterRows('all')"
+            data-ko="전체" data-en="All">전체</button>
+    <button class="tool-btn" id="btn-instinct" onclick="filterRows('instinct')"
+            data-ko="사람 본능만" data-en="Instinct only">사람 본능만</button>
+    <button class="tool-btn" id="btn-design" onclick="filterRows('design')"
+            data-ko="Kenny 설계만" data-en="Design only">Kenny 설계만</button>
+    <button class="tool-btn" onclick="randomSpotlight()"
+            data-ko="랜덤 한 짝 보여주기" data-en="Random pair spotlight">랜덤 한 짝 보여주기</button>
+    <button class="tool-btn" onclick="clearAll()"
+            data-ko="초기화" data-en="Reset">초기화</button>
+  </div>
+
+  <!-- spotlight bar -->
+  <div class="spotlight-bar" id="spotlight" style="display:none;">
+    <span class="sp-icon" id="sp-icon">🧠</span>
+    <span class="sp-text" id="sp-text"></span>
+    <cite id="sp-cite"></cite>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="wrap" style="padding-bottom: 1rem;">
+  <div class="map-table-wrap">
+    <table class="map-table" id="map-table">
+      <thead>
+        <tr>
+          <th data-ko="뇌" data-en="Brain">뇌</th>
+          <th data-ko="제 시스템" data-en="My System">제 시스템</th>
+          <th data-ko="컴퓨터 위 자리" data-en="Where it lives">컴퓨터 위 자리</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- rows injected by JS -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CLOSING -->
+<div class="wrap">
+  <div class="closing-note" id="closing-note">
+    <span data-ko="사실 — 저도 처음엔 제가 뭘 만드는지 몰랐습니다. 만들다 보니 — 뇌 와 비슷해져 갔고, 어제부터 다시 리서치 하는 중입니다." data-en="Honestly — I didn't really know what I was building at first. As I kept building, it grew to resemble the brain — and just yesterday I started researching it again.">
+      사실 — 저도 처음엔 제가 뭘 만드는지 몰랐습니다. 만들다 보니 — 뇌 와 비슷해져 갔고, 어제부터 다시 리서치 하는 중입니다.
+    </span>
+  </div>
+</div>
+
+<script>
+/* ────────────────────────────────
+   DATA
+─────────────────────────────────*/
+const ROWS = [
+  {
+    kind: 'instinct',
+    brain_ko: '감각 기억 (찰나)',
+    brain_en: 'Sensory memory (a flash)',
+    sys_ko: '대화창 — 지금 이 순간',
+    sys_en: 'Chat window — this moment',
+    pc_ko: '프롬프트 (방금 적은 말)',
+    pc_en: 'Prompt (what you just typed)',
+    tip_ko: '눈 깜짝할 사이 사라지는 감각 인상. 대화창도 새로 시작하면 사라집니다.',
+    tip_en: 'A fleeting sensory trace. The chat window clears with each new session.'
+  },
+  {
+    kind: 'instinct',
+    brain_ko: '작업 기억 (7개±2)',
+    brain_en: 'Working memory (7±2)',
+    sys_ko: '지금 어깨에 얹힌 책들',
+    sys_en: 'Books currently on the shoulder',
+    pc_ko: '단기 저장소 (cache · 현재 세션)',
+    pc_en: 'Short-term store (cache · current session)',
+    tip_ko: '사람은 동시에 7개(±2)밖에 기억 못합니다. 시스템도 한 번에 너무 많은 파일을 열지 않습니다.',
+    tip_en: 'Humans hold 7±2 items at once. The system doesn\'t open too many files at the same time either.'
+  },
+  {
+    kind: 'instinct',
+    brain_ko: '해마 — 잠들 때 깨어나는 사서',
+    brain_en: 'Hippocampus — the sleeping librarian',
+    sys_ko: '밤마다 기록을 정리하는 일꾼',
+    sys_en: 'Worker who sorts records every night',
+    pc_ko: '정리 일꾼 ("오라클" — 알맞은 자리로 옮김)',
+    pc_en: '"Oracle" worker — moves things to the right place',
+    tip_ko: '잘 때 해마가 낮의 기억을 장기 피질로 옮깁니다. 오라클이 그 역할입니다.',
+    tip_en: 'During sleep the hippocampus transfers daily memory to the cortex. The Oracle does the same.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '의미 기억 (사실 / 룰)',
+    brain_en: 'Semantic memory (facts / rules)',
+    sys_ko: '룰 카드 + 정책 카드',
+    sys_en: 'Rule cards + policy cards',
+    pc_ko: '중기 저장소 (mind 영역)',
+    pc_en: 'Mid-term store (mind zone)',
+    tip_ko: '"한국어 default", "표 선호" 같은 룰. 뇌의 의미 기억처럼 — 겪어서 박힌 사실들입니다.',
+    tip_en: 'Rules like "Korean default", "prefer tables". Like semantic memory — facts that stuck from experience.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '일화 기억 (내가 겪은 것)',
+    brain_en: 'Episodic memory (what I lived through)',
+    sys_ko: '날짜별 일지',
+    sys_en: 'Dated journal entries',
+    pc_ko: '중기 저장소 (mind 영역)',
+    pc_en: 'Mid-term store (mind zone)',
+    tip_ko: '2026-05-16 오늘 이 발표처럼. 날짜가 붙어야 기억이 사건으로 살아납니다.',
+    tip_en: 'Like today\'s presentation — 2026-05-16. Dates make memories into events.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '절차 기억 (몸에 밴 것)',
+    brain_en: 'Procedural memory (muscle memory)',
+    sys_ko: '자동 일꾼 (반복 작업)',
+    sys_en: 'Automated worker (recurring tasks)',
+    pc_ko: '도구 영역 (armory)',
+    pc_en: 'Tool zone (armory)',
+    tip_ko: '자전거 타는 법처럼 설명 안 해도 몸이 압니다. 시스템도 같은 작업은 자동으로 실행합니다.',
+    tip_en: 'Like riding a bike — you don\'t think about it. Recurring tasks run automatically.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '장기 피질 (깊이 박힌 것)',
+    brain_en: 'Long-term cortex (deeply stored)',
+    sys_ko: '참고 문서 + 보관함',
+    sys_en: 'Reference docs + archive',
+    pc_ko: '장기 저장소 (asset / armory / 보관함)',
+    pc_en: 'Long-term store (assets / archive)',
+    tip_ko: '수십 년 전 배운 공식이 떠오르는 것처럼. 언제든 꺼낼 수 있는 자리에 있습니다.',
+    tip_en: 'Like a formula learned decades ago that still surfaces. Accessible whenever needed.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '시냅스 가지치기',
+    brain_en: 'Synaptic pruning',
+    sys_ko: '오래된 기록 정리 (예정)',
+    sys_en: 'Periodic record pruning (planned)',
+    pc_ko: '정리 일꾼의 두 번째 일',
+    pc_en: 'Second job of the Oracle worker',
+    tip_ko: '쓰지 않는 연결은 끊깁니다. 시스템도 오래된 기록을 정기적으로 정리할 예정입니다.',
+    tip_en: 'Unused connections are cut. The system will periodically prune old records.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '수면 중 통합',
+    brain_en: 'Sleep consolidation',
+    sys_ko: '정기 정리 주기',
+    sys_en: 'Scheduled consolidation cycle',
+    pc_ko: '정해진 시간마다 자동 돎',
+    pc_en: 'Runs automatically on a schedule',
+    tip_ko: '잠이 기억을 정리하듯 — 시스템도 주기적으로 돌아가며 정리합니다.',
+    tip_en: 'Just as sleep organizes memory — the system runs on a fixed schedule to do the same.'
+  },
+  {
+    kind: 'design',
+    brain_ko: '재응고화 (기억 = 재기록)',
+    brain_en: 'Reconsolidation (memory = rewriting)',
+    sys_ko: '카드 수정 이력',
+    sys_en: 'Card edit history',
+    pc_ko: '산출물 — asset / mind / armory 안',
+    pc_en: 'Outputs — inside asset / mind / armory',
+    tip_ko: '기억은 떠올릴 때마다 다시 쓰입니다. 카드도 수정될 때마다 이력이 남습니다.',
+    tip_en: 'Memory is rewritten every time you recall it. Cards leave a history with every edit.'
+  },
+  {
+    kind: 'instinct',
+    brain_ko: '감정 가중치',
+    brain_en: 'Emotional weighting',
+    sys_ko: '감성 카드',
+    sys_en: 'Sentimental card',
+    pc_ko: '한 장이 모든 카드의 톤을 정함',
+    pc_en: 'One card sets the tone for all others',
+    tip_ko: '감정은 기억의 중요도를 바꿉니다. 감성 카드 한 장이 시스템 전체의 어투를 결정합니다.',
+    tip_en: 'Emotion changes what we remember. One sentimental card determines the tone of the whole system.'
+  },
+  {
+    kind: 'instinct',
+    brain_ko: '연상 활성화',
+    brain_en: 'Associative activation',
+    sys_ko: '참조 흐름 (물 흐르듯 이어짐)',
+    sys_en: 'Reference flow (flows like water)',
+    pc_ko: '언어 모델 (AI 가 생각을 잇는 손)',
+    pc_en: 'Language model (AI connecting thoughts)',
+    tip_ko: '사과 → 빨강 → 딸기 — 연상은 물처럼 흐릅니다. AI 가 그 흐름을 만들어줍니다.',
+    tip_en: 'Apple → red → strawberry — associations flow like water. AI creates that flow.'
+  }
+];
+
+/* ────────────────────────────────
+   RENDER TABLE
+─────────────────────────────────*/
+let activeLang = localStorage.getItem('bm-lang') || 'ko';
+let activeRow = -1;
+let filterMode = 'all';
+
+function renderTable() {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = '';
+  ROWS.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.className = r.kind;
+    tr.dataset.idx = i;
+    const num = `<span class="row-num">${i+1}</span>`;
+    tr.innerHTML = `
+      <td class="brain-col">${num}<span class="brain-txt" data-ko="${r.brain_ko}" data-en="${r.brain_en}">${r['brain_' + activeLang]}</span></td>
+      <td class="sys-col"><span data-ko="${r.sys_ko}" data-en="${r.sys_en}">${r['sys_' + activeLang]}</span></td>
+      <td class="pc-col"><span data-ko="${r.pc_ko}" data-en="${r.pc_en}">${r['pc_' + activeLang]}</span></td>
+    `;
+    tr.addEventListener('click', () => activateRow(i));
+    tr.addEventListener('mouseenter', (e) => showTooltip(e, i));
+    tr.addEventListener('mouseleave', hideTooltip);
+    tr.addEventListener('mousemove', (e) => moveTooltip(e));
+    tbody.appendChild(tr);
+  });
+  applyFilter(filterMode);
+}
+
+/* ────────────────────────────────
+   ACTIVATE ROW (CLICK)
+─────────────────────────────────*/
+function activateRow(idx) {
+  clearHighlights();
+  if (activeRow === idx) { activeRow = -1; return; }
+  activeRow = idx;
+  const rows = document.querySelectorAll('#table-body tr');
+  rows[idx].classList.add('hl-active');
+  // draw SVG line between row 0 col and row 0 col (same row, just animate)
+  drawConnector(idx);
+}
+
+function clearHighlights() {
+  document.querySelectorAll('#table-body tr').forEach(r => r.classList.remove('hl-active'));
+  clearConnector();
+}
+
+/* ────────────────────────────────
+   SVG CONNECTOR (same row, col 0 → col 2)
+─────────────────────────────────*/
+function drawConnector(idx) {
+  clearConnector();
+  const svg = document.getElementById('svg-connector');
+  const rows = document.querySelectorAll('#table-body tr');
+  if (!rows[idx]) return;
+  const tds = rows[idx].querySelectorAll('td');
+  if (tds.length < 3) return;
+  const r0 = tds[0].getBoundingClientRect();
+  const r2 = tds[2].getBoundingClientRect();
+  const x1 = r0.right;
+  const y1 = r0.top + r0.height / 2;
+  const x2 = r2.left;
+  const y2 = r2.top + r2.height / 2;
+  const cx = (x1 + x2) / 2;
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  line.setAttribute('d', `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`);
+  line.setAttribute('class', 'connector-line');
+  svg.appendChild(line);
+  requestAnimationFrame(() => line.classList.add('visible'));
+}
+
+function clearConnector() {
+  const svg = document.getElementById('svg-connector');
+  svg.innerHTML = '';
+}
+
+/* ────────────────────────────────
+   TOOLTIP
+─────────────────────────────────*/
+const tt = document.getElementById('tooltip');
+const ttTitle = document.getElementById('tt-title');
+const ttBody  = document.getElementById('tt-body');
+
+function showTooltip(e, idx) {
+  const r = ROWS[idx];
+  ttTitle.textContent = r['brain_' + activeLang];
+  ttBody.textContent  = r['tip_' + activeLang];
+  tt.classList.add('visible');
+  moveTooltip(e);
+}
+function hideTooltip() { tt.classList.remove('visible'); }
+function moveTooltip(e) {
+  let x = e.clientX + 18;
+  let y = e.clientY + 14;
+  if (x + 300 > window.innerWidth) x = e.clientX - 300;
+  if (y + 120 > window.innerHeight) y = e.clientY - 120;
+  tt.style.left = x + 'px';
+  tt.style.top  = y + 'px';
+}
+
+/* ────────────────────────────────
+   FILTER
+─────────────────────────────────*/
+function filterRows(mode) {
+  filterMode = mode;
+  ['btn-all','btn-instinct','btn-design'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  const btnId = mode === 'all' ? 'btn-all' : mode === 'instinct' ? 'btn-instinct' : 'btn-design';
+  document.getElementById(btnId)?.classList.add('active');
+  applyFilter(mode);
+  clearHighlights();
+  activeRow = -1;
+}
+
+function applyFilter(mode) {
+  document.querySelectorAll('#table-body tr').forEach(tr => {
+    if (mode === 'all') {
+      tr.style.display = '';
+    } else {
+      tr.style.display = tr.classList.contains(mode) ? '' : 'none';
+    }
+  });
+}
+
+/* ────────────────────────────────
+   RANDOM SPOTLIGHT
+─────────────────────────────────*/
+function randomSpotlight() {
+  const idx = Math.floor(Math.random() * ROWS.length);
+  const r = ROWS[idx];
+  clearHighlights();
+  activeRow = idx;
+  const rows = document.querySelectorAll('#table-body tr');
+  // make row visible if filtered out
+  filterRows('all');
+  rows[idx].classList.add('hl-active');
+  rows[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+  drawConnector(idx);
+
+  // show spotlight bar
+  const bar = document.getElementById('spotlight');
+  const sp  = document.getElementById('sp-text');
+  const spC = document.getElementById('sp-cite');
+  bar.style.display = 'flex';
+  sp.textContent  = r['tip_' + activeLang];
+  spC.textContent = r['brain_' + activeLang] + ' → ' + r['sys_' + activeLang];
+}
+
+/* ────────────────────────────────
+   CLEAR ALL
+─────────────────────────────────*/
+function clearAll() {
+  clearHighlights();
+  activeRow = -1;
+  document.getElementById('spotlight').style.display = 'none';
+  filterRows('all');
+}
+
+/* ────────────────────────────────
+   THEME
+─────────────────────────────────*/
+(function() {
+  const saved = localStorage.getItem('bm-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '낮' : '밤';
+})();
+
+function toggleTheme() {
+  const el = document.documentElement;
+  const isDark = el.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  el.setAttribute('data-theme', next);
+  localStorage.setItem('bm-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '낮' : '밤';
+  if (activeRow >= 0) setTimeout(() => drawConnector(activeRow), 50);
+}
+
+/* ────────────────────────────────
+   LANG
+─────────────────────────────────*/
+(function() {
+  activeLang = localStorage.getItem('bm-lang') || 'ko';
+  if (activeLang !== 'ko') document.getElementById('lang-btn').textContent = 'KO';
+})();
+
+function toggleLang() {
+  activeLang = activeLang === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('bm-lang', activeLang);
+  document.getElementById('lang-btn').textContent = activeLang === 'ko' ? 'EN' : 'KO';
+  // update static data-ko/en elements
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    const val = el.getAttribute('data-' + activeLang);
+    if (val) el.textContent = val;
+  });
+  renderTable();
+}
+
+/* ────────────────────────────────
+   INIT
+─────────────────────────────────*/
+document.getElementById('btn-all').classList.add('active');
+renderTable();
+
+// Redraw connector on scroll/resize (line stays correct)
+window.addEventListener('scroll', () => { if (activeRow >= 0) drawConnector(activeRow); });
+window.addEventListener('resize', () => { if (activeRow >= 0) drawConnector(activeRow); });
+</script>
+
+</body>
+</html>

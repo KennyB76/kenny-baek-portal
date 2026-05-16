@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마음을 기억하는 방법 — Kenny 의 시스템 소개</title>
+<style>
+  /* ── Variables ── */
+  :root {
+    --bg:        #faf8f4;
+    --bg-card:   #f4f1eb;
+    --bg-box:    #edeae2;
+    --text:      #2c2c2c;
+    --text-dim:  #6b5d4f;
+    --accent:    #5a4a3a;
+    --accent2:   #8a6a50;
+    --rule:      #d6cfc4;
+    --shadow:    0 2px 12px rgba(90,74,58,.10);
+    --shadow-hover: 0 4px 20px rgba(90,74,58,.18);
+    --comment-bg: #f0ebe0;
+    --comment-border: #c9b99a;
+    --comment-text: #5a4a3a;
+    --link: #7a5c3a;
+    --font-serif: 'Georgia', 'Nanum Myeongjo', 'Malgun Gothic', serif;
+    --font-mono:  'Courier New', 'Consolas', monospace;
+    --radius: 6px;
+    --max-w: 820px;
+  }
+  [data-theme="dark"] {
+    --bg:        #1a1714;
+    --bg-card:   #211e1a;
+    --bg-box:    #2a2520;
+    --text:      #e8e0d4;
+    --text-dim:  #a89880;
+    --accent:    #c4a882;
+    --accent2:   #a8895f;
+    --rule:      #3d3530;
+    --shadow:    0 2px 12px rgba(0,0,0,.40);
+    --shadow-hover: 0 4px 20px rgba(0,0,0,.55);
+    --comment-bg: #2e2820;
+    --comment-border: #5a4a3a;
+    --comment-text: #c4a882;
+    --link: #c4a882;
+  }
+
+  /* ── Reset / Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-serif);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.85;
+    transition: background .35s, color .35s;
+    padding: 0 1rem 6rem;
+  }
+
+  /* ── Layout ── */
+  .page-wrapper {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 5rem 2rem 4rem;
+  }
+
+  /* ── Title Block ── */
+  .title-block {
+    text-align: center;
+    padding: 3rem 2rem 2.5rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 3rem;
+  }
+  .title-block h1 {
+    font-size: 2rem;
+    letter-spacing: .02em;
+    color: var(--accent);
+    margin-bottom: .8rem;
+  }
+  .title-block .subtitle {
+    font-size: .95rem;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ── Sections ── */
+  .section {
+    margin-bottom: 3.5rem;
+  }
+
+  /* ── Headings ── */
+  h2 {
+    font-size: 1.35rem;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: .45rem;
+    margin-bottom: 1.4rem;
+    letter-spacing: .01em;
+  }
+  h3 {
+    font-size: 1.1rem;
+    color: var(--accent2);
+    margin: 1.6rem 0 .9rem;
+  }
+
+  /* ── HR ── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 2.2rem 0;
+  }
+
+  /* ── Paragraph ── */
+  p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+  }
+  em  { font-style: italic; color: var(--accent2); }
+  strong { font-weight: 700; }
+
+  /* ── Blockquote / Note-box ── */
+  .note-box {
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 1rem 1.4rem;
+    margin: 1.2rem 0;
+    color: var(--text-dim);
+    font-style: italic;
+    box-shadow: var(--shadow);
+  }
+
+  /* ── Pre / Code Box ── */
+  .code-box {
+    background: var(--bg-box);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.6rem;
+    margin: 1.2rem 0;
+    font-family: var(--font-mono);
+    font-size: .875rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    line-height: 1.65;
+  }
+
+  /* ── Table ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1.4rem 0;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .93rem;
+    background: var(--bg-card);
+  }
+  th {
+    background: var(--bg-box);
+    color: var(--accent);
+    font-weight: 700;
+    padding: .65rem 1rem;
+    border-bottom: 2px solid var(--rule);
+    text-align: left;
+    letter-spacing: .01em;
+  }
+  td {
+    padding: .6rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: rgba(90,74,58,.04); }
+
+  /* ── Links ── */
+  a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+  a:hover { opacity: .75; }
+
+  /* ── Commentable region ── */
+  .commentable {
+    position: relative;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: background .18s;
+  }
+  .commentable:hover {
+    background: rgba(90,74,58,.05);
+  }
+  .commentable.has-comment {
+    border-left: 2px solid var(--comment-border);
+    padding-left: .6rem;
+  }
+  .comment-hint {
+    display: none;
+    position: absolute;
+    top: .4rem;
+    right: .5rem;
+    font-size: .65rem;
+    color: var(--text-dim);
+    opacity: .55;
+    pointer-events: none;
+    font-family: var(--font-mono);
+    font-style: normal;
+  }
+  .commentable:hover .comment-hint { display: block; }
+
+  /* ── Comment bubble ── */
+  .comment-bubble {
+    background: var(--comment-bg);
+    border: 1px solid var(--comment-border);
+    border-radius: var(--radius);
+    padding: .55rem .85rem .55rem 1rem;
+    margin: .4rem 0 .6rem;
+    font-size: .83rem;
+    color: var(--comment-text);
+    font-family: var(--font-serif);
+    font-style: italic;
+    position: relative;
+    animation: fadeInComment .2s ease;
+    white-space: pre-wrap;
+  }
+  .comment-bubble::before {
+    content: '✎ ';
+    font-style: normal;
+  }
+  .comment-meta {
+    font-size: .7rem;
+    color: var(--text-dim);
+    font-style: normal;
+    margin-top: .25rem;
+  }
+  .comment-delete-btn {
+    position: absolute;
+    top: .35rem;
+    right: .55rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: .78rem;
+    color: var(--text-dim);
+    opacity: .5;
+    transition: opacity .15s;
+    font-family: var(--font-mono);
+    line-height: 1;
+  }
+  .comment-delete-btn:hover { opacity: 1; color: #c05050; }
+
+  /* ── Comment Input ── */
+  .comment-input-wrap {
+    background: var(--comment-bg);
+    border: 1px dashed var(--comment-border);
+    border-radius: var(--radius);
+    padding: .5rem .75rem;
+    margin: .35rem 0;
+    display: flex;
+    gap: .5rem;
+    align-items: flex-start;
+    animation: fadeInComment .15s ease;
+  }
+  .comment-input-wrap textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--font-serif);
+    font-size: .875rem;
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 2.5rem;
+  }
+  .comment-input-wrap textarea::placeholder { color: var(--text-dim); font-style: italic; }
+  .comment-input-btns {
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+  }
+  .comment-input-btns button {
+    background: var(--accent);
+    color: #faf8f4;
+    border: none;
+    border-radius: 4px;
+    padding: .25rem .7rem;
+    font-size: .78rem;
+    cursor: pointer;
+    font-family: var(--font-serif);
+    white-space: nowrap;
+    transition: opacity .15s;
+  }
+  .comment-input-btns button:hover { opacity: .8; }
+  .comment-input-btns .cancel-btn {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--rule);
+  }
+
+  @keyframes fadeInComment {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FAB cluster ── */
+  #fab-cluster {
+    position: fixed;
+    bottom: 2rem;
+    right: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: .55rem;
+    z-index: 1000;
+  }
+  .fab-btn {
+    width: 2.7rem;
+    height: 2.7rem;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    box-shadow: 0 2px 8px rgba(90,74,58,.22);
+    transition: transform .15s, box-shadow .15s;
+    background: var(--bg-card);
+    color: var(--accent);
+    position: relative;
+  }
+  .fab-btn:hover { transform: scale(1.1); box-shadow: 0 4px 14px rgba(90,74,58,.3); }
+  .fab-btn[data-confirm="pending"] {
+    background: #fce8e8;
+    color: #c05050;
+    border-color: #e0a0a0;
+  }
+  .fab-tooltip {
+    position: absolute;
+    right: 3.2rem;
+    background: var(--accent);
+    color: #faf8f4;
+    font-size: .68rem;
+    padding: .22rem .55rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+    font-family: var(--font-mono);
+  }
+  .fab-btn:hover .fab-tooltip { opacity: 1; }
+
+  /* ── Top bar ── */
+  #top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem 1.4rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--rule);
+    z-index: 999;
+    box-shadow: 0 1px 6px rgba(90,74,58,.07);
+    transition: background .35s;
+  }
+  .toggle-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 20px;
+    padding: .28rem .9rem;
+    font-size: .78rem;
+    font-family: var(--font-serif);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .toggle-btn:hover { background: var(--bg-box); color: var(--accent); }
+
+  /* ── Toast ── */
+  #toast {
+    position: fixed;
+    bottom: 6rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: var(--accent);
+    color: #faf8f4;
+    padding: .45rem 1.2rem;
+    border-radius: 20px;
+    font-size: .8rem;
+    font-family: var(--font-mono);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .25s, transform .25s;
+    z-index: 2000;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Restore banner ── */
+  #restore-banner {
+    background: var(--comment-bg);
+    border: 1px solid var(--comment-border);
+    border-radius: var(--radius);
+    padding: .7rem 1.2rem;
+    margin-bottom: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    flex-wrap: wrap;
+    font-size: .88rem;
+    color: var(--comment-text);
+    font-family: var(--font-serif);
+  }
+  #restore-banner span { flex: 1; min-width: 12rem; }
+  #restore-banner button {
+    background: var(--accent);
+    color: #faf8f4;
+    border: none;
+    border-radius: 4px;
+    padding: .22rem .65rem;
+    font-size: .78rem;
+    cursor: pointer;
+    font-family: var(--font-serif);
+    transition: opacity .15s;
+    white-space: nowrap;
+  }
+  #restore-banner button:hover { opacity: .8; }
+  #restore-banner .dismiss-btn {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--rule);
+  }
+
+  /* ── Comment container ── */
+  .comment-container { margin: 0; }
+
+  /* print */
+  @media print {
+    #top-bar, #fab-cluster, #restore-banner,
+    .comment-input-wrap, .comment-hint,
+    .comment-delete-btn { display: none !important; }
+    .comment-bubble { border: 1px dashed #ccc; }
+    .page-wrapper { padding-top: 2rem; }
+  }
+
+  @media (max-width: 600px) {
+    .page-wrapper { padding: 5rem 1rem 6rem; }
+    .title-block h1 { font-size: 1.45rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div id="top-bar">
+  <button class="toggle-btn" id="theme-toggle">☾ 어둡게</button>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- FAB cluster -->
+<div id="fab-cluster">
+  <button class="fab-btn" id="fab-copy-page">
+    <span>📋</span>
+    <span class="fab-tooltip">현 위치 코멘트 카피</span>
+  </button>
+  <button class="fab-btn" id="fab-copy-all">
+    <span>📄</span>
+    <span class="fab-tooltip">모든 코멘트 카피</span>
+  </button>
+  <button class="fab-btn" id="fab-clear-page">
+    <span>🗑</span>
+    <span class="fab-tooltip">현 위치 코멘트 지우기</span>
+  </button>
+  <button class="fab-btn" id="fab-clear-all">
+    <span>💨</span>
+    <span class="fab-tooltip">모든 코멘트 지우기</span>
+  </button>
+</div>
+
+<div class="page-wrapper">
+
+  <!-- Restore banner -->
+  <div id="restore-banner" style="display:none">
+    <span>이전에 저장된 코멘트가 있습니다.</span>
+    <button id="restore-keep">유지</button>
+    <button class="dismiss-btn" id="restore-delete">삭제</button>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block commentable" data-anchor="title">
+    <span class="comment-hint">✎</span>
+    <h1>마음을 기억하는 방법</h1>
+    <p class="subtitle">Kenny 의 시스템 소개 &nbsp;·&nbsp; 2026-05-16</p>
+  </div>
+
+  <div class="note-box commentable" data-anchor="epigraph">
+    <span class="comment-hint">✎</span>
+    &ldquo;각 사람의 기억망 깨우치게 돕는다.&rdquo;<br>
+    <span style="font-size:.85rem;margin-top:.3rem;display:block;">— Newton School 의 한 문장</span>
+  </div>
+
+  <!-- I -->
+  <div class="section">
+    <h2>I. 감사의 말씀</h2>
+
+    <p class="commentable" data-anchor="s1-p1"><span class="comment-hint">✎</span>선생님께 — 그동안 정말 감사했습니다.</p>
+    <p class="commentable" data-anchor="s1-p2"><span class="comment-hint">✎</span>그동안 소연이가 — 자기 마음을 터놓고 이야기할 수 있었던 유일한 사람이 선생님이셨습니다.</p>
+    <p class="commentable" data-anchor="s1-p3"><span class="comment-hint">✎</span>아이한테 — 너무나 큰 힘이 되었습니다.<br>부모로서 — 그 자리를 만들어 주신 것에 — 진심으로 감사드립니다.</p>
+
+    <hr>
+
+    <p class="commentable" data-anchor="s1-p4"><span class="comment-hint">✎</span>오늘 이 자리에서 — 제가 요즘 하고 있는 일을 잠깐 나누고 싶었습니다.</p>
+    <p class="commentable" data-anchor="s1-p5"><span class="comment-hint">✎</span>선생님이 보시는 <em>마음</em> 의 결과 — 제가 만들고 있는 <em>기억의 구조</em> 가 어쩌면 — 가까운 자리에 있을 수도 있겠다는 생각이 들어서요.</p>
+  </div>
+
+  <!-- II -->
+  <div class="section">
+    <h2>II. Kenny 의 학습 — 어디서 출발해서 어디까지 왔나</h2>
+
+    <p class="commentable" data-anchor="s2-p1"><span class="comment-hint">✎</span>제가 AI 를 제대로 처음 접한 게 — 약 10 개월 전입니다.</p>
+
+    <div class="code-box commentable" data-anchor="s2-box1"><span class="comment-hint">✎</span>   처음엔 — 정말 아무것도 몰랐습니다.
+
+   YouTube 부터 시작했습니다.
+   영상 하나 보고, 따라 하나 만들어 보고, 부수고,
+   또 다른 영상 보고, 다시 만들고, 다시 부수고 —
+   그 반복이었습니다.
+
+   몇 달 그러다 보니 — 어렴풋이 원리 가 보이기 시작했습니다.</div>
+
+    <p class="commentable" data-anchor="s2-p2"><span class="comment-hint">✎</span>저는 25 년째 수학과 물리를 가르치고 있고, Bergen County 에서 학원도 운영하고, 부동산도 함께 하고 있습니다.</p>
+    <p class="commentable" data-anchor="s2-p3"><span class="comment-hint">✎</span>그런데 — 가르치는 일 말고 한 가지에 깊이 빠져 있습니다.</p>
+
+    <div class="code-box commentable" data-anchor="s2-box2"><span class="comment-hint">✎</span>   &ldquo;AI 와 함께 사람의 기억 구조를 설계하고 가르치는 일&rdquo;</div>
+
+    <p class="commentable" data-anchor="s2-p4"><span class="comment-hint">✎</span>학문적으로는 <strong>Cognitive Architect for Human-AI Symbiosis</strong> — &ldquo;사람이 어떻게 생각하고 기억하는지 보면서, AI 와 사람이 함께 더 잘 생각할 수 있도록 돕는 사람&rdquo; 입니다.</p>
+
+    <div class="code-box commentable" data-anchor="s2-box3"><span class="comment-hint">✎</span>   원리를 알아낸 것 같다는 느낌이 든 게 — 한 2 주 정도 됐습니다.
+   그 후로 제 시스템 위에 그 원리를 하나씩 적용하는 중입니다.
+   계속 — 진화 중입니다.</div>
+  </div>
+
+  <!-- III -->
+  <div class="section">
+    <h2>III. 우리 시스템 — 뇌 와 외부 메모리 한 그림</h2>
+
+    <div class="code-box commentable" data-anchor="s3-box1"><span class="comment-hint">✎</span>   처음엔 — 제가 뭘 하는지도 몰랐습니다.
+   YouTube 따라 만들면서 &ldquo;어, 이게 되네&rdquo; 하다가 —
+   어느 날 이런 생각이 들었습니다.
+
+   &ldquo;더 — 사람처럼 쓰려면 어떻게 해야 할까.&rdquo;
+
+   거기서부터 — 여기까지 왔습니다.</div>
+
+    <p class="commentable" data-anchor="s3-p1"><span class="comment-hint">✎</span>뇌가 어떻게 작동하는지를 들여다보면서, 그 구조를 그대로 컴퓨터 위에 옮겼습니다.</p>
+    <p class="commentable" data-anchor="s3-p2"><span class="comment-hint">✎</span>아래 표는 뇌의 기능과, 제 시스템이 어떻게 짝을 이루는지 보여줍니다.</p>
+
+    <div class="table-wrap commentable" data-anchor="s3-table">
+      <span class="comment-hint">✎</span>
+      <table>
+        <thead>
+          <tr><th>뇌</th><th>제 시스템</th><th>컴퓨터 위 자리</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>감각 기억 (찰나)</td><td>대화창 — 지금 이 순간</td><td>프롬프트 (사용자가 방금 적은 말)</td></tr>
+          <tr><td>작업 기억 (7개±2)</td><td>지금 어깨에 얹힌 책들</td><td>단기 저장소 (cache · 현재 세션 · 색인 카드)</td></tr>
+          <tr><td>해마 — 잠들 때 깨어나는 사서</td><td>밤마다 기록을 정리하는 일꾼</td><td>정리 일꾼 (&ldquo;오라클&rdquo; — 알맞은 자리로 옮김)</td></tr>
+          <tr><td>의미 기억 (사실 / 룰)</td><td>룰 카드 + 정책 카드</td><td>중기 저장소 (mind 영역)</td></tr>
+          <tr><td>일화 기억 (내가 겪은 것)</td><td>날짜별 일지</td><td>중기 저장소 (mind 영역)</td></tr>
+          <tr><td>절차 기억 (몸에 밴 것)</td><td>자동 일꾼 (반복 작업)</td><td>도구 영역 (armory)</td></tr>
+          <tr><td>장기 피질 (깊이 박힌 것)</td><td>참고 문서 + 보관함</td><td>장기 저장소 (asset / armory / 보관함)</td></tr>
+          <tr><td>시냅스 가지치기</td><td>오래된 기록 정리 (예정)</td><td>정리 일꾼 의 두 번째 일</td></tr>
+          <tr><td>수면 중 통합</td><td>정기 정리 주기</td><td>정해진 시간마다 자동 돎</td></tr>
+          <tr><td>재응고화 (기억 = 재기록)</td><td>카드 수정 이력</td><td>산출물 — asset / mind / armory 안</td></tr>
+          <tr><td>감정 가중치</td><td>감성 카드</td><td>카드 한 장이 다른 모든 카드의 톤을 정함 (template)</td></tr>
+          <tr><td>연상 활성화</td><td>참조 흐름 (물 흐르듯 이어짐)</td><td>언어 모델 (AI 가 한 생각에서 다른 생각으로 잇는 손)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="commentable" data-anchor="s3-p3"><span class="comment-hint">✎</span>뇌가 하는 일을 하나씩 짚어보면 — 제 시스템이 그 짝을 이미 갖고 있습니다. 우연이 아닙니다. <em>사람처럼 쓰려고</em> 만들었으니까요.</p>
+
+    <hr>
+
+    <h3>III-bis. 표 아래는 — 모든 것이 <em>설계</em> 입니다</h3>
+
+    <div class="code-box commentable" data-anchor="s3bis-box"><span class="comment-hint">✎</span>   ┌──────────────────────────────────────────────────────────┐
+   │                                                            │
+   │   감각 기억      →   사용자가 적는 한 줄                     │
+   │   작업 기억      →   어깨에 얹힌 책들 (단기)                  │
+   │   해마           →   밤마다 옮기는 일꾼 = "오라클"            │
+   │                                                            │
+   │   ───  여기 까지가 사람의 본능                               │
+   │   ───  아래부터는 — 제가 손으로 설계 한 부분                  │
+   │                                                            │
+   │   • 어떤 카드를 어디로 옮길지                                │
+   │   • 어떤 기록을 얼마나 오래 둘지                             │
+   │   • 어떤 카드가 다른 카드의 톤 을 정할지                     │
+   │                                                            │
+   │   = 뇌의 자연스러운 흐름을 — 컴퓨터 위에 의도적 으로 박은 것  │
+   │                                                            │
+   └──────────────────────────────────────────────────────────┘</div>
+  </div>
+
+  <!-- IV -->
+  <div class="section">
+    <h2>IV. 어떻게 만들었나 — 배운 것들의 합</h2>
+
+    <p class="commentable" data-anchor="s4-p1"><span class="comment-hint">✎</span>이걸 만들면서 — 정말 많은 분야가 한꺼번에 필요했습니다.</p>
+
+    <div class="code-box commentable" data-anchor="s4-box1"><span class="comment-hint">✎</span>   • programming             코드 짜기
+
+   • networking              데이터가 어떻게 흐르나
+                              (집 - 사무실 - 인터넷 - 다시 집)
+
+   • math                    recursion (자기 자신을 부르는 구조)
+                              fractal (작은 패턴이 큰 모양 만듦)
+                              probability (불확실성 다루기)
+
+   • accounting              double-entry bookkeeping
+                              (한 데이터를 두 군데서 — 정확성 체크)
+
+   • test agent              만들고 → 다시 검증
+                              ("내가 만든 게 정말 맞나" 자동으로 확인)
+
+   • ... 그리고 매일 새로운 분야가 — 한 가지씩 더 들어옵니다.</div>
+
+    <p class="commentable" data-anchor="s4-p2"><span class="comment-hint">✎</span>처음엔 — 이 모두가 따로따로 보였습니다.</p>
+    <p class="commentable" data-anchor="s4-p3"><span class="comment-hint">✎</span>그런데 한 가지 <em>공통점</em> 이 있더군요.</p>
+
+    <div class="code-box commentable" data-anchor="s4-box2"><span class="comment-hint">✎</span>   ┌───────────────────────────────────────────────────────┐
+   │                                                         │
+   │   "데이터가 어떻게 흐르고,                                │
+   │    어디에 박히고,                                        │
+   │    어떻게 다시 꺼내지는가."                              │
+   │                                                         │
+   │   분야마다 다른 옷 을 입었을 뿐 —                         │
+   │   본질은 같은 한 가지 흐름 이었습니다.                    │
+   │                                                         │
+   └───────────────────────────────────────────────────────┘</div>
+
+    <p class="commentable" data-anchor="s4-p4"><span class="comment-hint">✎</span>뇌도 — 그 일을 합니다. 매일 매 순간. 저는 — 그걸 컴퓨터 위에 옮기는 일을 하고 있습니다.</p>
+
+    <div class="code-box commentable" data-anchor="s4-box3"><span class="comment-hint">✎</span>   ╭───────────────────────────────────────────────╮
+   │                                                │
+   │   미래에는 — 어떤 일을 하든                       │
+   │   모든 것에 관심을 가지고 탐구해서                │
+   │   자기 것 을 만들어야 합니다.                     │
+   │                                                │
+   │   한 분야만 깊은 시대는 — 지났습니다.              │
+   │                                                │
+   ╰───────────────────────────────────────────────╯</div>
+
+    <div class="note-box commentable" data-anchor="s4-genedna">
+      <span class="comment-hint">✎</span>
+      그래서 — 요즘은 <em>유전학</em> 과 <em>물리학</em> 도 다시 들여다보고 있습니다.<br>
+      한 장 인터랙티브로 정리해 본 것 :<br>
+      <a href="file:///C:/NewtonHQ/04_newtonschool/projects/presentation/therapist-2026-05-16/gene-dna-interactive/index.html">
+        📎 <strong>gene vs DNA — 한 장 인터랙티브</strong>
+      </a><br>
+      <span style="font-size:.82rem;color:var(--text-dim)">(DNA 이중 나선 / 발현 / 부모-자식 / 파동 간섭 — 5 섹션, 마우스 인터랙션)</span>
+    </div>
+  </div>
+
+  <!-- V -->
+  <div class="section">
+    <h2>V. 4일 Method — 자기 발견 흐름</h2>
+
+    <p class="commentable" data-anchor="s5-p1"><span class="comment-hint">✎</span>저는 이 시스템을 학생들에게도 가르칩니다. 4일이면 한 바퀴를 돕니다.</p>
+
+    <div class="code-box commentable" data-anchor="s5-box1"><span class="comment-hint">✎</span>   Day 1 — Hub
+             가장 중요한 한 가지 찾기
+             "내가 이 단원에서 진짜 기억해야 할 것 하나는?"
+
+   Day 2 — Cascade
+             생각이 어떻게 이어지는지 그리기
+             "이 생각에서 저 생각은 어떻게 나왔지?"
+
+   Day 3 — Category
+             5개로 정리하기 (사람 머리는 5개가 한계)
+             "이 모든 걸 5개 서랍에 나눠넣으면?"
+
+   Day 4 — AI as Mirror
+             AI 를 답 받는 도구가 아니라
+             자기 생각 비춰보는 거울로 쓰기</div>
+
+    <p class="commentable" data-anchor="s5-p2"><span class="comment-hint">✎</span>4일이 끝나면 학생이 자기 손글씨로 네 문장을 들고 집에 갑니다. 그게 앞으로 모든 공부의 출발점이 됩니다.</p>
+
+    <hr>
+
+    <h3>V-bis. 메타의 핵심 ⭐</h3>
+
+    <div class="code-box commentable" data-anchor="s5bis-box"><span class="comment-hint">✎</span>   ╭─────────────────────────────────────────────────╮
+   │                                                  │
+   │   이게 — 생각의 고리를 연결 하고                   │
+   │   확장 하는 일입니다.                              │
+   │                                                  │
+   │   여기서 AI 의 도움을 받으면 됩니다.                │
+   │                                                  │
+   │   ──────────────────────────────────────         │
+   │                                                  │
+   │   AI 는 — 내가 모르는 모든 현실의 왕.              │
+   │   광대한 지식 전부를 — 그가 압니다.                 │
+   │                                                  │
+   │   나는 — 그 안에서                                │
+   │   무엇이 내 일과 닿는지                            │
+   │   인지하는 능력 만 있으면 됩니다.                   │
+   │                                                  │
+   │   ⭐ 이게 — 메타의 핵심입니다.                     │
+   │                                                  │
+   ╰─────────────────────────────────────────────────╯</div>
+
+    <p class="commentable" data-anchor="s5bis-p1"><span class="comment-hint">✎</span>답을 <em>받는</em> 사람과 <em>인지하는</em> 사람의 차이 — 이게 — 앞으로 모든 학습의 갈림길입니다.</p>
+  </div>
+
+  <!-- VI -->
+  <div class="section">
+    <h2>VI. Mission</h2>
+
+    <div class="code-box commentable" data-anchor="s6-box"><span class="comment-hint">✎</span>   ┌──────────────────────────────────────────────────────┐
+   │                                                      │
+   │   "각 사람의 기억망 깨우치게 돕는다."                   │
+   │                                                      │
+   │   기억 구조는 사람마다 같은 틀이지만,                   │
+   │   내용은 저마다 다른 형태로 돼 있습니다.                 │
+   │                                                      │
+   │   각 사람이 자기한테 맞는 기억망을                       │
+   │   스스로 알아채는 것 — 그게 진짜 목표입니다.            │
+   │                                                      │
+   │                       — Kenny Baek, Newton School   │
+   │                                                      │
+   └──────────────────────────────────────────────────────┘</div>
+
+    <p class="commentable" data-anchor="s6-p1"><span class="comment-hint">✎</span>AI 는 답을 주는 도구가 아닙니다. 자기 발견의 거울입니다.</p>
+    <p class="commentable" data-anchor="s6-p2"><span class="comment-hint">✎</span>그리고 좋은 기록은 — 기억을 대신합니다. 선생님이 그 일을 오랫동안 해오셨다는 걸, 저는 봤습니다.</p>
+  </div>
+
+  <!-- VII -->
+  <div class="section">
+    <h2>VII. 한 마디</h2>
+
+    <p class="commentable" data-anchor="s7-p1"><span class="comment-hint">✎</span>선생님이 — 이런 것 에 관심 가져 주신다면, 저도 가끔 — 너무 궁금한 게 있을 때 짧게 이메일 드려도 — 괜찮을까요.</p>
+    <p class="commentable" data-anchor="s7-p2"><span class="comment-hint">✎</span>그 정도면 — 정말 감사합니다.</p>
+
+    <hr>
+
+    <div class="note-box commentable" data-anchor="s7-closing">
+      <span class="comment-hint">✎</span>
+      오늘 — 들어주신 것만으로도 — 정말 감사한 시간 이었습니다.<br>
+      소연이 옆에 계셔 주신 그 시간은 — 저희 가족 한테는 — 이미 큰 선물 이었습니다.
+    </div>
+
+    <div class="code-box commentable" data-anchor="s7-contact"><span class="comment-hint">✎</span>   Kenny Baek
+   kenny@newtonrealty.org
+   Bergen County, New Jersey</div>
+  </div>
+
+</div><!-- /page-wrapper -->
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Storage ── */
+  var STORE = 'brain-comments-v1';
+  var comments = {};      // { anchor: [{id,text,ts}] }
+  var pending   = {};     // { fabId: timeoutId }
+
+  function load()  { try { return JSON.parse(localStorage.getItem(STORE) || '{}'); } catch(e) { return {}; } }
+  function save()  { localStorage.setItem(STORE, JSON.stringify(comments)); }
+  function hasAny(obj) { return Object.keys(obj).some(function(k){ return obj[k] && obj[k].length; }); }
+
+  /* ── Now string ── */
+  function nowStr() {
+    var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
+    return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) +
+           ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  /* ── Toast ── */
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+
+  /* ── Render all ── */
+  function renderAll() {
+    document.querySelectorAll('.commentable[data-anchor]').forEach(function(el){
+      renderFor(el.dataset.anchor, el);
+    });
+  }
+
+  function renderFor(anchor, hostEl) {
+    /* remove old containers */
+    var sib = hostEl.nextElementSibling;
+    while (sib && sib.classList.contains('comment-container')) {
+      var next = sib.nextElementSibling;
+      sib.remove();
+      sib = next;
+    }
+    var list = comments[anchor] || [];
+    if (!list.length) { hostEl.classList.remove('has-comment'); return; }
+    hostEl.classList.add('has-comment');
+
+    var wrap = document.createElement('div');
+    wrap.className = 'comment-container';
+    list.forEach(function(c){ wrap.appendChild(makeBubble(anchor, c)); });
+    hostEl.insertAdjacentElement('afterend', wrap);
+  }
+
+  function makeBubble(anchor, c) {
+    var bub = document.createElement('div');
+    bub.className = 'comment-bubble';
+    bub.dataset.id = c.id;
+
+    bub.appendChild(document.createTextNode(c.text));
+
+    var meta = document.createElement('div');
+    meta.className = 'comment-meta';
+    meta.textContent = c.ts + ' · ' + anchor;
+    bub.appendChild(meta);
+
+    var del = document.createElement('button');
+    del.className = 'comment-delete-btn';
+    del.textContent = '×';
+    del.title = '삭제';
+    del.addEventListener('click', function(e){
+      e.stopPropagation();
+      comments[anchor] = (comments[anchor] || []).filter(function(x){ return x.id !== c.id; });
+      save();
+      var host = document.querySelector('[data-anchor="' + anchor + '"]');
+      if (host) renderFor(anchor, host);
+    });
+    bub.appendChild(del);
+    return bub;
+  }
+
+  /* ── Open / close input ── */
+  function openInput(anchor, hostEl) {
+    /* toggle off if already open */
+    var sib = hostEl.nextElementSibling;
+    if (sib && sib.classList.contains('comment-input-wrap')) { sib.remove(); return; }
+
+    var wrap = document.createElement('div');
+    wrap.className = 'comment-input-wrap';
+
+    var ta = document.createElement('textarea');
+    ta.placeholder = '코멘트 입력 — Enter: 저장 / Shift+Enter: 줄바꿈 / Esc: 닫기';
+    ta.rows = 2;
+    wrap.appendChild(ta);
+
+    var btnWrap = document.createElement('div');
+    btnWrap.className = 'comment-input-btns';
+
+    var saveBtn = document.createElement('button');
+    saveBtn.textContent = '저장';
+    saveBtn.addEventListener('click', function(){
+      var val = ta.value.trim();
+      if (!val) { wrap.remove(); return; }
+      var c = { id: Date.now() + '-' + Math.random().toString(36).slice(2), text: val, ts: nowStr() };
+      if (!comments[anchor]) comments[anchor] = [];
+      comments[anchor].push(c);
+      save();
+      wrap.remove();
+      renderFor(anchor, hostEl);
+      toast('코멘트 저장됨');
+    });
+
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancel-btn';
+    cancelBtn.textContent = '취소';
+    cancelBtn.addEventListener('click', function(){ wrap.remove(); });
+
+    btnWrap.appendChild(saveBtn);
+    btnWrap.appendChild(cancelBtn);
+    wrap.appendChild(btnWrap);
+
+    ta.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveBtn.click(); }
+      if (e.key === 'Escape') wrap.remove();
+    });
+
+    hostEl.insertAdjacentElement('afterend', wrap);
+    ta.focus();
+  }
+
+  /* ── Bind commentable ── */
+  function bindCommentable() {
+    document.querySelectorAll('.commentable[data-anchor]').forEach(function(el){
+      el.addEventListener('click', function(e){
+        if (e.target.closest('a,button,input,textarea')) return;
+        if (e.target.closest('.comment-bubble,.comment-input-wrap,.comment-container')) return;
+        openInput(el.dataset.anchor, el);
+      });
+    });
+  }
+
+  /* ── Visible anchor (center of viewport) ── */
+  function visibleAnchor() {
+    var els = document.querySelectorAll('.commentable[data-anchor]');
+    var best = null, bestD = Infinity, mid = window.innerHeight / 2;
+    els.forEach(function(el){
+      var r = el.getBoundingClientRect();
+      var d = Math.abs(r.top + r.height / 2 - mid);
+      if (d < bestD) { bestD = d; best = el.dataset.anchor; }
+    });
+    return best;
+  }
+
+  /* ── Copy to clipboard ── */
+  function copyText(text) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(function(){ fallback(text); });
+    } else { fallback(text); }
+  }
+  function fallback(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.top = '-9999px';
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  function formatComments(src) {
+    var out = '';
+    Object.keys(src).forEach(function(anchor){
+      (src[anchor] || []).forEach(function(c){
+        out += '[' + anchor + '] ' + c.ts + '\n' + c.text + '\n\n';
+      });
+    });
+    return out.trim() || '(코멘트 없음)';
+  }
+
+  /* ── FAB setup ── */
+  function setupFab(id, action, confirmHint) {
+    var btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+      if (!confirmHint) { action(); return; }
+      if (btn.dataset.confirm === 'pending') {
+        clearTimeout(pending[id]);
+        delete pending[id];
+        btn.dataset.confirm = '';
+        action();
+      } else {
+        btn.dataset.confirm = 'pending';
+        toast(confirmHint + ' — 한 번 더 클릭하면 실행');
+        pending[id] = setTimeout(function(){
+          btn.dataset.confirm = '';
+        }, 3000);
+      }
+    });
+  }
+
+  function initFabs() {
+    setupFab('fab-copy-page', function(){
+      var a = visibleAnchor();
+      var src = {};
+      if (a && comments[a]) src[a] = comments[a];
+      copyText(formatComments(src));
+      toast('현 위치 코멘트 카피됨');
+    });
+
+    setupFab('fab-copy-all', function(){
+      copyText(formatComments(comments));
+      toast('모든 코멘트 카피됨');
+    });
+
+    setupFab('fab-clear-page', function(){
+      var a = visibleAnchor();
+      if (a) {
+        delete comments[a];
+        save();
+        var host = document.querySelector('[data-anchor="' + a + '"]');
+        if (host) renderFor(a, host);
+        toast('현 위치 코멘트 삭제됨');
+      }
+    }, '현 위치 코멘트 삭제?');
+
+    setupFab('fab-clear-all', function(){
+      comments = {};
+      save();
+      renderAll();
+      toast('모든 코멘트 삭제됨');
+    }, '모든 코멘트 삭제?');
+  }
+
+  /* ── Theme ── */
+  function initTheme() {
+    var saved = localStorage.getItem('brain-theme') || 'light';
+    applyTheme(saved);
+    document.getElementById('theme-toggle').addEventListener('click', function(){
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem('brain-theme', next);
+    });
+  }
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
+    document.getElementById('theme-toggle').textContent = theme === 'dark' ? '☀ 밝게' : '☾ 어둡게';
+  }
+
+  /* ── Restore banner ── */
+  function initBanner() {
+    var saved = load();
+    var banner = document.getElementById('restore-banner');
+    if (hasAny(saved)) {
+      banner.style.display = 'flex';
+      document.getElementById('restore-keep').addEventListener('click', function(){
+        comments = saved;
+        banner.style.display = 'none';
+        renderAll();
+      });
+      document.getElementById('restore-delete').addEventListener('click', function(){
+        localStorage.removeItem(STORE);
+        banner.style.display = 'none';
+      });
+    } else {
+      comments = saved;
+    }
+  }
+
+  /* ── Boot ── */
+  function init() {
+    initTheme();
+    initBanner();
+    bindCommentable();
+    initFabs();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>

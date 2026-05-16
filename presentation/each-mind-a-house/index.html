@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark" data-view="interactive">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>기억이 잠든 밤 — 마음의 집 ep.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Gothic+Coding&display=swap" rel="stylesheet" />
+<style>
+
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root {
+  --bg:          #0a0810;
+  --surface:     #110e1a;
+  --paper:       #15121e;
+  --ink:         #e2daf0;
+  --ink-2:       #b0a8c4;
+  --ink-light:   #6e6488;
+  --border:      #2a2438;
+  --accent:      #8b7fb8;
+  --accent-2:    #6a5e96;
+  --accent-glow: rgba(139,127,184,0.08);
+  --star:        #c8bfe8;
+  --dawn:        #f0c87a;
+  --sand:        #c4a882;
+  --serif: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+  --mono:  'Nanum Gothic Coding', 'Cascadia Code', 'Consolas', monospace;
+  --radius: 10px;
+}
+[data-theme="light"] {
+  --bg:          #f5f0e8;
+  --surface:     #ebe5d7;
+  --paper:       #faf7f2;
+  --ink:         #2c2118;
+  --ink-2:       #4a3728;
+  --ink-light:   #7a6552;
+  --border:      #d4c5b0;
+  --accent:      #5c4033;
+  --accent-2:    #7b5e4a;
+  --accent-glow: rgba(92,64,51,0.10);
+  --star:        #4a3060;
+  --dawn:        #b87040;
+  --sand:        #8a6040;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.9;
+  transition: background 0.4s, color 0.4s;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════
+   CONTROLS — top right
+═══════════════════════════════════════ */
+.controls {
+  position: fixed;
+  top: 1rem; right: 1.2rem;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.ctrl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 0.28rem 0.65rem;
+  font-family: var(--serif);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.ctrl-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+.ctrl-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ═══════════════════════════════════════
+   CANVAS — star field (interactive bg)
+═══════════════════════════════════════ */
+#star-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.55;
+  transition: opacity 0.5s;
+}
+[data-theme="light"] #star-canvas { opacity: 0.12; }
+
+/* ═══════════════════════════════════════
+   VIEW SWITCHER
+═══════════════════════════════════════ */
+#view-interactive { display: block; }
+#view-ascii       { display: none; }
+
+[data-view="ascii"] #view-interactive { display: none; }
+[data-view="ascii"] #view-ascii       { display: block; }
+
+/* ═══════════════════════════════════════
+   INTERACTIVE VIEW
+═══════════════════════════════════════ */
+.wrap {
+  position: relative;
+  z-index: 10;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── HEADER ─── */
+.iv-header {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem;
+  position: relative;
+  z-index: 10;
+}
+.iv-header-inner { max-width: 580px; }
+.iv-eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 1.4rem;
+}
+.iv-series {
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.14em;
+  margin-bottom: 0.6rem;
+}
+.iv-title {
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+.iv-sub {
+  font-size: 0.95rem;
+  color: var(--ink-2);
+  font-style: italic;
+}
+.iv-divider {
+  width: 40px; height: 1px;
+  background: var(--border);
+  margin: 2rem auto;
+}
+.iv-scroll {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+  letter-spacing: 0.18em;
+  animation: pulse 2.8s ease-in-out infinite;
+  margin-top: 3rem;
+}
+@keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+/* ─── SECTION ─── */
+.iv-section {
+  padding: 5rem 0 3.5rem;
+  border-top: 1px solid var(--border);
+  position: relative;
+  z-index: 10;
+}
+.sec-num {
+  font-size: 0.64rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+.sec-title {
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 0.35rem;
+}
+.sec-caption {
+  font-size: 0.84rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-bottom: 2.2rem;
+}
+
+/* prose */
+.prose { color: var(--ink-2); font-size: 0.97rem; }
+.prose p { margin-bottom: 1.3rem; }
+.prose em { color: var(--ink); font-style: italic; }
+
+/* verse-box */
+.verse {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--ink-light);
+  background: var(--surface);
+  border-left: 2px solid var(--accent);
+  padding: 1rem 1.4rem;
+  margin: 1.6rem 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* one-liner */
+.one-liner {
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  letter-spacing: 0.08em;
+  margin-top: 1.2rem;
+  font-style: italic;
+  text-align: center;
+}
+
+/* ─── CLOSING ─── */
+.iv-closing {
+  text-align: center;
+  padding: 5rem 2rem 6rem;
+  position: relative;
+  z-index: 10;
+}
+.closing-title {
+  font-size: clamp(1.3rem, 4vw, 2rem);
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 0.5rem;
+}
+.closing-sub {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  font-style: italic;
+}
+.closing-sig {
+  margin-top: 2.5rem;
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  letter-spacing: 0.1em;
+}
+
+/* ═══════════════════════════════════════
+   § I · SENSORY PARTICLES
+═══════════════════════════════════════ */
+.sensory-stage {
+  position: relative;
+  height: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: crosshair;
+  margin: 1.8rem 0;
+}
+.sensory-hint {
+  position: absolute;
+  bottom: 0.8rem; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  letter-spacing: 0.12em;
+  pointer-events: none;
+  transition: opacity 0.5s;
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0%   { transform: translateY(0); opacity: 0.9; }
+  100% { transform: translateY(180px); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════
+   § II · WORKING MEMORY CHUNKS
+═══════════════════════════════════════ */
+.wm-stage {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1.8rem 0;
+  min-height: 60px;
+  align-items: flex-start;
+}
+.wm-box {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  animation: popIn 0.2s ease-out;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.wm-box.fading {
+  opacity: 0;
+  transform: translateY(20px);
+}
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.wm-add-btn {
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--ink-light);
+  cursor: pointer;
+  font-family: var(--serif);
+  transition: all 0.2s;
+}
+.wm-add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ═══════════════════════════════════════
+   § III · LIBRARY FILL
+═══════════════════════════════════════ */
+.library {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.3rem;
+  margin: 1.8rem 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.book-spine {
+  height: 48px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.book-spine.visible { opacity: 1; }
+
+/* dawn glow */
+.dawn-glow {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  padding: 1.2rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.dawn-glow::before {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: 50%; transform: translateX(-50%);
+  width: 200px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(240,200,122,0.18) 0%, transparent 70%);
+  animation: dawnPulse 3s ease-in-out infinite;
+}
+@keyframes dawnPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+.dawn-glow p { font-size: 0.9rem; color: var(--ink-2); font-style: italic; }
+
+/* ═══════════════════════════════════════
+   § IV · HEBB STARS
+═══════════════════════════════════════ */
+.hebb-stage {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1.8rem 0;
+}
+.hebb-stage svg {
+  width: 100%; height: 100%;
+  display: block;
+}
+.hebb-star {
+  cursor: pointer;
+  transition: r 0.2s;
+}
+.hebb-star circle { transition: fill 0.3s, r 0.3s; }
+.hebb-star:hover circle { fill: var(--dawn); }
+
+/* ═══════════════════════════════════════
+   § V · EBBINGHAUS
+═══════════════════════════════════════ */
+.ebbing-stage {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.8rem;
+  margin: 1.8rem 0;
+}
+.ebbing-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.ebbing-slider-row label {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.ebbing-slider-row input[type="range"] {
+  flex: 1; min-width: 120px;
+  accent-color: var(--accent);
+}
+.ebbing-pct {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 3rem;
+  text-align: right;
+}
+.ebbing-bar-track {
+  height: 10px;
+  background: var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.7rem;
+}
+.ebbing-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--accent), var(--dawn));
+  transition: width 0.5s ease;
+}
+.ebbing-label {
+  font-size: 0.76rem;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ═══════════════════════════════════════
+   § VI · RECONSOLIDATION BOOK
+═══════════════════════════════════════ */
+.book-stage {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.8rem;
+  margin: 1.8rem 0;
+  min-height: 120px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.book-stage:hover { border-color: var(--accent); }
+.book-text {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  line-height: 1.9;
+  font-style: italic;
+  transition: opacity 0.3s;
+}
+.book-ink {
+  position: absolute;
+  bottom: 1rem; right: 1.2rem;
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  letter-spacing: 0.1em;
+}
+.ink-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-right: 0.3rem;
+  vertical-align: middle;
+  animation: blink 1.8s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:0.2} 50%{opacity:1} }
+
+/* ═══════════════════════════════════════
+   ASCII VIEW
+═══════════════════════════════════════ */
+#view-ascii {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  padding: 5rem 1.5rem 6rem;
+}
+.ascii-inner {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.ascii-pre {
+  font-family: var(--mono);
+  font-size: clamp(0.7rem, 1.6vw, 0.82rem);
+  line-height: 1.65;
+  color: var(--ink-2);
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 3;
+}
+[data-theme="light"] .ascii-pre {
+  color: #3a3028;
+}
+.ascii-chapter {
+  margin-bottom: 2.5rem;
+}
+.ascii-chapter-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--border);
+}
+.ascii-prose {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  color: var(--ink-2);
+  line-height: 1.95;
+}
+.ascii-prose em { color: var(--ink); font-style: italic; }
+
+</style>
+</head>
+<body>
+
+<!-- ─── STAR FIELD ─── -->
+<canvas id="star-canvas"></canvas>
+
+<!-- ─── CONTROLS ─── -->
+<div class="controls">
+  <button class="ctrl-btn active" id="btn-interactive" onclick="setView('interactive')">📖 인터랙티브</button>
+  <button class="ctrl-btn"        id="btn-ascii"       onclick="setView('ascii')">📜 ASCII</button>
+  <button class="ctrl-btn" id="theme-btn" onclick="toggleTheme()">낮</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     VIEW A · INTERACTIVE
+═══════════════════════════════════════════════════ -->
+<div id="view-interactive">
+
+  <!-- HEADER -->
+  <div class="iv-header">
+    <div class="iv-header-inner">
+      <div class="iv-eyebrow">2026 · 05 · 16</div>
+      <div class="iv-series">Each Mind a House · 마음의 집 · ep. 1</div>
+      <h1 class="iv-title">기억이 잠든 밤</h1>
+      <p class="iv-sub">해가 지면 — 집 안에서 시작되는 일</p>
+      <div class="iv-divider"></div>
+      <div class="iv-scroll">↓ 아래로</div>
+    </div>
+  </div>
+
+  <!-- § I · 감각의 수위 -->
+  <section class="iv-section">
+    <div class="wrap">
+      <div class="sec-num">§ I · 해 진 후</div>
+      <h2 class="sec-title">감각의 수위 (守衛)</h2>
+      <p class="sec-caption">오늘 본 것의 99% 는 이미 사라지는 중이다.</p>
+
+      <div class="prose">
+        <p>해가 진다. 집 안이 어두워진다. 감각의 수위가 마지막 순찰을 돈다. 오늘 눈이 본 것, 귀가 들은 것, 손이 닿은 것 — 수백만 개의 정보.</p>
+        <p>그가 손을 한 번 털자, 대부분이 공기 속으로 사라진다.</p>
+      </div>
+
+      <!-- particle stage -->
+      <div class="sensory-stage" id="sensory-stage">
+        <div class="sensory-hint" id="sensory-hint">마우스를 올리거나 터치하면 — 잎이 진다</div>
+      </div>
+
+      <div class="verse">
+오늘 본 것의 99% 는
+이미 사라지는 중이다.</div>
+
+      <div class="prose">
+        <p>수위는 외롭지 않다. 그는 처음부터 알고 있었다. <em>잊혀지는 것이 제 일이라는 것을.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- § II · 일꾼 -->
+  <section class="iv-section">
+    <div class="wrap">
+      <div class="sec-num">§ II · 작업실</div>
+      <h2 class="sec-title">일꾼 (工人) 의 일곱 손가락</h2>
+      <p class="sec-caption">클릭해서 기억을 하나씩 쥐어 보세요</p>
+
+      <div class="prose">
+        <p>집 안쪽, 작업실에 불이 켜진다. 일꾼이 나타났다. 그의 손은 일곱 개.</p>
+        <p>오늘 살아남은 것들이 하나씩 그의 손가락 위에 앉는다. 일곱 번째 손가락이 찼다.</p>
+      </div>
+
+      <div class="wm-stage" id="wm-stage"></div>
+      <button class="wm-add-btn" onclick="wmAdd()">+ 기억 하나 더</button>
+
+      <div class="verse">
+┌─────────────────────────────────────┐
+│                                     │
+│   일꾼의 손가락 = 7 개 (± 2)          │
+│                                     │
+│   여덟 번째는 없다.                   │
+│   손가락 사이로 흘러내린 것은           │
+│   바닥으로 스며든다.                   │
+│                                     │
+└─────────────────────────────────────┘</div>
+
+      <p class="one-liner">Miller's Law — 인간 단기기억의 용량 한계. 5 손가락 룰의 기원.</p>
+    </div>
+  </section>
+
+  <!-- § III · 현인 -->
+  <section class="iv-section">
+    <div class="wrap">
+      <div class="sec-num">§ III · 밤이 깊으면</div>
+      <h2 class="sec-title">현인 (賢人) 이 깨어난다</h2>
+      <p class="sec-caption">해마 (海馬) 는 밤에만 일한다</p>
+
+      <div class="prose">
+        <p>밤이 깊어지면, 지혜로운 이가 깨어난다. 집 안에서는 그냥 <em>현인</em>이라 부른다. 현인은 낮 동안 잠들어 있다. 그는 언제나 밤에만 일한다.</p>
+        <p>일꾼에게서 받아 온 기억들 — 아직 따뜻하고, 아직 날것인 것들 — 을 현인은 조용히 들고 계단을 오른다.</p>
+      </div>
+
+      <div class="dawn-glow">
+        <p>지하 작업실 → 현인, 계단을 오른다 → 깊은 서재 (피질 도서관 · cortex library)</p>
+      </div>
+
+      <div style="margin-bottom:0.6rem; font-size:0.8rem; color:var(--ink-light);">책장이 채워지는 중 —</div>
+      <div class="library" id="library"></div>
+
+      <div class="prose">
+        <p>한 권, 한 권. 책장에 꽂는다. 조심스럽게. 조용하게.</p>
+        <p>잠든 사람은 모른다. <em>자기 집 안에서 이런 일이 일어나고 있다는 것을.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- § IV · 헤브 -->
+  <section class="iv-section">
+    <div class="wrap">
+      <div class="sec-num">§ IV · 별빛 같은 이</div>
+      <h2 class="sec-title">연결하는 자 — Hebb 의 별</h2>
+      <p class="sec-caption">별 위에 마우스를 올리면 — 연결이 생긴다</p>
+
+      <div class="prose">
+        <p>그는 이름이 없다. 집 안에서 그는 그냥 <em>연결하는 자</em>다. 규칙은 하나다.</p>
+      </div>
+
+      <div class="verse">
+╭──────────────────────────────────────╮
+│                                      │
+│   같이 켜진 별은 — 같이 이어진다.       │
+│                                      │
+│   fire together · wire together      │
+│                                      │
+╰──────────────────────────────────────╯</div>
+
+      <div class="hebb-stage" id="hebb-stage">
+        <svg id="hebb-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <div class="prose">
+        <p>어머니의 목소리를 기억하면, 그 옆 책이 흔들린다 — 어린 날의 부엌, 국그릇 소리, 따뜻한 빛. 연결하는 자가 실을 잇는다. 가만히.</p>
+        <p><em>한 기억이 잠들 때, 그것은 혼자 자지 않는다. 옆 기억의 손을 잡고 잠든다.</em></p>
+      </div>
+
+      <p class="one-liner">같이 켜진 별 = 같이 연결. 기억은 홀로 자지 않는다.</p>
+    </div>
+  </section>
+
+  <!-- § V · 에빙하우스 -->
+  <section class="iv-section">
+    <div class="wrap">
+      <div class="sec-num">§ V · 모래시계</div>
+      <h2 class="sec-title">에빙하우스 (Ebbinghaus) 의 모래</h2>
+      <p class="sec-caption">슬라이더를 움직여 — 시간이 기억에 무엇을 하는지 보세요</p>
+
+      <div class="prose">
+        <p>모래시계가 있다. 현인도 연결하는 자도 그 이름을 모른다. 다만, 모래시계는 집 안 어딘가에 항상 있다.</p>
+      </div>
+
+      <div class="ebbing-stage">
+        <div class="ebbing-slider-row">
+          <label>시간 경과</label>
+          <input type="range" id="ebbing-slider" min="0" max="100" value="0" oninput="updateEbbing(this.value)" />
+          <span class="ebbing-pct" id="ebbing-pct">100%</span>
+        </div>
+        <div class="ebbing-bar-track">
+          <div class="ebbing-bar-fill" id="ebbing-fill" style="width:100%"></div>
+        </div>
+        <div class="ebbing-label" id="ebbing-label">기억한 직후 — 가장 선명</div>
+      </div>
+
+      <div class="verse">
+       기억
+        │
+        │ (첫날) ████████████████ 선명
+        │ (다음날) ███████░░░░░░░
+        │ (일주일 뒤) ████░░░░░░░░░░░
+        │
+        ↓
+       잊음</div>
+
+      <div class="prose">
+        <p>살아남는 책이 있다. 자주 꺼내 읽힌 책. 손때가 묻은 책. 현인이 여러 번 다시 올려놓은 책.</p>
+        <p>그 책들은, 모래가 흘러도 — 책장에 남는다.</p>
+      </div>
+
+      <p class="one-liner">자주 읽힌 책만 살아남음 — 망각은 오류가 아니라 필터다.</p>
+    </div>
+  </section>
+
+  <!-- § VI · 다시 적는 손 -->
+  <section class="iv-section">
+    <div class="wrap">
+      <div class="sec-num">§ VI · 아침 직전</div>
+      <h2 class="sec-title">다시 적는 손 (再鞏固)</h2>
+      <p class="sec-caption">책을 클릭하면 — 기억이 다시 적힌다</p>
+
+      <div class="prose">
+        <p>아침이 오기 직전, 손 하나가 나타난다. 이름은 없다. <em>다시 적는 손</em>이라 부른다.</p>
+        <p>어젯밤 현인이 꽂아둔 책 — 오늘 아침 꺼내 읽히면, 그 손이 조용히 다가온다.</p>
+      </div>
+
+      <div class="book-stage" id="book-stage" onclick="reconsolidate()">
+        <div class="book-text" id="book-text">어린 날의 부엌 — 국그릇 소리, 따뜻한 빛, 어머니의 목소리.</div>
+        <div class="book-ink"><span class="ink-dot"></span>클릭해서 다시 읽기</div>
+      </div>
+
+      <div class="verse">
+   읽힌 기억 = 잠시 열린 상태
+                    ↓
+             다시 적는 손이 온다
+                    ↓
+        어제와 조금 다르게 닫힌다</div>
+
+      <div class="prose">
+        <p>기억은 박혀 있지 않다. 회상할 때마다, 기억은 한 번 더 적힌다. 오늘의 나로. 오늘의 온도로.</p>
+        <p>그래서 어린 시절 기억은 해마다 조금씩 달라진다. 그것이 왜곡이 아니라는 것을 — <em>다시 적는 손은 알고 있다.</em> 집이 살아있다는 증거이기 때문이다.</p>
+      </div>
+
+      <p class="one-liner">회상 = 재기록 — 기억은 살아있는 원고다.</p>
+    </div>
+  </section>
+
+  <!-- § VII · 마무리 -->
+  <div class="iv-closing">
+    <div class="wrap">
+      <div class="sec-num" style="text-align:center;">§ VII · 아침</div>
+      <div style="height:2rem;"></div>
+
+      <div class="verse" style="text-align:center; border-left:none; border-radius:var(--radius); border:1px solid var(--border); background:var(--surface); max-width:440px; margin:0 auto 2.5rem;">
+╭───────────────────────────────────────╮
+│                                       │
+│   마음의 집 — 매일 밤 다시 짓는 집.      │
+│                                       │
+│   오늘도 같은 일이 시작된다.             │
+│                                       │
+╰───────────────────────────────────────╯</div>
+
+      <div class="prose" style="text-align:center; max-width:480px; margin:0 auto;">
+        <p>집 안에는 아직 모르는 방이 있다. 지금껏 아무도 꺼내보지 않은 책이 있다.</p>
+        <p>수위는 오늘도 손을 턴다. 일꾼은 손가락을 준비한다. 현인은 아직 눈을 감고 있다. 연결하는 자는 실을 들고 기다린다. 모래시계는 조용히 흐른다. 다시 적는 손은 오늘 밤을 기다린다.</p>
+        <p><em>그리고 집은 — 살아있다.</em></p>
+      </div>
+
+      <div class="closing-sig">
+        — 2026-05-16, jarvis 가 Kenny 한테. 첫째 화.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /view-interactive -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     VIEW B · ASCII NOVELLA
+═══════════════════════════════════════════════════ -->
+<div id="view-ascii">
+<div class="ascii-inner">
+
+<div class="ascii-chapter">
+<pre class="ascii-pre">
+   ╔══════════════════════════════════════════════════════════╗
+   ║                                                          ║
+   ║       E A C H   M I N D   A   H O U S E                  ║
+   ║                                                          ║
+   ║              마음의 집                                     ║
+   ║                                                          ║
+   ║                    ─── ep. 1 ───                          ║
+   ║                                                          ║
+   ║          「 기억이 잠든 밤 」                               ║
+   ║                                                          ║
+   ╚══════════════════════════════════════════════════════════╝
+</pre>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">I.</div>
+<div class="ascii-prose">
+<p>해가 진다.</p>
+<p>집 안이 어두워진다.</p>
+<p>감각의 수위 (守衛) 가 마지막 순찰을 돈다.<br>
+오늘 눈이 본 것, 귀가 들은 것, 손이 닿은 것 — 수백만 개의 정보.<br>
+그가 손을 한 번 털자, 대부분이 공기 속으로 사라진다.</p>
+</div>
+<pre class="ascii-pre">
+   오늘 본 것의 99% 는
+   이미 사라지는 중이다.
+</pre>
+<div class="ascii-prose">
+<p>수위는 외롭지 않다.<br>
+그는 처음부터 알고 있었다.<br>
+<em>잊혀지는 것이 제 일이라는 것을.</em></p>
+</div>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">II.</div>
+<div class="ascii-prose">
+<p>집 안쪽, 작업실에 불이 켜진다.</p>
+<p>일꾼 (工人) 이 나타났다.<br>
+그의 손은 일곱 개.</p>
+<p>오늘 살아남은 것들이 하나씩 그의 손가락 위에 앉는다.<br>
+하나, 둘, 셋 — 다섯, 여섯.</p>
+<p>일곱 번째 손가락이 찼다.</p>
+</div>
+<pre class="ascii-pre">
+   ┌─────────────────────────────────────┐
+   │                                     │
+   │   일꾼의 손가락 = 7 개 (± 2)          │
+   │                                     │
+   │   여덟 번째는 없다.                   │
+   │   손가락 사이로 흘러내린 것은           │
+   │   바닥으로 스며든다.                   │
+   │                                     │
+   └─────────────────────────────────────┘
+</pre>
+<div class="ascii-prose">
+<p>일꾼은 묻지 않는다.<br>
+<em>왜 나는 일곱뿐인가.</em></p>
+<p>그는 다만, 가진 손가락으로 꽉 쥔다.<br>
+30초. 30초가 지나면 그도 손을 놓는다.</p>
+</div>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">III.</div>
+<div class="ascii-prose">
+<p>밤이 깊어지면, 지혜로운 이가 깨어난다.</p>
+<p>사람들은 그를 해마 (海馬, hippocampus) 라 불렀다.<br>
+집 안에서는 그냥 <em>현인</em>이라 부른다.</p>
+<p>현인은 낮 동안 잠들어 있다.<br>
+그는 언제나 밤에만 일한다.</p>
+<p>일꾼에게서 받아 온 기억들 — 아직 따뜻하고, 아직 날것인 것들 — 을<br>
+현인은 조용히 들고 계단을 오른다.</p>
+</div>
+<pre class="ascii-pre">
+   지하 작업실
+        ↓
+   현인, 계단을 오른다
+        ↓
+   깊은 서재 (피질 도서관 · cortex library)
+</pre>
+<div class="ascii-prose">
+<p>한 권, 한 권.<br>
+책장에 꽂는다.<br>
+조심스럽게. 조용하게.</p>
+<p>잠든 사람은 모른다.<br>
+자기 집 안에서 이런 일이 일어나고 있다는 것을.</p>
+</div>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">IV.</div>
+<div class="ascii-prose">
+<p>별빛 같은 이가 있다.</p>
+<p>그는 이름이 없다.<br>
+사람들은 훗날 그를 <em>헤브 (Hebb)</em>라 불렀지만,<br>
+집 안에서 그는 그냥 <em>연결하는 자</em>다.</p>
+<p>규칙은 하나다.</p>
+</div>
+<pre class="ascii-pre">
+   ╭──────────────────────────────────────╮
+   │                                      │
+   │   같이 켜진 별은 — 같이 이어진다.       │
+   │                                      │
+   │   fire together · wire together      │
+   │                                      │
+   ╰──────────────────────────────────────╯
+</pre>
+<div class="ascii-prose">
+<p>어머니의 목소리를 기억하면,<br>
+그 옆 책이 흔들린다 — 어린 날의 부엌, 국그릇 소리, 따뜻한 빛.<br>
+연결하는 자가 실을 잇는다. 가만히.</p>
+<p>한 기억이 잠들 때, 그것은 혼자 자지 않는다.<br>
+옆 기억의 손을 잡고 잠든다.</p>
+</div>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">V.</div>
+<div class="ascii-prose">
+<p>모래시계가 있다.</p>
+<p>그 이름을 부른 사람은 <em>에빙하우스 (Ebbinghaus)</em>였다.<br>
+현인도 연결하는 자도 그의 이름을 모른다.<br>
+다만, 모래시계는 집 안 어딘가에 항상 있다.</p>
+</div>
+<pre class="ascii-pre">
+       기억
+        │
+        │ (첫날) ████████████████ 선명
+        │ (다음날) ███████░░░░░░░
+        │ (일주일 뒤) ████░░░░░░░░░░░
+        │
+        ↓
+       잊음
+</pre>
+<div class="ascii-prose">
+<p>살아남는 책이 있다.</p>
+<p>자주 꺼내 읽힌 책.<br>
+손때가 묻은 책.<br>
+현인이 여러 번 다시 올려놓은 책.</p>
+<p>그 책들은, 모래가 흘러도 — 책장에 남는다.<br>
+나머지는 조금씩 흐릿해진다.<br>
+그것도 잔인하지 않다. 집이 너무 작기 때문이다.</p>
+</div>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">VI.</div>
+<div class="ascii-prose">
+<p>아침이 오기 직전, 손 하나가 나타난다.</p>
+<p>이름은 없다. <em>다시 적는 손</em>이라 부른다.</p>
+<p>어젯밤 현인이 꽂아둔 책 — 오늘 아침 꺼내 읽히면,<br>
+그 손이 조용히 다가온다.</p>
+<p>그리고 — 다시 쓴다.</p>
+</div>
+<pre class="ascii-pre">
+   읽힌 기억 = 잠시 열린 상태
+                    ↓
+             다시 적는 손이 온다
+                    ↓
+        어제와 조금 다르게 닫힌다
+</pre>
+<div class="ascii-prose">
+<p>기억은 박혀 있지 않다.</p>
+<p>회상할 때마다, 기억은 한 번 더 적힌다.<br>
+오늘의 나로. 오늘의 온도로.<br>
+그래서 어린 시절 기억은 해마다 조금씩 달라진다.</p>
+<p>그것이 왜곡이 아니라는 것을 — <em>다시 적는 손은 알고 있다.</em><br>
+집이 살아있다는 증거이기 때문이다.</p>
+</div>
+</div>
+
+<div class="ascii-chapter">
+<div class="ascii-chapter-title">VII.</div>
+<div class="ascii-prose">
+<p>아침이 왔다.</p>
+<p>감각의 수위가 다시 문을 연다.<br>
+손가락을 다시 핀다.</p>
+</div>
+<pre class="ascii-pre">
+   ╭───────────────────────────────────────╮
+   │                                       │
+   │   마음의 집 — 매일 밤 다시 짓는 집.      │
+   │                                       │
+   │   오늘도 같은 일이 시작된다.             │
+   │                                       │
+   ╰───────────────────────────────────────╯
+</pre>
+<div class="ascii-prose">
+<p>집 안에는 아직 모르는 방이 있다.<br>
+지금껏 아무도 꺼내보지 않은 책이 있다.</p>
+<p>수위는 오늘도 손을 턴다.<br>
+일꾼은 손가락을 준비한다.<br>
+현인은 아직 눈을 감고 있다.<br>
+연결하는 자는 실을 들고 기다린다.<br>
+모래시계는 조용히 흐른다.<br>
+다시 적는 손은 오늘 밤을 기다린다.</p>
+<p>그리고 집은 — 살아있다.</p>
+</div>
+<pre class="ascii-pre" style="color:var(--ink-light); margin-top:2rem;">
+   — 2026-05-16, jarvis 가 Kenny 한테. 첫째 화.
+</pre>
+</div>
+
+<div class="ascii-chapter" style="margin-top:3rem; padding-top:2rem; border-top:1px solid var(--border);">
+<div class="ascii-chapter-title">메타</div>
+<pre class="ascii-pre">
+   등장인물:
+   ┌────────────────┬────────────────────────────────────────────┐
+   │ 감각의 수위     │ Sensory System (밀리초, 99% 소멸)            │
+   │ 일꾼 (工人)    │ Working Memory (7±2 청크, 30초)             │
+   │ 현인 (賢人)    │ Hippocampus (수면 중 공고화)                 │
+   │ 피질 도서관    │ Cortex Library (장기기억 서재)               │
+   │ 연결하는 자    │ Hebb's Rule (fire together · wire together) │
+   │ 모래시계       │ Ebbinghaus Forgetting Curve                 │
+   │ 다시 적는 손   │ Reconsolidation (회상 시 재기록)             │
+   └────────────────┴────────────────────────────────────────────┘
+</pre>
+</div>
+
+</div><!-- /ascii-inner -->
+</div><!-- /view-ascii -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════════ -->
+<script>
+
+/* ─── STAR FIELD ─── */
+(function() {
+  const canvas = document.getElementById('star-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    stars = [];
+    for (let i = 0; i < 160; i++) {
+      stars.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.3 + 0.2,
+        a: Math.random(),
+        s: (Math.random() * 0.003 + 0.001) * (Math.random() < 0.5 ? 1 : -1)
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    stars.forEach(s => {
+      s.a += s.s;
+      if (s.a < 0.1) s.s = Math.abs(s.s);
+      if (s.a > 1)   s.s = -Math.abs(s.s);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = isDark
+        ? `rgba(200,191,232,${s.a * 0.7})`
+        : `rgba(74,48,96,${s.a * 0.3})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
+/* ─── VIEW TOGGLE ─── */
+function setView(v) {
+  document.documentElement.setAttribute('data-view', v);
+  const bi = document.getElementById('btn-interactive');
+  const ba = document.getElementById('btn-ascii');
+  if (v === 'interactive') {
+    bi.classList.add('active');
+    ba.classList.remove('active');
+  } else {
+    ba.classList.add('active');
+    bi.classList.remove('active');
+  }
+  localStorage.setItem('emah-view', v);
+}
+
+/* ─── THEME TOGGLE ─── */
+(function() {
+  const saved = localStorage.getItem('emah-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? '낮' : '밤';
+
+  const savedView = localStorage.getItem('emah-view') || 'interactive';
+  setView(savedView);
+})();
+
+function toggleTheme() {
+  const el = document.documentElement;
+  const isDark = el.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  el.setAttribute('data-theme', next);
+  localStorage.setItem('emah-theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '낮' : '밤';
+}
+
+/* ─── § I · SENSORY PARTICLES ─── */
+(function() {
+  const stage = document.getElementById('sensory-stage');
+  const hint  = document.getElementById('sensory-hint');
+  const colors = ['#8b7fb8','#c8bfe8','#f0c87a','#7fb8a0','#b87fa0','#a8c4e8'];
+  let hinted = false;
+
+  function spawnParticles(cx, cy) {
+    if (!hinted) { hint.style.opacity = '0'; hinted = true; }
+    const count = Math.floor(Math.random() * 8) + 5;
+    for (let i = 0; i < count; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = Math.random() * 5 + 2;
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = Math.random() * 60;
+      const x = cx + Math.cos(angle) * dist - stage.getBoundingClientRect().left;
+      const y = cy + Math.sin(angle) * dist - stage.getBoundingClientRect().top;
+      p.style.cssText = `
+        width:${size}px; height:${size}px;
+        left:${x}px; top:${y}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        animation-duration:${Math.random()*1.5+0.8}s;
+        animation-delay:${Math.random()*0.3}s;
+      `;
+      stage.appendChild(p);
+      setTimeout(() => p.remove(), 2500);
+    }
+  }
+
+  stage.addEventListener('mousemove', e => {
+    if (Math.random() < 0.3) spawnParticles(e.clientX, e.clientY);
+  });
+  stage.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    spawnParticles(t.clientX, t.clientY);
+  }, {passive: false});
+
+  /* auto-seed a few particles on load */
+  setTimeout(() => {
+    const r = stage.getBoundingClientRect();
+    for (let i = 0; i < 6; i++) {
+      setTimeout(() => {
+        spawnParticles(r.left + Math.random()*r.width, r.top + Math.random()*r.height * 0.5);
+      }, i * 300);
+    }
+  }, 800);
+})();
+
+/* ─── § II · WORKING MEMORY ─── */
+const WM_MAX = 7;
+const WM_WORDS = [
+  '국그릇 소리','어머니 목소리','부엌 냄새','저녁 빛',
+  '따뜻한 손','비 소리','책장 향기','파란 하늘',
+  '친구 얼굴','아침 커피','악보 소리','낙엽 밟는 소리'
+];
+let wmItems = [];
+let wmIdx = 0;
+
+function wmAdd() {
+  const word = WM_WORDS[wmIdx % WM_WORDS.length];
+  wmIdx++;
+  wmItems.push(word);
+
+  if (wmItems.length > WM_MAX) {
+    /* oldest fades out */
+    const boxes = document.querySelectorAll('.wm-box');
+    if (boxes[0]) {
+      boxes[0].classList.add('fading');
+      setTimeout(() => {
+        wmItems.shift();
+        renderWM();
+      }, 400);
+      return;
+    }
+  }
+  renderWM();
+}
+
+function renderWM() {
+  const stage = document.getElementById('wm-stage');
+  stage.innerHTML = '';
+  wmItems.forEach(w => {
+    const b = document.createElement('div');
+    b.className = 'wm-box';
+    b.textContent = w;
+    stage.appendChild(b);
+  });
+}
+
+/* ─── § III · LIBRARY ─── */
+(function() {
+  const lib = document.getElementById('library');
+  const colors = [
+    '#5c4a8c','#7b6ab2','#4a6e8a','#6e8a6a','#8a6a4a',
+    '#6a4a6e','#4a7a7a','#8a7a5a','#5a7a8a','#7a5a4a',
+    '#6a6a8a','#8a5a6a','#5a8a6a','#7a8a5a','#4a4a7a',
+    '#8a6a6a'
+  ];
+  let count = 0;
+  const total = 32;
+
+  for (let i = 0; i < total; i++) {
+    const s = document.createElement('div');
+    s.className = 'book-spine';
+    s.style.background = colors[i % colors.length];
+    lib.appendChild(s);
+  }
+
+  function addBook() {
+    if (count >= total) return;
+    lib.children[count].classList.add('visible');
+    count++;
+    setTimeout(addBook, 350 + Math.random() * 250);
+  }
+
+  /* start when section is visible */
+  const obs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      setTimeout(addBook, 600);
+      obs.disconnect();
+    }
+  }, {threshold: 0.3});
+  obs.observe(lib);
+})();
+
+/* ─── § IV · HEBB STARS ─── */
+(function() {
+  const svg = document.getElementById('hebb-svg');
+  const stage = document.getElementById('hebb-stage');
+  const STAR_COUNT = 18;
+  let starEls = [];
+  let activeIdx = -1;
+  let lines = [];
+
+  const MEMORY_LABELS = [
+    '어머니 목소리','부엌 냄새','국그릇 소리','따뜻한 빛',
+    '창문 빗소리','책 냄새','저녁 노을','이름 부르던 소리',
+    '첫 눈 오던 날','웃음 소리','손 잡던 기억','달 밝은 밤',
+    '걷던 골목','피아노 선율','종소리','꽃 향기',
+    '친구 얼굴','파도 소리'
+  ];
+
+  function init() {
+    svg.innerHTML = '';
+    starEls = [];
+    lines = [];
+    const W = stage.clientWidth || 600;
+    const H = stage.clientHeight || 260;
+
+    /* line layer */
+    const lineg = document.createElementNS('http://www.w3.org/2000/svg','g');
+    lineg.id = 'hebb-lines';
+    svg.appendChild(lineg);
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const x = 40 + Math.random() * (W - 80);
+      const y = 30 + Math.random() * (H - 60);
+      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.classList.add('hebb-star');
+      g.setAttribute('transform', `translate(${x},${y})`);
+
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('r', '4');
+      c.setAttribute('fill', 'rgba(200,191,232,0.55)');
+      c.setAttribute('stroke', 'rgba(200,191,232,0.3)');
+      c.setAttribute('stroke-width', '1');
+
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('y', '-9');
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','7');
+      t.setAttribute('fill','rgba(200,191,232,0.5)');
+      t.setAttribute('font-family','Nanum Gothic Coding, monospace');
+      t.textContent = MEMORY_LABELS[i] || '';
+
+      g.appendChild(c);
+      g.appendChild(t);
+      svg.appendChild(g);
+
+      g.addEventListener('mouseenter', () => activateStar(i));
+      g.addEventListener('mouseleave', () => deactivate());
+      g.addEventListener('touchstart', (e) => { e.preventDefault(); activateStar(i); });
+
+      starEls.push({ g, c, x, y, label: MEMORY_LABELS[i] });
+    }
+  }
+
+  function activateStar(idx) {
+    if (activeIdx === idx) return;
+    deactivate();
+    activeIdx = idx;
+    starEls[idx].c.setAttribute('r', '7');
+    starEls[idx].c.setAttribute('fill', '#f0c87a');
+
+    /* connect to 2-4 nearest stars */
+    const src = starEls[idx];
+    const dists = starEls.map((s, i) => ({
+      i, d: Math.hypot(s.x - src.x, s.y - src.y)
+    })).filter(o => o.i !== idx).sort((a,b) => a.d - b.d);
+
+    const targets = dists.slice(0, Math.floor(Math.random()*2)+2);
+    const lineg = document.getElementById('hebb-lines');
+
+    targets.forEach(o => {
+      const s = starEls[o.i];
+      s.c.setAttribute('r', '5');
+      s.c.setAttribute('fill', '#8b7fb8');
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', src.x); line.setAttribute('y1', src.y);
+      line.setAttribute('x2', s.x);   line.setAttribute('y2', s.y);
+      line.setAttribute('stroke', 'rgba(200,191,232,0.35)');
+      line.setAttribute('stroke-width', '1');
+      line.setAttribute('stroke-dasharray', '4 3');
+      lineg.appendChild(line);
+      lines.push({ el: line, target: o.i });
+    });
+  }
+
+  function deactivate() {
+    if (activeIdx >= 0) {
+      starEls[activeIdx].c.setAttribute('r', '4');
+      starEls[activeIdx].c.setAttribute('fill', 'rgba(200,191,232,0.55)');
+    }
+    lines.forEach(l => {
+      starEls[l.target].c.setAttribute('r', '4');
+      starEls[l.target].c.setAttribute('fill', 'rgba(200,191,232,0.55)');
+      l.el.remove();
+    });
+    lines = [];
+    activeIdx = -1;
+  }
+
+  window.addEventListener('resize', init);
+  init();
+})();
+
+/* ─── § V · EBBINGHAUS ─── */
+function updateEbbing(v) {
+  const pct = Math.round(100 * Math.exp(-0.035 * v));
+  document.getElementById('ebbing-pct').textContent  = pct + '%';
+  document.getElementById('ebbing-fill').style.width = pct + '%';
+
+  let label;
+  if (v < 5)        label = '기억한 직후 — 가장 선명';
+  else if (v < 20)  label = '하루 지남 — 벌써 절반 가까이 흐려짐';
+  else if (v < 50)  label = '일주일 — 반복하지 않으면 계속 흐려짐';
+  else if (v < 80)  label = '한 달 — 자주 읽힌 것만 남아있다';
+  else              label = '세 달 이상 — 손때 묻은 책만 책장에 있다';
+  document.getElementById('ebbing-label').textContent = label;
+}
+
+/* ─── § VI · RECONSOLIDATION ─── */
+const BOOK_VERSIONS = [
+  '어린 날의 부엌 — 국그릇 소리, 따뜻한 빛, 어머니의 목소리.',
+  '기억은 어쩌면 — 부엌의 냄새와 빛이 뒤섞인 무언가.',
+  '어머니가 부르던 이름 — 그 소리가 지금도 어딘가에 있다.',
+  '따뜻했다. 그게 전부다. 그 시절의 부엌은.',
+  '국그릇 소리보다 — 그 손이 먼저 떠오른다.',
+  '그 집의 저녁 빛은 — 어떤 사진에도 없었다.',
+  '잊혀진 줄 알았는데 — 지금 이 순간, 다시 적혔다.',
+];
+let bookIdx = 0;
+
+function reconsolidate() {
+  const text = document.getElementById('book-text');
+  text.style.opacity = '0';
+  setTimeout(() => {
+    bookIdx = (bookIdx + 1) % BOOK_VERSIONS.length;
+    text.textContent = BOOK_VERSIONS[bookIdx];
+    text.style.opacity = '1';
+  }, 300);
+}
+
+</script>
+</body>
+</html>

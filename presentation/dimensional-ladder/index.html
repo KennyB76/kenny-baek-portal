@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark" data-lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>차원 사다리 — Dimensional Ladder · Kenny Baek 2026-05-16</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Georgia:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+/* ─── TOKENS ─── */
+:root {
+  --bg:        #f5f0e8;
+  --surface:   #ebe5d7;
+  --paper:     #faf7f2;
+  --ink:       #2c2118;
+  --ink-2:     #4a3728;
+  --ink-light: #7a6552;
+  --border:    #d4c5b0;
+  --accent:    #5c4033;
+  --accent-2:  #7b5e4a;
+  --accent-glow: rgba(92,64,51,0.12);
+  --wave-a:   rgba(80,120,180,0.6);
+  --wave-b:   rgba(180,80,80,0.6);
+  --wave-int: rgba(60,150,100,0.7);
+  --note-bg:  #fff9ee;
+  --note-border: #c9a96e;
+  --radius: 10px;
+  --serif: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+}
+[data-theme="dark"] {
+  --bg:        #0e0b08;
+  --surface:   #161208;
+  --paper:     #1a1510;
+  --ink:       #e8ddd0;
+  --ink-2:     #c4b49e;
+  --ink-light: #8a7868;
+  --border:    #2e2418;
+  --accent:    #c8a87a;
+  --accent-2:  #a08860;
+  --accent-glow: rgba(200,168,122,0.10);
+  --wave-a:   rgba(100,160,240,0.65);
+  --wave-b:   rgba(240,100,100,0.65);
+  --wave-int: rgba(80,200,140,0.75);
+  --note-bg:  #1e1810;
+  --note-border: #6e5030;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.85;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ─── FIXED CONTROLS ─── */
+.controls {
+  position: fixed;
+  top: 1.1rem;
+  right: 1.2rem;
+  z-index: 200;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.ctrl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  font-family: var(--serif);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  letter-spacing: 0.04em;
+}
+.ctrl-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--accent);
+  z-index: 300;
+  transition: width 0.3s;
+}
+
+/* ─── SECTION ─── */
+.section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 1.5rem 4rem;
+  position: relative;
+}
+
+/* ─── SECTION HEADER ─── */
+.sec-tag {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 0.6rem;
+  font-family: var(--serif);
+}
+.sec-title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  line-height: 1.25;
+}
+.sec-sub {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  text-align: center;
+  margin-bottom: 2.2rem;
+  font-style: italic;
+  max-width: 480px;
+}
+
+/* ─── NOTE BOX ─── */
+.note-box {
+  background: var(--note-bg);
+  border-left: 3px solid var(--note-border);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 1rem 1.4rem;
+  margin-top: 1.8rem;
+  max-width: 540px;
+  width: 100%;
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.75;
+}
+.note-box cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+  letter-spacing: 0.06em;
+}
+
+/* ─── NEXT BUTTON ─── */
+.next-btn {
+  margin-top: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: 0.55rem 1.4rem;
+  font-family: var(--serif);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  letter-spacing: 0.04em;
+}
+.next-btn:hover { border-color: var(--accent); background: var(--accent-glow); }
+.next-btn .arrow { font-size: 0.9rem; transition: transform 0.2s; }
+.next-btn:hover .arrow { transform: translateY(3px); }
+
+/* ─── STEP DOTS ─── */
+.step-dots {
+  position: fixed;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  z-index: 200;
+}
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+}
+.step-dot.active { background: var(--accent); transform: scale(1.4); }
+
+/* ─── § I : 3D SCENE ─── */
+#scene3d {
+  width: min(380px, 90vw);
+  height: min(280px, 55vw);
+  perspective: 800px;
+  position: relative;
+  margin: 0 auto 1rem;
+}
+.pond {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(28deg) rotateY(-12deg);
+  transition: transform 0.4s;
+}
+.water-plane {
+  position: absolute;
+  bottom: 0; left: 5%; right: 5%;
+  height: 55%;
+  background: linear-gradient(160deg,
+    rgba(80,130,200,0.35) 0%,
+    rgba(60,100,160,0.55) 100%
+  );
+  border-radius: 40% 40% 10% 10%;
+  border: 1px solid rgba(100,160,240,0.3);
+  overflow: hidden;
+}
+[data-theme="dark"] .water-plane {
+  background: linear-gradient(160deg,
+    rgba(40,80,160,0.5) 0%,
+    rgba(20,60,130,0.7) 100%
+  );
+  border-color: rgba(80,140,240,0.25);
+}
+.ripple-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+}
+.stone {
+  position: absolute;
+  width: 14px; height: 14px;
+  background: radial-gradient(circle at 35% 35%, #888, #444);
+  border-radius: 50%;
+  bottom: 55%;
+  left: 48%;
+  cursor: grab;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  transition: transform 0.15s;
+  z-index: 10;
+}
+.stone:hover { transform: scale(1.2); }
+.depth-lines {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 55%;
+  pointer-events: none;
+}
+
+/* ─── § II : WAVE CANVAS ─── */
+#waveCanvas {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: crosshair;
+  display: block;
+  width: min(500px, 92vw);
+  height: min(260px, 50vw);
+}
+
+/* ─── § III : PIXEL CANVAS ─── */
+#pixelCanvas {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  display: block;
+  width: min(500px, 92vw);
+  height: min(260px, 50vw);
+}
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+}
+.slider-row input[type="range"] {
+  -webkit-appearance: none;
+  width: 180px; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ─── § IV : DNA ─── */
+#dnaWrap {
+  width: min(340px, 88vw);
+  height: min(300px, 60vw);
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto;
+}
+#dnaSvg { width: 100%; height: 100%; }
+.base-pair { cursor: pointer; transition: opacity 0.2s; }
+.base-pair:hover .base-label { opacity: 1; }
+.base-label { opacity: 0; transition: opacity 0.25s; font-size: 10px; fill: var(--accent); }
+.dna-tooltip {
+  position: absolute;
+  background: var(--note-bg);
+  border: 1px solid var(--note-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+  max-width: 200px;
+  line-height: 1.5;
+  z-index: 50;
+  font-style: italic;
+}
+
+/* ─── § V : DEEP LAYER ─── */
+#deepCanvas {
+  border-radius: var(--radius);
+  display: block;
+  width: min(500px, 92vw);
+  height: min(260px, 50vw);
+}
+.fade-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  pointer-events: none;
+}
+.fade-line {
+  font-size: clamp(0.85rem, 2.5vw, 1.05rem);
+  color: var(--ink);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1.2s;
+  padding: 0 1rem;
+}
+.fade-line.visible { opacity: 1; }
+
+/* ─── FOOTER LADDER ─── */
+.footer-ladder {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 1.8rem 1.5rem;
+  text-align: center;
+}
+.ladder-line {
+  font-size: clamp(0.72rem, 2vw, 0.88rem);
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+  line-height: 2;
+}
+.ladder-line span {
+  color: var(--accent);
+  font-weight: 700;
+}
+.ladder-arrow { color: var(--ink-light); margin: 0 0.3rem; }
+.footer-cite {
+  font-size: 0.72rem;
+  color: var(--ink-light);
+  font-style: italic;
+  margin-top: 0.6rem;
+}
+.disclaimer {
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  line-height: 1.7;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ─── SECTION SEPARATORS ─── */
+.section:not(:first-child) {
+  border-top: 1px solid var(--border);
+}
+
+/* ─── DARK/LIGHT BG ALTERNATION ─── */
+.section:nth-child(even) { background: var(--surface); }
+.section:nth-child(odd)  { background: var(--bg); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 600px) {
+  .step-dots { display: none; }
+  .controls { top: 0.6rem; right: 0.6rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- FIXED CONTROLS -->
+<div class="controls">
+  <button class="ctrl-btn" id="themeBtn" onclick="toggleTheme()">
+    <span data-ko="낮" data-en="Day">낮</span>
+  </button>
+  <button class="ctrl-btn" id="langBtn" onclick="toggleLang()">EN</button>
+</div>
+
+<!-- STEP DOTS -->
+<nav class="step-dots" aria-label="섹션 이동">
+  <div class="step-dot active" onclick="scrollToSection(0)" title="§ I"></div>
+  <div class="step-dot" onclick="scrollToSection(1)" title="§ II"></div>
+  <div class="step-dot" onclick="scrollToSection(2)" title="§ III"></div>
+  <div class="step-dot" onclick="scrollToSection(3)" title="§ IV"></div>
+  <div class="step-dot" onclick="scrollToSection(4)" title="§ V"></div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════
+     § I. 3D 연속 — 돌 던지는 순간
+════════════════════════════════════════ -->
+<section class="section" id="sec1">
+  <div class="sec-tag" data-ko="§ I · 3D 연속" data-en="§ I · 3D Continuum">§ I · 3D 연속</div>
+  <h2 class="sec-title">
+    <span data-ko="돌이 물에 닿는 순간" data-en="The Moment Stone Meets Water">돌이 물에 닿는 순간</span>
+  </h2>
+  <p class="sec-sub">
+    <span data-ko="압력 + 깊이 + 시간 — 모든 정보가 연속으로 살아 있습니다" data-en="Pressure + Depth + Time — all information lives as continuous flow">
+      압력 + 깊이 + 시간 — 모든 정보가 연속으로 살아 있습니다
+    </span>
+  </p>
+
+  <div id="scene3d" aria-label="3D 연못 장면">
+    <div class="pond" id="pond">
+      <!-- 수면 -->
+      <div class="water-plane">
+        <svg class="ripple-svg" id="rippleSvg" viewBox="0 0 300 150"></svg>
+      </div>
+      <!-- 돌 -->
+      <div class="stone" id="stone" title="마우스로 움직여 보세요"></div>
+    </div>
+  </div>
+  <p style="font-size:0.72rem; color:var(--ink-light); margin-top:0.6rem; font-style:italic;"
+     data-ko="마우스로 돌을 건드려 보세요" data-en="Move your mouse over the stone">
+    마우스로 돌을 건드려 보세요
+  </p>
+
+  <div class="note-box">
+    <span data-ko="&ldquo;여기서 — 돌이 닿는 순간, 압력 · 깊이 · 시간이 한꺼번에 존재합니다. 3차원 연속. 아직 아무것도 잃지 않았습니다.&rdquo;" data-en="&ldquo;Here — the instant the stone touches, pressure · depth · time exist all at once. 3D continuum. Nothing is lost yet.&rdquo;">
+      &ldquo;여기서 — 돌이 닿는 순간, 압력 · 깊이 · 시간이 한꺼번에 존재합니다. 3차원 연속. 아직 아무것도 잃지 않았습니다.&rdquo;
+    </span>
+    <cite>— Kenny Baek, 2026-05-16</cite>
+  </div>
+
+  <button class="next-btn" onclick="scrollToSection(1)">
+    <span data-ko="다음 — 수면 위 무늬" data-en="Next — Pattern on the Surface">다음 — 수면 위 무늬</span>
+    <span class="arrow">↓</span>
+  </button>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     § II. 2D 중첩 — 수면 위 무늬
+════════════════════════════════════════ -->
+<section class="section" id="sec2">
+  <div class="sec-tag" data-ko="§ II · 2D 중첩" data-en="§ II · 2D Superposition">§ II · 2D 중첩</div>
+  <h2 class="sec-title">
+    <span data-ko="수면 위의 무늬" data-en="Pattern on the Surface">수면 위의 무늬</span>
+  </h2>
+  <p class="sec-sub">
+    <span data-ko="이미 — 한 차원 줄어들었습니다. 우리가 평면을 보기 때문에." data-en="Already — one dimension is lost. Because we can only see the surface.">
+      이미 — 한 차원 줄어들었습니다. 우리가 평면을 보기 때문에.
+    </span>
+  </p>
+
+  <canvas id="waveCanvas" aria-label="2파원 간섭 무늬"></canvas>
+  <p style="font-size:0.72rem; color:var(--ink-light); margin-top:0.6rem; font-style:italic;"
+     data-ko="마우스로 파원 A를 움직여 보세요" data-en="Drag source A with your mouse">
+    마우스로 파원 A를 움직여 보세요
+  </p>
+
+  <div class="note-box">
+    <span data-ko="&ldquo;두 파원이 만나 간섭 무늬를 만듭니다. 이 무늬는 평면입니다. 깊이는 이미 사라졌습니다. 하지만 — 무늬 안에 정보가 남아 있습니다.&rdquo;" data-en="&ldquo;Two sources meet and create an interference pattern. This pattern is flat. Depth is already gone. But — information remains within the pattern.&rdquo;">
+      &ldquo;두 파원이 만나 간섭 무늬를 만듭니다. 이 무늬는 평면입니다. 깊이는 이미 사라졌습니다. 하지만 — 무늬 안에 정보가 남아 있습니다.&rdquo;
+    </span>
+    <cite>— Kenny Baek, 2026-05-16</cite>
+  </div>
+
+  <button class="next-btn" onclick="scrollToSection(2)">
+    <span data-ko="다음 — 측정의 순간" data-en="Next — The Moment of Measurement">다음 — 측정의 순간</span>
+    <span class="arrow">↓</span>
+  </button>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     § III. Digital 점 — 측정의 순간
+════════════════════════════════════════ -->
+<section class="section" id="sec3">
+  <div class="sec-tag" data-ko="§ III · 디지털 점" data-en="§ III · Digital Pixel">§ III · 디지털 점</div>
+  <h2 class="sec-title">
+    <span data-ko="측정의 순간" data-en="The Moment of Measurement">측정의 순간</span>
+  </h2>
+  <p class="sec-sub">
+    <span data-ko="사진 찍는 순간 — 무늬가 점이 됩니다. 정보 손실이 시작됩니다." data-en="When the photo is taken — the pattern becomes pixels. Information loss begins.">
+      사진 찍는 순간 — 무늬가 점이 됩니다. 정보 손실이 시작됩니다.
+    </span>
+  </p>
+
+  <canvas id="pixelCanvas" aria-label="픽셀화 간섭 무늬"></canvas>
+  <div class="slider-row">
+    <span data-ko="해상도" data-en="Resolution">해상도</span>
+    <input type="range" id="pixelSlider" min="4" max="40" value="14" oninput="updatePixel()" />
+    <span id="pixelLabel" style="min-width:3rem;">14 px</span>
+  </div>
+
+  <div class="note-box">
+    <span data-ko="&ldquo;슬라이더를 올리면 — 무늬가 뭉개집니다. 같은 장면이지만, 측정 단위가 달라지면 보이는 정보가 달라집니다.&rdquo;" data-en="&ldquo;Move the slider up — the pattern blurs. Same scene, but changing the measurement unit changes what we see.&rdquo;">
+      &ldquo;슬라이더를 올리면 — 무늬가 뭉개집니다. 같은 장면이지만, 측정 단위가 달라지면 보이는 정보가 달라집니다.&rdquo;
+    </span>
+    <cite>— Kenny Baek, 2026-05-16</cite>
+  </div>
+
+  <button class="next-btn" onclick="scrollToSection(3)">
+    <span data-ko="다음 — ATGC 가 보입니다" data-en="Next — You see ATGC">다음 — ATGC 가 보입니다</span>
+    <span class="arrow">↓</span>
+  </button>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     § IV. ATGC — 이미 평면화 결과
+════════════════════════════════════════ -->
+<section class="section" id="sec4">
+  <div class="sec-tag" data-ko="§ IV · ATGC" data-en="§ IV · ATGC">§ IV · ATGC</div>
+  <h2 class="sec-title">
+    <span data-ko="이미 — 평면화된 결과" data-en="Already — A Flattened Result">이미 — 평면화된 결과</span>
+  </h2>
+  <p class="sec-sub">
+    <span data-ko="A T G C 네 글자가 보입니다. 하지만 — 이것이 끝이 아닙니다." data-en="You see four letters: A T G C. But — this is not the end.">
+      A T G C 네 글자가 보입니다. 하지만 — 이것이 끝이 아닙니다.
+    </span>
+  </p>
+
+  <div id="dnaWrap">
+    <svg id="dnaSvg" viewBox="0 0 340 300" aria-label="DNA 이중 나선"></svg>
+    <div class="dna-tooltip" id="dnaTooltip"></div>
+  </div>
+  <p style="font-size:0.72rem; color:var(--ink-light); margin-top:0.6rem; font-style:italic;"
+     data-ko="글자 위에 마우스를 올려보세요" data-en="Hover over the letters">
+    글자 위에 마우스를 올려보세요
+  </p>
+
+  <div class="note-box">
+    <span data-ko="&ldquo;A, T, G, C — 이 네 글자가 생명을 쓰는 방법입니다. 하지만 이 글자들은 이미 3D 에서 평면으로 내려온 결과입니다. 끝이 아닙니다.&rdquo;" data-en="&ldquo;A, T, G, C — these four letters write life. But they are already a result that has descended from 3D to flat. This is not the end.&rdquo;">
+      &ldquo;A, T, G, C — 이 네 글자가 생명을 쓰는 방법입니다. 하지만 이 글자들은 이미 3D 에서 평면으로 내려온 결과입니다. 끝이 아닙니다.&rdquo;
+    </span>
+    <cite>— Kenny Baek, 2026-05-16</cite>
+  </div>
+
+  <button class="next-btn" onclick="scrollToSection(4)">
+    <span data-ko="다음 — 더 깊은 layer" data-en="Next — Deeper Layer">다음 — 더 깊은 layer</span>
+    <span class="arrow">↓</span>
+  </button>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     § V. 더 깊은 layer
+════════════════════════════════════════ -->
+<section class="section" id="sec5">
+  <div class="sec-tag" data-ko="§ V · 더 깊은 layer" data-en="§ V · Deeper Layer">§ V · 더 깊은 layer</div>
+  <h2 class="sec-title">
+    <span data-ko="안에서는 — 진짜 흐름이 돌고 있습니다" data-en="Inside — The True Flow Still Moves">안에서는 — 진짜 흐름이 돌고 있습니다</span>
+  </h2>
+  <p class="sec-sub">
+    <span data-ko="우리가 아직 분석하지 못하는 것 뿐." data-en="We simply haven't learned to read it yet.">
+      우리가 아직 분석하지 못하는 것 뿐.
+    </span>
+  </p>
+
+  <div style="position:relative; display:inline-block;">
+    <canvas id="deepCanvas" aria-label="깊은 흐름 시각화"></canvas>
+    <div class="fade-text" id="fadeTextBox">
+      <p class="fade-line" id="fl1">
+        <span data-ko="A T G C 는 — 표면입니다." data-en="A T G C — is the surface.">A T G C 는 — 표면입니다.</span>
+      </p>
+      <p class="fade-line" id="fl2">
+        <span data-ko="안 에서는 — 진짜 흐름이 — 여전히 돌고 있습니다." data-en="Inside — the true flow — still moves.">안 에서는 — 진짜 흐름이 — 여전히 돌고 있습니다.</span>
+      </p>
+      <p class="fade-line" id="fl3">
+        <span data-ko="우리가 아직 분석하지 못하는 것 뿐." data-en="We simply haven't learned to read it yet.">우리가 아직 분석하지 못하는 것 뿐.</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <span data-ko="&ldquo;사다리는 여기서 끝나지 않습니다. ATGC 아래에 분자 진동이, 그 아래에 양자 상태가, 그 아래에 — 우리가 아직 이름을 모르는 것이 있습니다.&rdquo;" data-en="&ldquo;The ladder does not end here. Below ATGC lies molecular vibration, below that quantum states, and below that — something we haven't named yet.&rdquo;">
+      &ldquo;사다리는 여기서 끝나지 않습니다. ATGC 아래에 분자 진동이, 그 아래에 양자 상태가, 그 아래에 — 우리가 아직 이름을 모르는 것이 있습니다.&rdquo;
+    </span>
+    <cite>— Kenny Baek, 2026-05-16</cite>
+  </div>
+
+  <button class="next-btn" onclick="scrollToSection(0)">
+    <span data-ko="처음으로 — § I" data-en="Back to Start — § I">처음으로 — § I</span>
+    <span class="arrow">↑</span>
+  </button>
+</section>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer-ladder">
+  <div class="ladder-line">
+    <span data-ko="3D 연속" data-en="3D Continuum">3D 연속</span>
+    <span class="ladder-arrow">→</span>
+    <span data-ko="2D 중첩" data-en="2D Superposition">2D 중첩</span>
+    <span class="ladder-arrow">→</span>
+    <span data-ko="디지털 점" data-en="Digital Pixel">디지털 점</span>
+    <span class="ladder-arrow">→</span>
+    <span>ATGC</span>
+    <span class="ladder-arrow">→</span>
+    <span data-ko="더 깊은 layer" data-en="Deeper Layer">더 깊은 layer</span>
+  </div>
+  <div class="footer-cite">— Kenny Baek, 2026-05-16</div>
+  <div class="disclaimer">
+    <span data-ko="이 자료는 Kenny Baek 의 개인 통찰이며, 학문적 정설이 아닙니다. Huygens 파동 원리 / 양자 측정 이론 / DNA 평면화 개념을 비유로 사용한 교육 자료입니다." data-en="This material represents Kenny Baek's personal insight, not established academic consensus. Huygens wave principle / quantum measurement theory / DNA flattening are used as educational metaphors.">
+      이 자료는 Kenny Baek 의 개인 통찰이며, 학문적 정설이 아닙니다. Huygens 파동 원리 / 양자 측정 이론 / DNA 평면화 개념을 비유로 사용한 교육 자료입니다.
+    </span>
+  </div>
+</footer>
+
+
+<script>
+/* ═══════════════════════════════════════
+   THEME + LANG TOGGLE
+════════════════════════════════════════ */
+const SECTIONS = ['sec1','sec2','sec3','sec4','sec5'];
+const dots = document.querySelectorAll('.step-dot');
+
+function applyLang(l) {
+  document.documentElement.setAttribute('data-lang', l);
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    if (el.tagName === 'INPUT') return;
+    el.innerHTML = el.getAttribute('data-' + l);
+  });
+  document.getElementById('langBtn').textContent = l === 'ko' ? 'EN' : 'KO';
+  buildDna(); // re-render DNA tooltips
+}
+
+function toggleLang() {
+  const cur = document.documentElement.getAttribute('data-lang') || 'ko';
+  const next = cur === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('dl-lang', next);
+  applyLang(next);
+}
+
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeBtn');
+  const isDark = t === 'dark';
+  const l = document.documentElement.getAttribute('data-lang') || 'ko';
+  btn.textContent = isDark
+    ? (l === 'ko' ? '낮' : 'Day')
+    : (l === 'ko' ? '밤' : 'Dark');
+  // re-render wave canvases with new colors
+  drawWave();
+  drawPixelCanvas();
+  drawDeepCanvas();
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('dl-theme', next);
+  applyTheme(next);
+}
+
+/* ═══ SCROLL + PROGRESS ═══ */
+function scrollToSection(idx) {
+  document.getElementById(SECTIONS[idx]).scrollIntoView({ behavior: 'smooth' });
+}
+
+window.addEventListener('scroll', () => {
+  const total = document.body.scrollHeight - window.innerHeight;
+  const pct = total > 0 ? (window.scrollY / total * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+
+  // active dot
+  SECTIONS.forEach((id, i) => {
+    const el = document.getElementById(id);
+    const rect = el.getBoundingClientRect();
+    if (rect.top <= window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+      dots.forEach(d => d.classList.remove('active'));
+      dots[i].classList.add('active');
+    }
+  });
+
+  // trigger deep text fade
+  const sec5 = document.getElementById('sec5');
+  if (sec5) {
+    const r = sec5.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.6) triggerFadeText();
+  }
+});
+
+/* ═══════════════════════════════════════
+   § I — 3D RIPPLE
+════════════════════════════════════════ */
+const rippleSvg = document.getElementById('rippleSvg');
+const stone = document.getElementById('stone');
+let ripples = [];
+let rippleTimer = null;
+
+function makeRipple(cx, cy) {
+  for (let r = 0; r < 4; r++) {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', cx);
+    circle.setAttribute('cy', cy);
+    circle.setAttribute('r', 2 + r * 6);
+    circle.setAttribute('fill', 'none');
+    circle.setAttribute('stroke', 'rgba(100,180,255,0.55)');
+    circle.setAttribute('stroke-width', '1.2');
+    circle.style.animation = `rippleAnim ${0.8 + r*0.4}s ease-out ${r*0.12}s forwards`;
+    rippleSvg.appendChild(circle);
+    setTimeout(() => circle.remove(), (0.8 + r*0.4 + r*0.12) * 1000 + 100);
+  }
+}
+
+// inject ripple keyframes
+const rkStyle = document.createElement('style');
+rkStyle.textContent = `
+@keyframes rippleAnim {
+  0%   { r: 4px; opacity: 0.8; }
+  100% { r: 90px; opacity: 0; }
+}`;
+document.head.appendChild(rkStyle);
+
+stone.addEventListener('mouseenter', () => {
+  makeRipple(150, 90);
+  clearInterval(rippleTimer);
+  rippleTimer = setInterval(() => makeRipple(148 + Math.random()*4, 88 + Math.random()*4), 900);
+});
+stone.addEventListener('mouseleave', () => clearInterval(rippleTimer));
+
+// ambient ripple
+setInterval(() => makeRipple(100 + Math.random()*100, 40 + Math.random()*70), 2800);
+
+/* ═══════════════════════════════════════
+   § II — WAVE INTERFERENCE
+════════════════════════════════════════ */
+const waveCanvas = document.getElementById('waveCanvas');
+const wCtx = waveCanvas.getContext('2d');
+let srcA = { x: 0.3, y: 0.5 }; // normalized
+const srcB = { x: 0.7, y: 0.5 };
+let dragging = false;
+let wAnim = null;
+let wPhase = 0;
+
+function resizeWave() {
+  const rect = waveCanvas.getBoundingClientRect();
+  waveCanvas.width = rect.width * devicePixelRatio;
+  waveCanvas.height = rect.height * devicePixelRatio;
+}
+
+function waveAt(x, y, sx, sy, phase, k) {
+  const dx = x - sx, dy = y - sy;
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  if (dist < 0.5) return 1;
+  return Math.sin(k * dist - phase) / (0.4 + dist * 0.01);
+}
+
+function drawWave() {
+  const W = waveCanvas.width, H = waveCanvas.height;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const img = wCtx.createImageData(W, H);
+  const ax = srcA.x * W, ay = srcA.y * H;
+  const bx = srcB.x * W, by = srcB.y * H;
+  const k = 0.055;
+
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const wa = waveAt(px, py, ax, ay, wPhase, k);
+      const wb = waveAt(px, py, bx, by, wPhase * 0.92, k);
+      const val = (wa + wb) * 0.5;
+      const norm = (val + 1) / 2;
+      const i = (py * W + px) * 4;
+
+      if (isDark) {
+        img.data[i]   = Math.round(20  + norm * 60);
+        img.data[i+1] = Math.round(50  + norm * 100);
+        img.data[i+2] = Math.round(100 + norm * 130);
+      } else {
+        img.data[i]   = Math.round(160 + norm * 90);
+        img.data[i+1] = Math.round(195 + norm * 60);
+        img.data[i+2] = Math.round(220 + norm * 35);
+      }
+      img.data[i+3] = 255;
+    }
+  }
+  wCtx.putImageData(img, 0, 0);
+
+  // draw source markers
+  [[ax,ay,'A'],[bx,by,'B']].forEach(([x,y,lbl]) => {
+    wCtx.beginPath();
+    wCtx.arc(x,y,6,0,Math.PI*2);
+    wCtx.fillStyle = lbl === 'A' ? 'rgba(255,120,80,0.9)' : 'rgba(80,180,255,0.9)';
+    wCtx.fill();
+    wCtx.fillStyle = '#fff';
+    wCtx.font = `bold ${10 * devicePixelRatio}px monospace`;
+    wCtx.fillText(lbl, x + 8, y + 5);
+  });
+}
+
+function animWave() {
+  wPhase += 0.045;
+  drawWave();
+  wAnim = requestAnimationFrame(animWave);
+}
+
+waveCanvas.addEventListener('mousemove', e => {
+  const r = waveCanvas.getBoundingClientRect();
+  srcA.x = (e.clientX - r.left) / r.width;
+  srcA.y = (e.clientY - r.top) / r.height;
+});
+waveCanvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const r = waveCanvas.getBoundingClientRect();
+  srcA.x = (e.touches[0].clientX - r.left) / r.width;
+  srcA.y = (e.touches[0].clientY - r.top) / r.height;
+}, { passive: false });
+
+/* ═══════════════════════════════════════
+   § III — PIXEL CANVAS
+════════════════════════════════════════ */
+const pixelCanvas = document.getElementById('pixelCanvas');
+const pCtx = pixelCanvas.getContext('2d');
+let pixelSize = 14;
+
+function resizePixel() {
+  const rect = pixelCanvas.getBoundingClientRect();
+  pixelCanvas.width = rect.width * devicePixelRatio;
+  pixelCanvas.height = rect.height * devicePixelRatio;
+}
+
+function drawPixelCanvas() {
+  const W = pixelCanvas.width, H = pixelCanvas.height;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const ps = pixelSize * devicePixelRatio;
+  const ax = srcA.x * W, ay = srcA.y * H;
+  const bx = srcB.x * W, by = srcB.y * H;
+  const k = 0.055;
+
+  pCtx.clearRect(0,0,W,H);
+
+  for (let py = 0; py < H; py += ps) {
+    for (let px = 0; px < W; px += ps) {
+      const cx = px + ps/2, cy = py + ps/2;
+      const wa = waveAt(cx, cy, ax, ay, wPhase, k);
+      const wb = waveAt(cx, cy, bx, by, wPhase * 0.92, k);
+      const val = (wa + wb) * 0.5;
+      const norm = (val + 1) / 2;
+
+      let r, g, b;
+      if (isDark) {
+        r = Math.round(20  + norm * 60);
+        g = Math.round(50  + norm * 100);
+        b = Math.round(100 + norm * 130);
+      } else {
+        r = Math.round(160 + norm * 90);
+        g = Math.round(195 + norm * 60);
+        b = Math.round(220 + norm * 35);
+      }
+      pCtx.fillStyle = `rgb(${r},${g},${b})`;
+      pCtx.fillRect(px, py, ps-1, ps-1);
+    }
+  }
+}
+
+function updatePixel() {
+  pixelSize = parseInt(document.getElementById('pixelSlider').value);
+  document.getElementById('pixelLabel').textContent = pixelSize + ' px';
+  drawPixelCanvas();
+}
+
+/* ═══════════════════════════════════════
+   § IV — DNA SVG
+════════════════════════════════════════ */
+const BASES = ['A','T','G','C'];
+const PAIRS = { A:'T', T:'A', G:'C', C:'G' };
+const BASE_COLOR = { A:'#e87070', T:'#70b0e8', G:'#70c87a', C:'#e8c870' };
+const BASE_TOOLTIP_KO = {
+  A: '아데닌 — 티민과 쌍을 이룹니다. 이 안에서 무엇이 진동하고 있을까요?',
+  T: '티민 — 아데닌과 쌍을 이룹니다. 글자는 표면. 흐름은 안에 있습니다.',
+  G: '구아닌 — 사이토신과 쌍을 이룹니다. 세 개의 수소결합. 더 깊은 결합.',
+  C: '사이토신 — 구아닌과 쌍을 이룹니다. 이 결합 아래에 — 분자 진동이 있습니다.'
+};
+const BASE_TOOLTIP_EN = {
+  A: 'Adenine — pairs with Thymine. What vibrates inside this letter?',
+  T: 'Thymine — pairs with Adenine. The letter is the surface. The flow is inside.',
+  G: 'Guanine — pairs with Cytosine. Three hydrogen bonds. A deeper bond.',
+  C: 'Cytosine — pairs with Guanine. Below this bond — molecular vibration.'
+};
+
+function buildDna() {
+  const svg = document.getElementById('dnaSvg');
+  svg.innerHTML = '';
+  const W = 340, H = 300;
+  const cx = W / 2;
+  const n = 10;
+  const step = H / (n + 1);
+  const amp = 60;
+  const lang = document.documentElement.getAttribute('data-lang') || 'ko';
+
+  // draw backbone paths
+  let d1 = '', d2 = '';
+  for (let i = 0; i <= n + 1; i++) {
+    const y = i * step;
+    const x1 = cx + amp * Math.sin(i / n * Math.PI * 2);
+    const x2 = cx - amp * Math.sin(i / n * Math.PI * 2);
+    d1 += (i===0 ? 'M' : 'L') + `${x1},${y} `;
+    d2 += (i===0 ? 'M' : 'L') + `${x2},${y} `;
+  }
+  const path1 = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path1.setAttribute('d', d1);
+  path1.setAttribute('fill','none');
+  path1.setAttribute('stroke','rgba(150,150,150,0.35)');
+  path1.setAttribute('stroke-width','3');
+  svg.appendChild(path1);
+  const path2 = document.createElementNS('http://www.w3.org/2000/svg','path');
+  path2.setAttribute('d', d2);
+  path2.setAttribute('fill','none');
+  path2.setAttribute('stroke','rgba(150,150,150,0.35)');
+  path2.setAttribute('stroke-width','3');
+  svg.appendChild(path2);
+
+  // base pairs
+  for (let i = 1; i <= n; i++) {
+    const y = i * step;
+    const x1 = cx + amp * Math.sin(i / n * Math.PI * 2);
+    const x2 = cx - amp * Math.sin(i / n * Math.PI * 2);
+    const base = BASES[i % 4];
+    const pair = PAIRS[base];
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','base-pair');
+
+    // connector
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1); line.setAttribute('y1',y);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y);
+    line.setAttribute('stroke','rgba(180,180,180,0.3)');
+    line.setAttribute('stroke-width','1.5');
+    line.setAttribute('stroke-dasharray','4 3');
+    g.appendChild(line);
+
+    // base circles
+    [[x1, base],[x2, pair]].forEach(([x, b]) => {
+      const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circ.setAttribute('cx',x); circ.setAttribute('cy',y); circ.setAttribute('r',10);
+      circ.setAttribute('fill', BASE_COLOR[b]);
+      circ.setAttribute('opacity','0.85');
+      g.appendChild(circ);
+
+      const txt = document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',x); txt.setAttribute('y',y+4);
+      txt.setAttribute('text-anchor','middle');
+      txt.setAttribute('font-size','10');
+      txt.setAttribute('font-weight','700');
+      txt.setAttribute('fill','#fff');
+      txt.textContent = b;
+      g.appendChild(txt);
+    });
+
+    // hover interaction
+    const tooltipMap = lang === 'ko' ? BASE_TOOLTIP_KO : BASE_TOOLTIP_EN;
+    g.addEventListener('mouseenter', (e) => {
+      const tt = document.getElementById('dnaTooltip');
+      tt.textContent = tooltipMap[base] || '';
+      tt.style.opacity = '1';
+      const wrap = document.getElementById('dnaWrap');
+      const wr = wrap.getBoundingClientRect();
+      const gr = g.getBoundingClientRect();
+      tt.style.left = (gr.left - wr.left + 20) + 'px';
+      tt.style.top = (gr.top - wr.top - 10) + 'px';
+    });
+    g.addEventListener('mouseleave', () => {
+      document.getElementById('dnaTooltip').style.opacity = '0';
+    });
+
+    svg.appendChild(g);
+  }
+}
+
+/* ═══════════════════════════════════════
+   § V — DEEP FLOW CANVAS
+════════════════════════════════════════ */
+const deepCanvas = document.getElementById('deepCanvas');
+const dCtx = deepCanvas.getContext('2d');
+let dPhase = 0;
+let particles = [];
+
+function initParticles() {
+  particles = [];
+  const W = deepCanvas.width, H = deepCanvas.height;
+  for (let i = 0; i < 120; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 0.8 + Math.random() * 2.2,
+      vx: (Math.random()-0.5)*0.5,
+      vy: (Math.random()-0.5)*0.5,
+      alpha: 0.2 + Math.random() * 0.6,
+      hue: 200 + Math.random() * 80
+    });
+  }
+}
+
+function drawDeepCanvas() {
+  const W = deepCanvas.width, H = deepCanvas.height;
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  dCtx.fillStyle = isDark ? 'rgba(10,8,5,0.18)' : 'rgba(245,240,232,0.18)';
+  dCtx.fillRect(0,0,W,H);
+
+  dPhase += 0.008;
+
+  particles.forEach(p => {
+    // flow field
+    const nx = p.x / W * 4 + dPhase;
+    const ny = p.y / H * 4;
+    const angle = (Math.sin(nx) * Math.cos(ny)) * Math.PI;
+    p.vx = p.vx * 0.95 + Math.cos(angle) * 0.18;
+    p.vy = p.vy * 0.95 + Math.sin(angle) * 0.18;
+    p.x += p.vx;
+    p.y += p.vy;
+
+    if (p.x < 0) p.x = W;
+    if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H;
+    if (p.y > H) p.y = 0;
+
+    dCtx.beginPath();
+    dCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    const alpha = isDark ? p.alpha * 0.9 : p.alpha * 0.6;
+    dCtx.fillStyle = isDark
+      ? `hsla(${p.hue},70%,65%,${alpha})`
+      : `hsla(${p.hue},50%,35%,${alpha})`;
+    dCtx.fill();
+  });
+}
+
+/* ═══ FADE TEXT TRIGGER ═══ */
+let fadeTriggered = false;
+function triggerFadeText() {
+  if (fadeTriggered) return;
+  fadeTriggered = true;
+  [['fl1',0],['fl2',900],['fl3',1900]].forEach(([id,delay]) => {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('visible');
+    }, delay);
+  });
+}
+
+/* ═══ MAIN ANIMATION LOOP ═══ */
+function animLoop() {
+  drawPixelCanvas();
+  drawDeepCanvas();
+  requestAnimationFrame(animLoop);
+}
+
+/* ═══ RESIZE HANDLING ═══ */
+function onResize() {
+  resizeWave();
+  resizePixel();
+  const dr = deepCanvas.getBoundingClientRect();
+  deepCanvas.width = dr.width * devicePixelRatio;
+  deepCanvas.height = dr.height * devicePixelRatio;
+  initParticles();
+}
+
+/* ═══ INIT ═══ */
+window.addEventListener('load', () => {
+  // restore prefs
+  const savedTheme = localStorage.getItem('dl-theme') || 'dark';
+  const savedLang  = localStorage.getItem('dl-lang')  || 'ko';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.documentElement.setAttribute('data-lang', savedLang);
+  applyLang(savedLang);
+  applyTheme(savedTheme);
+
+  onResize();
+  buildDna();
+  animWave();
+  animLoop();
+});
+
+window.addEventListener('resize', onResize);
+</script>
+</body>
+</html>

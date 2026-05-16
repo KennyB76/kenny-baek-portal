@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chromosome / Gene / DNA — Hierarchical Zoom</title>
+<style>
+/* ════════════════════════════════════════════
+   TOKENS — Day (paper cream) / Dark (ink)
+   ════════════════════════════════════════════ */
+:root {
+  --bg:         #faf8f4;
+  --surface:    #f2ede6;
+  --border:     #d9d0c4;
+  --accent:     #5c4a2e;
+  --accent2:    #8a6f45;
+  --accent3:    #b89057;
+  --text:       #2c2318;
+  --muted:      #7a6a58;
+  --card:       #fffdf9;
+  --card-border:#e4ddd3;
+  --nav-bg:     rgba(250,248,244,0.94);
+  --shadow:     0 2px 14px rgba(80,60,30,0.10);
+  --shadow-lg:  0 6px 28px rgba(80,60,30,0.16);
+  --dna-a:      #c44b4b;
+  --dna-t:      #4b8ac4;
+  --dna-g:      #4ba85e;
+  --dna-c:      #c49a4b;
+  --zoom-glow:  rgba(92,74,46,0.12);
+}
+[data-theme="dark"] {
+  --bg:         #1a1a1a;
+  --surface:    #242424;
+  --border:     #383838;
+  --accent:     #c4a97a;
+  --accent2:    #e0c898;
+  --accent3:    #f0deb8;
+  --text:       #e8e0d0;
+  --muted:      #9a9080;
+  --card:       #202020;
+  --card-border:#343434;
+  --nav-bg:     rgba(26,26,26,0.94);
+  --shadow:     0 2px 14px rgba(0,0,0,0.40);
+  --shadow-lg:  0 6px 28px rgba(0,0,0,0.55);
+  --dna-a:      #e87878;
+  --dna-t:      #78aee8;
+  --dna-g:      #78c88a;
+  --dna-c:      #e8c278;
+  --zoom-glow:  rgba(196,169,122,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Georgia', 'Nanum Myeongjo', serif;
+  min-height: 100vh;
+  line-height: 1.75;
+  transition: background 0.35s, color 0.35s;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 52px;
+}
+.nav-title {
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.nav-title strong { color: var(--accent); font-weight: 700; }
+.nav-controls { display: flex; gap: 0.6rem; }
+.ctrl-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ctrl-btn:hover {
+  background: var(--card);
+  border-color: var(--accent2);
+}
+
+/* ── HERO ── */
+.hero {
+  margin-top: 52px;
+  padding: 4.5rem 2rem 3rem;
+  text-align: center;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+.hero-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 2rem;
+  font-style: italic;
+}
+
+/* ── FOOTER HIERARCHY BAR ── */
+.hierarchy-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0 auto;
+  max-width: 680px;
+}
+.h-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.25rem 0.65rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.h-item:hover, .h-item.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.h-arrow {
+  color: var(--border);
+  padding: 0 0.3rem;
+  font-size: 0.85rem;
+}
+
+/* ── SCROLL PROGRESS ── */
+.scroll-bar {
+  position: fixed;
+  top: 52px; left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--accent2);
+  z-index: 199;
+  transition: width 0.1s;
+}
+
+/* ── SECTION WRAPPER ── */
+.zoom-section {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 5rem 2rem 2rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.zoom-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  margin-bottom: 1.25rem;
+}
+.section-label .s-num {
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: 50%;
+  width: 20px; height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.section-h2 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
+  margin-bottom: 0.65rem;
+  line-height: 1.25;
+}
+
+.section-intro {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+  font-style: italic;
+  max-width: 580px;
+}
+
+/* ── CARD ── */
+.note-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+}
+.note-card:hover { box-shadow: var(--shadow-lg); }
+
+.note-card h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+.note-card p {
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* click-hint */
+.click-hint {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: var(--accent2);
+  border: 1px dashed var(--accent2);
+  border-radius: 4px;
+  padding: 0.15rem 0.55rem;
+  margin-top: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.click-hint:hover { background: var(--zoom-glow); }
+
+/* divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 3rem 0;
+}
+
+/* ══════════════════════════════════
+   §I — CELL SVG
+   ══════════════════════════════════ */
+.cell-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.cell-svg-wrap {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  cursor: pointer;
+}
+.cell-svg-wrap svg { width: 100%; height: 100%; }
+.cell-label-overlay {
+  position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  font-size: 0.72rem;
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* nucleus pulse */
+#nucleus-circle {
+  animation: nucleusPulse 2.8s ease-in-out infinite;
+  transform-origin: 140px 140px;
+}
+@keyframes nucleusPulse {
+  0%, 100% { r: 52; }
+  50%       { r: 58; }
+}
+
+/* ══════════════════════════════════
+   §II — KARYOTYPE
+   ══════════════════════════════════ */
+.karyotype-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0.4rem 0.35rem;
+  margin-bottom: 1.5rem;
+}
+.chr-pair {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  cursor: pointer;
+  position: relative;
+}
+.chr-pair:hover .chr-stick-group { filter: brightness(1.2); }
+.chr-pair:hover .chr-tooltip { opacity: 1; pointer-events: all; }
+
+.chr-num {
+  font-size: 0.55rem;
+  color: var(--muted);
+  line-height: 1;
+  text-align: center;
+}
+
+.chr-stick-group {
+  display: flex;
+  gap: 2px;
+  transition: filter 0.15s;
+}
+.chr-stick {
+  width: 7px;
+  border-radius: 3px;
+  background: var(--accent2);
+  position: relative;
+}
+.chr-stick::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 40%;
+  transform: translateX(-50%);
+  width: 7px; height: 2px;
+  background: var(--bg);
+  opacity: 0.55;
+}
+
+.chr-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 50;
+  box-shadow: var(--shadow);
+  line-height: 1.5;
+}
+.chr-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--accent);
+}
+
+/* sex chromosomes */
+.sex-pair .chr-stick { background: var(--dna-a); }
+.sex-pair .chr-stick.y-chr {
+  background: var(--dna-g);
+  height: 55% !important;
+}
+
+.karyotype-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.legend-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ══════════════════════════════════
+   §III — COMPACTION LADDER
+   ══════════════════════════════════ */
+.compaction-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.compact-step {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  cursor: pointer;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background: var(--card);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.compact-step:hover {
+  border-color: var(--accent2);
+  transform: translateX(4px);
+}
+.compact-step.active {
+  border-color: var(--accent);
+  background: var(--zoom-glow);
+}
+.compact-step::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.compact-step.active::before, .compact-step:hover::before { opacity: 1; }
+
+.step-vis {
+  flex-shrink: 0;
+  width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-body { flex: 1; }
+.step-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+.step-name-en {
+  font-size: 0.72rem;
+  color: var(--accent2);
+  font-style: italic;
+  margin-bottom: 0.3rem;
+}
+.step-desc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.step-ratio {
+  font-size: 0.68rem;
+  color: var(--accent3);
+  margin-top: 0.3rem;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+/* SVG mini vis */
+.vis-dna { display: block; }
+
+/* ══════════════════════════════════
+   §IV — DNA HELIX
+   ══════════════════════════════════ */
+.helix-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.helix-canvas-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  height: 320px;
+}
+canvas#helixCanvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: crosshair;
+}
+
+.base-legend {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.base-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.base-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+}
+
+.gene-indicator {
+  background: var(--card);
+  border: 1px dashed var(--accent2);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+}
+.gene-indicator strong { color: var(--accent); }
+
+/* ══════════════════════════════════
+   §V — GENE PANEL
+   ══════════════════════════════════ */
+.gene-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.gene-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1.2rem 1.3rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.gene-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent2);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.gene-card:hover { border-color: var(--accent2); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.gene-card:hover::before { opacity: 1; }
+.gene-card.expanded { border-color: var(--accent); }
+.gene-card.expanded::before { opacity: 1; background: var(--accent); }
+
+.gene-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  margin-bottom: 0.35rem;
+}
+.gene-trait {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+.gene-detail {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.55;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.gene-card.expanded .gene-detail { max-height: 200px; }
+
+/* ── CLOSING ── */
+.closing-block {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 1.5rem 1.75rem;
+  margin: 2rem 0;
+  box-shadow: var(--shadow);
+}
+.closing-block p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.8;
+  margin-bottom: 0.5rem;
+}
+.closing-block cite {
+  font-size: 0.72rem;
+  color: var(--accent2);
+  font-style: normal;
+}
+
+/* ── SOURCES ── */
+.sources-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 2;
+}
+.sources-block a {
+  color: var(--accent2);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: text-decoration-color 0.15s;
+}
+.sources-block a:hover { text-decoration-color: var(--accent2); }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 2.5rem 2rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 4rem;
+  line-height: 1.9;
+}
+footer .f-hier {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin-bottom: 0.75rem;
+}
+footer .f-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+  color: var(--text);
+}
+footer .f-arrow { color: var(--border); }
+
+/* ── UTILITY ── */
+.t-accent { color: var(--accent); }
+.t-muted  { color: var(--muted); }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.flex-center { display: flex; justify-content: center; }
+</style>
+</head>
+<body data-theme="light">
+
+<!-- SCROLL PROGRESS -->
+<div class="scroll-bar" id="scrollBar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-title">
+    <strong data-ko="염색체 / 유전자 / DNA" data-en="Chromosome / Gene / DNA">염색체 / 유전자 / DNA</strong>
+    <span data-ko=" — 계층 확대" data-en=" — Hierarchical Zoom"> — 계층 확대</span>
+  </div>
+  <div class="nav-controls">
+    <button class="ctrl-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    <button class="ctrl-btn" id="themeBtn" onclick="toggleTheme()">Dark</button>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<header class="hero" style="padding-top:5rem;">
+  <div class="hero-eyebrow" data-ko="계층 확대 — 5 단계" data-en="Hierarchical Zoom — 5 Levels">계층 확대 — 5 단계</div>
+  <h1>
+    <span data-ko="세포 한 개 안에 — 얼마나 많은 것이 들어 있는가" data-en="What fits inside a single cell —">세포 한 개 안에 — 얼마나 많은 것이 들어 있는가</span>
+  </h1>
+  <p class="hero-sub" data-ko="세포 → 핵 → 염색체 → DNA → 유전자. 각 층을 클릭하면 그 안으로 들어갑니다." data-en="Cell → Nucleus → Chromosome → DNA → Gene. Click each layer to zoom in.">
+    세포 → 핵 → 염색체 → DNA → 유전자. 각 층을 클릭하면 그 안으로 들어갑니다.
+  </p>
+
+  <!-- Hierarchy Navigation Bar -->
+  <div class="hierarchy-bar" id="hierBar">
+    <span class="h-item active" onclick="scrollTo_sec(1)" data-ko="몸" data-en="Body">몸</span>
+    <span class="h-arrow">→</span>
+    <span class="h-item" onclick="scrollTo_sec(1)" data-ko="세포" data-en="Cell">세포</span>
+    <span class="h-arrow">→</span>
+    <span class="h-item" onclick="scrollTo_sec(2)" data-ko="핵" data-en="Nucleus">핵</span>
+    <span class="h-arrow">→</span>
+    <span class="h-item" onclick="scrollTo_sec(2)" data-ko="염색체 46" data-en="Chr. 46">염색체 46</span>
+    <span class="h-arrow">→</span>
+    <span class="h-item" onclick="scrollTo_sec(3)" data-ko="DNA" data-en="DNA">DNA</span>
+    <span class="h-arrow">→</span>
+    <span class="h-item" onclick="scrollTo_sec(4)" data-ko="이중 나선" data-en="Double Helix">이중 나선</span>
+    <span class="h-arrow">→</span>
+    <span class="h-item" onclick="scrollTo_sec(5)" data-ko="유전자" data-en="Gene">유전자</span>
+  </div>
+</header>
+
+<hr class="divider" style="max-width:820px;margin:0 auto 0;" />
+
+<!-- ══════════════════════════════════
+     §I — 세포 한 개
+     ══════════════════════════════════ -->
+<section class="zoom-section" id="sec1">
+  <div class="section-label">
+    <span class="s-num">I</span>
+    <span data-ko="§ I — 사람 세포 한 개" data-en="§ I — A Single Human Cell">§ I — 사람 세포 한 개</span>
+  </div>
+  <h2 class="section-h2" data-ko="세포 — 생명의 가장 작은 단위" data-en="The Cell — Smallest Unit of Life">세포 — 생명의 가장 작은 단위</h2>
+  <p class="section-intro" data-ko="사람의 몸은 약 37조 개의 세포로 이루어져 있습니다. 그 작은 세포 하나 안에 — 당신을 당신으로 만드는 정보 전부가 들어 있습니다." data-en="The human body contains about 37 trillion cells. Inside each tiny cell lies all the information that makes you — you.">사람의 몸은 약 37조 개의 세포로 이루어져 있습니다. 그 작은 세포 하나 안에 — 당신을 당신으로 만드는 정보 전부가 들어 있습니다.</p>
+
+  <div class="cell-stage">
+    <div class="cell-svg-wrap" onclick="scrollTo_sec(2)" title="Click to enter the nucleus">
+      <!-- Cell SVG -->
+      <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- outer cell membrane -->
+        <ellipse cx="140" cy="140" rx="126" ry="118" fill="none" stroke="var(--accent2)" stroke-width="2.5" stroke-dasharray="8 5" />
+        <!-- cytoplasm fill -->
+        <ellipse cx="140" cy="140" rx="124" ry="116" fill="var(--zoom-glow)" />
+        <!-- organelles (small dots) -->
+        <circle cx="80"  cy="100" r="7"  fill="var(--border)" opacity="0.6"/>
+        <circle cx="200" cy="115" r="5"  fill="var(--border)" opacity="0.5"/>
+        <circle cx="90"  cy="180" r="9"  fill="var(--border)" opacity="0.55"/>
+        <circle cx="195" cy="175" r="6"  fill="var(--border)" opacity="0.5"/>
+        <circle cx="158" cy="85"  r="4"  fill="var(--border)" opacity="0.45"/>
+        <circle cx="110" cy="205" r="5"  fill="var(--border)" opacity="0.45"/>
+        <!-- nucleus glow ring -->
+        <circle cx="140" cy="140" r="66" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity="0.3" />
+        <!-- nucleus -->
+        <circle id="nucleus-circle" cx="140" cy="140" r="52" fill="var(--surface)" stroke="var(--accent)" stroke-width="2.5" />
+        <!-- nucleolus -->
+        <circle cx="140" cy="140" r="16" fill="var(--accent2)" opacity="0.35" />
+        <!-- nucleus label -->
+        <text x="140" y="143" text-anchor="middle" font-size="10" fill="var(--accent)" font-family="Georgia,serif" font-style="italic">핵 / nucleus</text>
+        <!-- click hint arrow -->
+        <text x="140" y="216" text-anchor="middle" font-size="9" fill="var(--accent2)" font-family="Georgia,serif">▼ 클릭해서 핵 안으로</text>
+      </svg>
+    </div>
+
+    <div class="note-card" style="max-width:500px;width:100%;text-align:left;">
+      <h3 data-ko="세포 안을 보면" data-en="Inside a cell">세포 안을 보면</h3>
+      <p data-ko="미토콘드리아 (에너지 공장), 리보솜 (단백질 공장), 그리고 중심에 — 핵 (nucleus). 핵 안에 46 개의 염색체가 압축 보관되어 있습니다." data-en="Mitochondria (energy factory), ribosomes (protein factory), and at the center — the nucleus. Inside the nucleus, 46 chromosomes are packed away.">미토콘드리아 (에너지 공장), 리보솜 (단백질 공장), 그리고 중심에 — 핵 (nucleus). 핵 안에 46 개의 염색체가 압축 보관되어 있습니다.</p>
+      <span class="click-hint" onclick="scrollTo_sec(2)" data-ko="▸ 핵 안으로 들어가기" data-en="▸ Enter the nucleus">▸ 핵 안으로 들어가기</span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:820px;margin:0 auto;" />
+
+<!-- ══════════════════════════════════
+     §II — NUCLEUS + KARYOTYPE
+     ══════════════════════════════════ -->
+<section class="zoom-section" id="sec2">
+  <div class="section-label">
+    <span class="s-num">II</span>
+    <span data-ko="§ II — 핵 안 — 46 개의 염색체" data-en="§ II — Inside the Nucleus — 46 Chromosomes">§ II — 핵 안 — 46 개의 염색체</span>
+  </div>
+  <h2 class="section-h2" data-ko="23 쌍의 염색체 — 어머니 23 + 아버지 23" data-en="23 Pairs of Chromosomes — 23 from Mom + 23 from Dad">23 쌍의 염색체 — 어머니 23 + 아버지 23</h2>
+  <p class="section-intro" data-ko="각 염색체 쌍에 마우스를 올려보세요. 그 염색체가 무엇을 결정하는지 나타납니다." data-en="Hover over each chromosome pair to see what it determines.">각 염색체 쌍에 마우스를 올려보세요. 그 염색체가 무엇을 결정하는지 나타납니다.</p>
+
+  <div class="karyotype-legend" style="margin-bottom:1.25rem;">
+    <span><span class="legend-dot" style="background:var(--accent2);"></span><span data-ko="상염색체 (autosome) — 22 쌍" data-en="Autosome — 22 pairs">상염색체 (autosome) — 22 쌍</span></span>
+    <span><span class="legend-dot" style="background:var(--dna-a);"></span><span data-ko="성염색체 (X/Y) — 1 쌍" data-en="Sex chromosome (X/Y) — 1 pair">성염색체 (X/Y) — 1 쌍</span></span>
+  </div>
+
+  <!-- Karyotype grid -->
+  <div class="karyotype-grid" id="karyotype">
+    <!-- Generated by JS below -->
+  </div>
+
+  <div class="note-card">
+    <h3 data-ko="염색체 숫자의 의미" data-en="What the chromosome numbers mean">염색체 숫자의 의미</h3>
+    <p data-ko="사람 = 46 개 (23 쌍). 침팬지 = 48 개. 개 = 78 개. 숫자가 많다고 복잡한 게 아닙니다 — 배열과 내용이 중요합니다. 성염색체: XX = 여성, XY = 남성." data-en="Humans = 46 (23 pairs). Chimpanzee = 48. Dog = 78. More chromosomes does not mean more complex — the arrangement and content matter. Sex chromosomes: XX = female, XY = male.">사람 = 46 개 (23 쌍). 침팬지 = 48 개. 개 = 78 개. 숫자가 많다고 복잡한 게 아닙니다 — 배열과 내용이 중요합니다. 성염색체: XX = 여성, XY = 남성.</p>
+    <span class="click-hint" onclick="scrollTo_sec(3)" data-ko="▸ 염색체 하나 확대하기" data-en="▸ Zoom into one chromosome">▸ 염색체 하나 확대하기</span>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:820px;margin:0 auto;" />
+
+<!-- ══════════════════════════════════
+     §III — COMPACTION LADDER
+     ══════════════════════════════════ -->
+<section class="zoom-section" id="sec3">
+  <div class="section-label">
+    <span class="s-num">III</span>
+    <span data-ko="§ III — 한 염색체 — 응축된 DNA" data-en="§ III — One Chromosome — Compressed DNA">§ III — 한 염색체 — 응축된 DNA</span>
+  </div>
+  <h2 class="section-h2" data-ko="이 안에 — 약 2 m 의 DNA 가 세게 감겨 있습니다" data-en="Inside this — about 2 meters of DNA tightly coiled">이 안에 — 약 2 m 의 DNA 가 세게 감겨 있습니다</h2>
+  <p class="section-intro" data-ko="핵의 지름은 약 6 마이크론 (μm). 그 안에 2 m 짜리 DNA 를 넣으려면 — 10,000:1 압축이 필요합니다. 클릭해서 각 단계를 확인하세요." data-en="The nucleus is about 6 micrometers across. To fit 2 meters of DNA inside — a 10,000:1 compression is needed. Click each step to explore.">핵의 지름은 약 6 마이크론 (μm). 그 안에 2 m 짜리 DNA 를 넣으려면 — 10,000:1 압축이 필요합니다. 클릭해서 각 단계를 확인하세요.</p>
+
+  <div class="compaction-ladder" id="compactionLadder">
+
+    <!-- Step 1: Naked DNA -->
+    <div class="compact-step active" onclick="toggleStep(this)">
+      <div class="step-vis">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <path d="M15,10 Q30,20 45,10 Q30,20 15,30 Q30,40 45,30 Q30,40 15,50" fill="none" stroke="var(--dna-a)" stroke-width="2"/>
+          <path d="M45,10 Q30,20 15,10 Q30,20 45,30 Q30,40 15,30 Q30,40 45,50" fill="none" stroke="var(--dna-t)" stroke-width="2"/>
+          <line x1="20" y1="20" x2="40" y2="20" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="20" y1="30" x2="40" y2="30" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="20" y1="40" x2="40" y2="40" stroke="var(--border)" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="step-body">
+        <div class="step-name" data-ko="1 단계 — 이중 나선 DNA" data-en="Level 1 — Double Helix DNA">1 단계 — 이중 나선 DNA</div>
+        <div class="step-name-en">naked DNA / double helix</div>
+        <div class="step-desc" data-ko="감기기 전 DNA 그 자체. 두 가닥의 나선 — 폭 약 2 nm. 사람 전체 DNA 길이 = 약 2 m." data-en="DNA before any packaging. Two strands wound together — about 2 nm wide. Total human DNA length ≈ 2 meters.">감기기 전 DNA 그 자체. 두 가닥의 나선 — 폭 약 2 nm. 사람 전체 DNA 길이 = 약 2 m.</div>
+        <div class="step-ratio">2 nm wide · 2 m long</div>
+      </div>
+    </div>
+
+    <!-- Step 2: Nucleosome -->
+    <div class="compact-step" onclick="toggleStep(this)">
+      <div class="step-vis">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <!-- beads-on-a-string -->
+          <line x1="5" y1="30" x2="55" y2="30" stroke="var(--border)" stroke-width="1.5"/>
+          <circle cx="15" cy="30" r="8" fill="var(--accent2)" opacity="0.7"/>
+          <circle cx="30" cy="30" r="8" fill="var(--accent2)" opacity="0.7"/>
+          <circle cx="45" cy="30" r="8" fill="var(--accent2)" opacity="0.7"/>
+          <path d="M10,30 Q13,22 15,30" fill="none" stroke="var(--dna-a)" stroke-width="1.2"/>
+          <path d="M25,30 Q28,22 30,30" fill="none" stroke="var(--dna-a)" stroke-width="1.2"/>
+          <path d="M40,30 Q43,22 45,30" fill="none" stroke="var(--dna-a)" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div class="step-body">
+        <div class="step-name" data-ko="2 단계 — 뉴클레오솜" data-en="Level 2 — Nucleosome">2 단계 — 뉴클레오솜</div>
+        <div class="step-name-en">nucleosome — "beads on a string"</div>
+        <div class="step-desc" data-ko="히스톤(histone) 단백질 8 개로 만든 실패 (octamer). DNA 가 이 실패에 1.65 바퀴 감깁니다. 구슬 목걸이 모양." data-en="A spool made of 8 histone proteins (octamer). DNA winds around it 1.65 times — looks like beads on a string.">히스톤(histone) 단백질 8 개로 만든 실패 (octamer). DNA 가 이 실패에 1.65 바퀴 감깁니다. 구슬 목걸이 모양.</div>
+        <div class="step-ratio">~11 nm · 6× shorter than naked DNA</div>
+      </div>
+    </div>
+
+    <!-- Step 3: 30-nm chromatin fiber -->
+    <div class="compact-step" onclick="toggleStep(this)">
+      <div class="step-vis">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <path d="M30,5 Q50,15 30,25 Q10,35 30,45 Q50,55 30,60" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="step-body">
+        <div class="step-name" data-ko="3 단계 — 30 nm 크로마틴 섬유" data-en="Level 3 — 30-nm Chromatin Fiber">3 단계 — 30 nm 크로마틴 섬유</div>
+        <div class="step-name-en">chromatin fiber / solenoid</div>
+        <div class="step-desc" data-ko="뉴클레오솜들이 더 촘촘히 코일처럼 감겨 두꺼운 섬유(fiber)를 이룹니다. DNA + 히스톤 복합체 전체 = 크로마틴(chromatin)." data-en="Nucleosomes coil further into a thick fiber. The entire DNA + histone complex = chromatin.">뉴클레오솜들이 더 촘촘히 코일처럼 감겨 두꺼운 섬유(fiber)를 이룹니다. DNA + 히스톤 복합체 전체 = 크로마틴(chromatin).</div>
+        <div class="step-ratio">~30 nm · 50× shorter than naked DNA</div>
+      </div>
+    </div>
+
+    <!-- Step 4: Chromosome -->
+    <div class="compact-step" onclick="toggleStep(this)">
+      <div class="step-vis">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <!-- chromosome X shape -->
+          <rect x="22" y="5"  width="7" height="20" rx="3" fill="var(--accent)"/>
+          <rect x="31" y="5"  width="7" height="20" rx="3" fill="var(--accent)"/>
+          <rect x="22" y="35" width="7" height="20" rx="3" fill="var(--accent)"/>
+          <rect x="31" y="35" width="7" height="20" rx="3" fill="var(--accent)"/>
+          <rect x="16" y="27" width="28" height="6"  rx="3" fill="var(--accent3)"/>
+        </svg>
+      </div>
+      <div class="step-body">
+        <div class="step-name" data-ko="4 단계 — 염색체 (chromosome)" data-en="Level 4 — Chromosome">4 단계 — 염색체 (chromosome)</div>
+        <div class="step-name-en">metaphase chromosome</div>
+        <div class="step-desc" data-ko="세포 분열 시 최대로 압축된 형태. 크로마틴이 반복 루프를 이루고 스캐폴드 단백질에 감겨 X 모양이 됩니다. 가운데 잘록한 부분 = 동원체 (centromere)." data-en="Maximum compaction during cell division. Chromatin loops around scaffold proteins into the familiar X shape. The constriction in the middle = centromere.">세포 분열 시 최대로 압축된 형태. 크로마틴이 반복 루프를 이루고 스캐폴드 단백질에 감겨 X 모양이 됩니다. 가운데 잘록한 부분 = 동원체 (centromere).</div>
+        <div class="step-ratio">~700 nm · 10,000× shorter than naked DNA</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note-card mt-2">
+    <h3 data-ko="축구장 → 동전 크기" data-en="Football field → coin size">축구장 → 동전 크기</h3>
+    <p data-ko="DNA 2 m 를 핵 6 µm 안에 넣는 것은 — 축구장 크기 밧줄을 동전 크기로 압축하는 것과 같습니다. 압축률 = 약 10,000:1." data-en="Fitting 2m of DNA into a 6µm nucleus is like compressing a football-field-length rope into a coin. Compression ratio ≈ 10,000:1.">DNA 2 m 를 핵 6 µm 안에 넣는 것은 — 축구장 크기 밧줄을 동전 크기로 압축하는 것과 같습니다. 압축률 = 약 10,000:1.</p>
+    <span class="click-hint" onclick="scrollTo_sec(4)" data-ko="▸ DNA 이중 나선 들어가기" data-en="▸ Enter the DNA double helix">▸ DNA 이중 나선 들어가기</span>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:820px;margin:0 auto;" />
+
+<!-- ══════════════════════════════════
+     §IV — DNA HELIX (Canvas)
+     ══════════════════════════════════ -->
+<section class="zoom-section" id="sec4">
+  <div class="section-label">
+    <span class="s-num">IV</span>
+    <span data-ko="§ IV — DNA 이중 나선" data-en="§ IV — DNA Double Helix">§ IV — DNA 이중 나선</span>
+  </div>
+  <h2 class="section-h2" data-ko="A · T · G · C — 생명의 알파벳 4 글자" data-en="A · T · G · C — The 4-Letter Alphabet of Life">A · T · G · C — 생명의 알파벳 4 글자</h2>
+  <p class="section-intro" data-ko="마우스를 움직여 나선을 돌려보세요. 색 = 염기 종류. 연속된 구간 = 유전자(gene)." data-en="Move your mouse to rotate the helix. Colors = base types. A continuous segment = gene.">마우스를 움직여 나선을 돌려보세요. 색 = 염기 종류. 연속된 구간 = 유전자(gene).</p>
+
+  <div class="helix-stage">
+    <div class="helix-canvas-wrap">
+      <canvas id="helixCanvas"></canvas>
+    </div>
+
+    <div class="base-legend">
+      <div class="base-item"><div class="base-dot" style="background:var(--dna-a);"></div><span><strong>A</strong> Adenine — T 와 짝 / pairs with T</span></div>
+      <div class="base-item"><div class="base-dot" style="background:var(--dna-t);"></div><span><strong>T</strong> Thymine — A 와 짝 / pairs with A</span></div>
+      <div class="base-item"><div class="base-dot" style="background:var(--dna-g);"></div><span><strong>G</strong> Guanine — C 와 짝 / pairs with C</span></div>
+      <div class="base-item"><div class="base-dot" style="background:var(--dna-c);"></div><span><strong>C</strong> Cytosine — G 와 짝 / pairs with G</span></div>
+    </div>
+
+    <div class="gene-indicator">
+      <strong data-ko="유전자 (gene)" data-en="Gene">유전자 (gene)</strong>
+      <span data-ko=" = DNA 위의 연속된 segment — 특정 기능을 담당합니다." data-en=" = a continuous segment on the DNA — responsible for a specific function."> = DNA 위의 연속된 segment — 특정 기능을 담당합니다.</span>
+      <br/>
+      <span class="t-muted" style="font-size:0.78rem;" data-ko="사람 전체 DNA 중 유전자는 약 1.5 % — 나머지는 조절 / 구조 / 아직 연구 중." data-en="Genes make up only ~1.5% of all human DNA — the rest is regulatory, structural, or still under study.">사람 전체 DNA 중 유전자는 약 1.5 % — 나머지는 조절 / 구조 / 아직 연구 중.</span>
+    </div>
+  </div>
+
+  <div class="note-card mt-2">
+    <h3 data-ko="30 억 쌍" data-en="3 billion base pairs">30 억 쌍</h3>
+    <p data-ko="사람 전체 DNA = 약 30 억 염기 쌍 (3 × 10⁹). 이것을 한 글자씩 읽으면 — 100 년이 걸립니다. 이 모든 정보가 세포 핵 안에 압축 보관됩니다." data-en="Total human DNA = about 3 billion base pairs (3 × 10⁹). Reading it letter by letter would take 100 years. All this information fits inside the cell nucleus.">사람 전체 DNA = 약 30 억 염기 쌍 (3 × 10⁹). 이것을 한 글자씩 읽으면 — 100 년이 걸립니다. 이 모든 정보가 세포 핵 안에 압축 보관됩니다.</p>
+    <span class="click-hint" onclick="scrollTo_sec(5)" data-ko="▸ 유전자(gene) 보기" data-en="▸ Explore genes">▸ 유전자(gene) 보기</span>
+  </div>
+</section>
+
+<hr class="divider" style="max-width:820px;margin:0 auto;" />
+
+<!-- ══════════════════════════════════
+     §V — GENE PANEL
+     ══════════════════════════════════ -->
+<section class="zoom-section" id="sec5">
+  <div class="section-label">
+    <span class="s-num">V</span>
+    <span data-ko="§ V — 유전자 (gene) — 한 기능 단위" data-en="§ V — Gene — One Functional Unit">§ V — 유전자 (gene) — 한 기능 단위</span>
+  </div>
+  <h2 class="section-h2" data-ko="이 gene 이 켜지면 — 무엇이 만들어지나" data-en="When this gene activates — what gets made?">이 gene 이 켜지면 — 무엇이 만들어지나</h2>
+  <p class="section-intro" data-ko="각 카드를 클릭하면 그 유전자가 결정하는 것을 볼 수 있습니다." data-en="Click each card to see what that gene determines.">각 카드를 클릭하면 그 유전자가 결정하는 것을 볼 수 있습니다.</p>
+
+  <div class="gene-cards-grid">
+
+    <div class="gene-card" onclick="toggleGene(this)">
+      <div class="gene-name">OCA2 / HERC2</div>
+      <div class="gene-trait" data-ko="눈 색깔" data-en="Eye color">눈 색깔</div>
+      <div class="gene-detail">
+        <p data-ko="멜라닌(melanin) 색소 생산량 결정. 갈색 = 멜라닌 많음 / 파랑 = 적음. 단 두 개의 유전자가 대부분을 결정하지만 — 실제로는 여러 유전자가 함께 작용합니다." data-en="Determines how much melanin pigment is produced. Brown = more melanin / Blue = less. Just two genes explain most variation — but many others contribute.">멜라닌(melanin) 색소 생산량 결정. 갈색 = 멜라닌 많음 / 파랑 = 적음. 단 두 개의 유전자가 대부분을 결정하지만 — 실제로는 여러 유전자가 함께 작용합니다.</p>
+      </div>
+    </div>
+
+    <div class="gene-card" onclick="toggleGene(this)">
+      <div class="gene-name">FGFR3</div>
+      <div class="gene-trait" data-ko="키 / 뼈 성장" data-en="Height / Bone growth">키 / 뼈 성장</div>
+      <div class="gene-detail">
+        <p data-ko="연골 성장판(growth plate)에서 뼈가 자라는 속도를 조절. 키는 200 개 이상의 유전자가 영향 — 유전자만이 아니라 영양, 수면, 운동도 함께 결정합니다." data-en="Controls bone growth rate in the growth plate cartilage. Height is influenced by 200+ genes — nutrition, sleep, and exercise also play major roles.">연골 성장판(growth plate)에서 뼈가 자라는 속도를 조절. 키는 200 개 이상의 유전자가 영향 — 유전자만이 아니라 영양, 수면, 운동도 함께 결정합니다.</p>
+      </div>
+    </div>
+
+    <div class="gene-card" onclick="toggleGene(this)">
+      <div class="gene-name">SRY</div>
+      <div class="gene-trait" data-ko="남성 성별 결정" data-en="Male sex determination">남성 성별 결정</div>
+      <div class="gene-detail">
+        <p data-ko="Y 염색체 위에 있는 유전자. 태아 발생 초기에 켜지면 → 고환(testis)이 발달 → 테스토스테론 분비 → 남성 표현형. 이 유전자 하나가 성별 분기의 스위치입니다." data-en="Located on the Y chromosome. When activated in early fetal development → testes form → testosterone → male phenotype. This single gene is the sex-determination switch.">Y 염색체 위에 있는 유전자. 태아 발생 초기에 켜지면 → 고환(testis)이 발달 → 테스토스테론 분비 → 남성 표현형. 이 유전자 하나가 성별 분기의 스위치입니다.</p>
+      </div>
+    </div>
+
+    <div class="gene-card" onclick="toggleGene(this)">
+      <div class="gene-name">BRCA1</div>
+      <div class="gene-trait" data-ko="DNA 수리 / 암 억제" data-en="DNA repair / cancer suppression">DNA 수리 / 암 억제</div>
+      <div class="gene-detail">
+        <p data-ko="정상 = DNA 손상 수리. 변이(mutation) 발생 → 수리 불가 → 암 위험 증가. 이처럼 유전자는 '특성 결정' 뿐 아니라 '세포 유지 관리'도 합니다." data-en="In normal function: repairs DNA damage. If mutated → can't repair → increased cancer risk. Genes don't just determine traits — they also run cellular maintenance.">정상 = DNA 손상 수리. 변이(mutation) 발생 → 수리 불가 → 암 위험 증가. 이처럼 유전자는 '특성 결정' 뿐 아니라 '세포 유지 관리'도 합니다.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Closing -->
+  <div class="closing-block">
+    <p data-ko="유전자는 '켜짐 / 꺼짐' 의 스위치입니다. 같은 DNA 를 가진 세포라도 — 뇌세포는 다른 유전자 세트를 켜고, 간세포는 또 다른 세트를 킵니다. 환경 / 경험 / 감정 / 스트레스 → 이 스위치에 영향을 줍니다. 이것을 후성유전학 (epigenetics) 이라고 합니다." data-en="Genes are on/off switches. Even cells with the same DNA — brain cells activate a different set of genes than liver cells. Environment / experience / emotion / stress → influence these switches. This is called epigenetics.">유전자는 '켜짐 / 꺼짐' 의 스위치입니다. 같은 DNA 를 가진 세포라도 — 뇌세포는 다른 유전자 세트를 켜고, 간세포는 또 다른 세트를 킵니다. 환경 / 경험 / 감정 / 스트레스 → 이 스위치에 영향을 줍니다. 이것을 후성유전학 (epigenetics) 이라고 합니다.</p>
+    <p data-ko=""안에 더 깊은 층이 있다 — 그리고 그것들도 모두 돌아가고 있다."" data-en=""Inside, there are deeper layers still — and all of them are running."">"안에 더 깊은 층이 있다 — 그리고 그것들도 모두 돌아가고 있다."</p>
+    <cite>— Kenny · 2026-05-16</cite>
+  </div>
+
+  <!-- Sources -->
+  <div class="sources-block">
+    <strong style="color:var(--text);" data-ko="출처" data-en="Sources">출처</strong><br/>
+    1. NIH/NCBI — Chromosomal DNA and Its Packaging (Alberts et al., MBoC)
+       <a href="https://www.ncbi.nlm.nih.gov/books/NBK26834/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/books/NBK26834</a><br/>
+    2. Nature Scitable — DNA Packaging: Nucleosomes and Chromatin
+       <a href="https://www.nature.com/scitable/topicpage/dna-packaging-nucleosomes-and-chromatin-310/" target="_blank" rel="noopener">nature.com/scitable</a><br/>
+    3. NIH StatPearls — Genetics, DNA Packaging
+       <a href="https://www.ncbi.nlm.nih.gov/books/NBK534207/" target="_blank" rel="noopener">ncbi.nlm.nih.gov/books/NBK534207</a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="f-hier">
+    <span class="f-node" data-ko="몸" data-en="Body">몸</span>
+    <span class="f-arrow"> → </span>
+    <span class="f-node" data-ko="세포 (37조)" data-en="Cell (37T)">세포 (37조)</span>
+    <span class="f-arrow"> → </span>
+    <span class="f-node" data-ko="핵" data-en="Nucleus">핵</span>
+    <span class="f-arrow"> → </span>
+    <span class="f-node" data-ko="염색체 (46)" data-en="Chromosome (46)">염색체 (46)</span>
+    <span class="f-arrow"> → </span>
+    <span class="f-node">DNA</span>
+    <span class="f-arrow"> → </span>
+    <span class="f-node" data-ko="유전자 (~20,000)" data-en="Gene (~20,000)">유전자 (~20,000)</span>
+  </div>
+  <div data-ko="Newton School · 2026-05-16 · 정신과 선생님 발표 보조 자료" data-en="Newton School · 2026-05-16 · Therapist Presentation Reference">Newton School · 2026-05-16 · 정신과 선생님 발표 보조 자료</div>
+  <div style="margin-top:0.4rem;" data-ko="출처: NIH/NCBI · Nature Scitable" data-en="Sources: NIH/NCBI · Nature Scitable">출처: NIH/NCBI · Nature Scitable</div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════ -->
+<script>
+/* ── THEME ── */
+let isDark = false;
+function toggleTheme() {
+  isDark = !isDark;
+  document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isDark ? 'Light' : 'Dark';
+  localStorage.setItem('chr-theme', isDark ? 'dark' : 'light');
+  // re-draw helix with new colors
+  drawHelix();
+}
+
+/* ── LANGUAGE ── */
+let lang = 'ko';
+function toggleLang() {
+  lang = lang === 'ko' ? 'en' : 'ko';
+  document.getElementById('langBtn').textContent = lang === 'ko' ? 'EN' : 'KO';
+  localStorage.setItem('chr-lang', lang);
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    const val = el.getAttribute('data-' + lang);
+    if (val !== null) el.textContent = val;
+  });
+}
+
+/* ── RESTORE PREFS ── */
+(function() {
+  const t = localStorage.getItem('chr-theme');
+  const l = localStorage.getItem('chr-lang');
+  if (t === 'dark') { isDark = true; document.body.setAttribute('data-theme', 'dark'); document.getElementById('themeBtn').textContent = 'Light'; }
+  if (l === 'en')   { setTimeout(() => { lang = 'en'; document.getElementById('langBtn').textContent = 'KO'; document.querySelectorAll('[data-ko]').forEach(el => { const v = el.getAttribute('data-en'); if (v) el.textContent = v; }); }, 100); }
+})();
+
+/* ── SCROLL PROGRESS ── */
+window.addEventListener('scroll', () => {
+  const el = document.getElementById('scrollBar');
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+  el.style.width = Math.min(pct, 100) + '%';
+});
+
+/* ── INTERSECTION OBSERVER (fade-in) ── */
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.zoom-section').forEach(s => obs.observe(s));
+
+/* ── SCROLL TO SECTION ── */
+function scrollTo_sec(n) {
+  const el = document.getElementById('sec' + n);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── COMPACTION STEP TOGGLE ── */
+function toggleStep(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.compact-step').forEach(s => s.classList.remove('active'));
+  if (!wasActive) el.classList.add('active');
+}
+
+/* ── GENE CARD TOGGLE ── */
+function toggleGene(el) {
+  const wasExp = el.classList.contains('expanded');
+  document.querySelectorAll('.gene-card').forEach(c => c.classList.remove('expanded'));
+  if (!wasExp) el.classList.add('expanded');
+}
+
+/* ══════════════════════════════════
+   KARYOTYPE BUILDER
+   ══════════════════════════════════ */
+const chrData = [
+  { n:1,  h:38, ko:"가장 큰 염색체 — 수천 개의 유전자", en:"Largest chr — thousands of genes" },
+  { n:2,  h:36, ko:"EDAR 유전자 (머리카락 굵기)", en:"EDAR gene (hair thickness)" },
+  { n:3,  h:32, ko:"MLH1 (DNA 수리)", en:"MLH1 (DNA mismatch repair)" },
+  { n:4,  h:31, ko:"헌팅턴 병 관련 HTT 유전자", en:"HTT gene (Huntington's disease)" },
+  { n:5,  h:30, ko:"SMN2 유전자 (신경 생존)", en:"SMN2 gene (motor neuron survival)" },
+  { n:6,  h:29, ko:"HLA 유전자 (면역 시스템)", en:"HLA genes (immune system)" },
+  { n:7,  h:27, ko:"낭포성 섬유증 관련 CFTR 유전자", en:"CFTR gene (cystic fibrosis)" },
+  { n:8,  h:26, ko:"MYC (세포 성장 조절)", en:"MYC gene (cell growth)" },
+  { n:9,  h:25, ko:"혈액형 ABO 결정 유전자", en:"ABO blood type gene" },
+  { n:10, h:24, ko:"PTEN 유전자 (종양 억제)", en:"PTEN gene (tumor suppressor)" },
+  { n:11, h:24, ko:"헤모글로빈 HBB 유전자", en:"HBB gene (hemoglobin / oxygen)" },
+  { n:12, h:23, ko:"PAH 유전자 (페닐알라닌 대사)", en:"PAH gene (PKU metabolic disorder)" },
+  { n:13, h:21, ko:"BRCA2 (유방암 억제)", en:"BRCA2 (breast cancer suppressor)" },
+  { n:14, h:20, ko:"면역글로불린 유전자", en:"Immunoglobulin genes (antibodies)" },
+  { n:15, h:20, ko:"FMR1 인근 — 프래자일 X 증후군", en:"Near FMR1 — Fragile X syndrome" },
+  { n:16, h:19, ko:"PKD1 (다낭성 신장)", en:"PKD1 (polycystic kidney)" },
+  { n:17, h:18, ko:"BRCA1 + TP53 유전자", en:"BRCA1 + TP53 genes" },
+  { n:18, h:17, ko:"다운 인근 염색체 (trisomy 18=에드워즈)", en:"Trisomy 18 = Edwards syndrome" },
+  { n:19, h:16, ko:"APOE (알츠하이머 위험)", en:"APOE gene (Alzheimer's risk)" },
+  { n:20, h:15, ko:"ADA 유전자 (면역 결핍)", en:"ADA gene (immune deficiency)" },
+  { n:21, h:13, ko:"다운 증후군 — trisomy 21", en:"Trisomy 21 = Down syndrome" },
+  { n:22, h:12, ko:"가장 작은 상염색체", en:"Smallest autosome" },
+  { n:'X', h:25, ko:"여성 성염색체 — DMD, FMRP", en:"Female sex chr — DMD, FMRP", sex:true },
+  { n:'Y', h:14, ko:"남성 결정 — SRY 유전자", en:"Male-determining SRY gene", sex:true, isY:true },
+];
+
+function buildKaryotype() {
+  const grid = document.getElementById('karyotype');
+  grid.innerHTML = '';
+  chrData.forEach((d, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'chr-pair' + (d.sex ? ' sex-pair' : '');
+
+    const tip = document.createElement('div');
+    tip.className = 'chr-tooltip';
+    tip.innerHTML = `<strong>${d.n}</strong><br/><span data-ko="${d.ko}" data-en="${d.en}">${d.ko}</span>`;
+
+    const sg = document.createElement('div');
+    sg.className = 'chr-stick-group';
+
+    // two sticks per pair (sister chromatids)
+    [1,2].forEach(j => {
+      const s = document.createElement('div');
+      s.className = 'chr-stick' + (d.isY && j===2 ? ' y-chr' : '');
+      const h = d.isY && j===2 ? Math.round(d.h * 0.55) : d.h;
+      s.style.height = h + 'px';
+      sg.appendChild(s);
+    });
+
+    const num = document.createElement('div');
+    num.className = 'chr-num';
+    num.textContent = d.n;
+
+    wrap.appendChild(tip);
+    wrap.appendChild(sg);
+    wrap.appendChild(num);
+    grid.appendChild(wrap);
+
+    // click to scroll to §III
+    wrap.addEventListener('click', () => scrollTo_sec(3));
+  });
+  // re-apply lang if needed
+  if (lang === 'en') {
+    grid.querySelectorAll('[data-ko]').forEach(el => {
+      const v = el.getAttribute('data-en');
+      if (v) el.textContent = v;
+    });
+  }
+}
+
+/* ══════════════════════════════════
+   DNA HELIX CANVAS
+   ══════════════════════════════════ */
+const canvas = document.getElementById('helixCanvas');
+const ctx = canvas.getContext('2d');
+let helixOffset = 0;
+let mouseX = -1;
+const BASE_COLORS_KEYS = ['dna-a','dna-t','dna-g','dna-c'];
+const BASE_LABELS = ['A','T','G','C'];
+
+function getCSSVar(name) {
+  return getComputedStyle(document.body).getPropertyValue('--' + name).trim();
+}
+
+function resizeCanvas() {
+  const wrap = canvas.parentElement;
+  canvas.width  = wrap.offsetWidth;
+  canvas.height = wrap.offsetHeight;
+}
+
+function drawHelix() {
+  resizeCanvas();
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2;
+  const amp = W * 0.24;
+  const period = H / 3.5;
+  const baseCount = 28;
+
+  const cols = BASE_COLORS_KEYS.map(k => getCSSVar(k));
+  const bg   = getCSSVar('surface');
+  const bd   = getCSSVar('border');
+  const tx   = getCSSVar('text');
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Gene highlight band (middle third)
+  const geneTop = H * 0.32, geneBot = H * 0.68;
+  ctx.fillStyle = 'rgba(92,74,46,0.07)';
+  if (isDark) ctx.fillStyle = 'rgba(196,169,122,0.08)';
+  ctx.fillRect(0, geneTop, W, geneBot - geneTop);
+  ctx.strokeStyle = getCSSVar('accent2');
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4,4]);
+  ctx.strokeRect(0, geneTop, W, geneBot - geneTop);
+  ctx.setLineDash([]);
+  // Gene label
+  ctx.fillStyle = getCSSVar('accent2');
+  ctx.font = `italic 11px Georgia, serif`;
+  ctx.fillText(lang === 'ko' ? '← 이 구간 = 유전자 (gene) 예시' : '← this segment = gene (example)', cx + amp * 0.2, geneTop + 16);
+
+  // Draw base pairs first (horizontal rungs)
+  for (let i = 0; i < baseCount; i++) {
+    const t = i / (baseCount - 1);
+    const y = t * H;
+    const phase = (y / period + helixOffset) * Math.PI * 2;
+    const x1 = cx + Math.cos(phase) * amp;
+    const x2 = cx + Math.cos(phase + Math.PI) * amp;
+    const depth1 = (Math.cos(phase) + 1) / 2; // 0=back, 1=front
+    const opacity = 0.35 + depth1 * 0.5;
+
+    const bIdx = i % 4;
+    ctx.strokeStyle = cols[bIdx];
+    ctx.globalAlpha = opacity;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.stroke();
+
+    // Base labels (large enough)
+    if (i % 2 === 0 && depth1 > 0.5) {
+      ctx.globalAlpha = opacity * 0.9;
+      ctx.fillStyle = cols[bIdx];
+      ctx.font = `bold 9px Consolas, monospace`;
+      ctx.fillText(BASE_LABELS[bIdx], x1 + (x1 < cx ? -14 : 4), y + 4);
+      ctx.fillText(BASE_LABELS[(bIdx + 2) % 4], x2 + (x2 < cx ? -14 : 4), y + 4);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // Strand 1 (front)
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const t = i / 200;
+    const y = t * H;
+    const phase = (y / period + helixOffset) * Math.PI * 2;
+    const x = cx + Math.cos(phase) * amp;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = getCSSVar('dna-a');
+  ctx.lineWidth = 3;
+  ctx.globalAlpha = 0.85;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Strand 2 (back)
+  ctx.beginPath();
+  for (let i = 0; i <= 200; i++) {
+    const t = i / 200;
+    const y = t * H;
+    const phase = (y / period + helixOffset) * Math.PI * 2 + Math.PI;
+    const x = cx + Math.cos(phase) * amp;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.strokeStyle = getCSSVar('dna-t');
+  ctx.lineWidth = 3;
+  ctx.globalAlpha = 0.85;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+}
+
+// Animate helix rotation
+let helixAnim;
+function animateHelix() {
+  helixOffset += 0.004;
+  drawHelix();
+  helixAnim = requestAnimationFrame(animateHelix);
+}
+
+// Mouse interaction — speed up rotation
+canvas.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+  const speed = (mouseX / canvas.width - 0.5) * 0.03;
+  helixOffset += speed;
+  drawHelix();
+});
+canvas.addEventListener('mouseleave', () => { mouseX = -1; });
+
+/* ══════════════════════════════════
+   INIT
+   ══════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  buildKaryotype();
+  setTimeout(() => {
+    animateHelix();
+  }, 400);
+});
+
+window.addEventListener('resize', () => {
+  drawHelix();
+});
+</script>
+</body>
+</html>
