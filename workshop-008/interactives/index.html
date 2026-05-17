@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--
+  Workshop 008 -- Interactive Index (Portal copy)
+  kenny-baek-portal / workshop-008 / interactives /
+  Chapter 1 = LIVE (local) / CH 2-8 + Prologue/Epilogue = SKELETON (local files TBD)
+  Newton HQ / 2026-05-17
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop 008 -- Interactive Index</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --student:      #4f46e5;
+  --student-soft: #eef2ff;
+  --student-deep: #3730a3;
+  --ink:          #1e1b4b;
+  --ink-soft:     #6b7280;
+  --paper:        #ffffff;
+  --bg:           #f8f9ff;
+  --line:         #dde1f7;
+  --card-bg:      #ffffff;
+  --live:         #059669;
+  --skel:         #b45309;
+  --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'Cascadia Code', 'Consolas', monospace;
+  --radius: 10px;
+}
+[data-theme="dark"] {
+  --student:#6366f1; --student-soft:#1e1e38; --ink:#e2e8f0;
+  --ink-soft:#94a3b8; --paper:#12121e; --bg:#0a0a14; --line:#1e1e38;
+  --card-bg:#15152a; --live:#34d399; --skel:#fbbf24;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;transition:background .2s,color .2s}
+nav{position:sticky;top:0;z-index:100;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:52px;box-shadow:0 1px 6px rgba(79,70,229,.08)}
+.nav-brand{font-family:var(--serif);font-size:.95rem;font-weight:700;color:var(--student)}
+.nav-brand span{color:var(--ink-soft);font-weight:400;font-size:.8rem}
+.nav-btns{display:flex;gap:.5rem;align-items:center}
+.btn-nav{background:var(--student-soft);border:1px solid var(--line);color:var(--student);border-radius:6px;padding:.25rem .65rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s;text-decoration:none}
+.btn-nav:hover{background:var(--student);color:#fff}
+.hero{background:var(--paper);border-bottom:1px solid var(--line);padding:2.5rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--student),#059669,#7c3aed,#b45309)}
+.hero-label{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.5rem;font-weight:700}
+.hero h1{font-family:var(--serif);font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;color:var(--ink);margin-bottom:.5rem}
+.hero .sub{font-size:.85rem;color:var(--ink-soft);font-style:italic;font-family:var(--serif);margin-bottom:1.25rem}
+.stats{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap}
+.stat-num{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--student);display:block}
+.stat-label{font-size:.65rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.08em;text-align:center}
+.legend{display:flex;justify-content:center;gap:1rem;padding:.6rem 1.5rem;background:var(--bg);border-bottom:1px solid var(--line);font-size:.72rem;color:var(--ink-soft);flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:.3rem;vertical-align:middle}
+.dot-live{background:var(--live)}
+.dot-skel{background:var(--skel)}
+.wrap{max-width:960px;margin:0 auto;padding:2rem 1.25rem}
+.sec-label{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-top:2rem;margin-bottom:.85rem;padding-bottom:.35rem;border-bottom:1px solid var(--line)}
+.sec-label:first-child{margin-top:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.85rem;margin-bottom:.5rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.1rem .9rem;text-decoration:none;color:inherit;display:block;transition:all .15s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--card-accent,var(--student))}
+.card:hover{box-shadow:0 4px 18px rgba(79,70,229,.12);transform:translateY(-1px)}
+.card.pending{opacity:.75}
+.card-num{font-family:var(--mono);font-size:.62rem;font-weight:700;color:var(--ink-soft);letter-spacing:.08em;margin-bottom:.25rem}
+.card-title{font-family:var(--serif);font-size:.92rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;line-height:1.3}
+.card-desc{font-size:.72rem;color:var(--ink-soft);line-height:1.5;margin-bottom:.6rem}
+.card-foot{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:.6rem;font-weight:700;padding:.12rem .45rem;border-radius:20px;letter-spacing:.05em}
+.badge-live{background:rgba(5,150,105,.12);color:var(--live);border:1px solid var(--live)}
+.badge-skel{background:rgba(180,83,9,.1);color:var(--skel);border:1px solid var(--skel)}
+.card-vids{font-size:.64rem;color:var(--ink-soft)}
+.anchor-box{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.25rem;margin:1.5rem 0;border-left:4px solid var(--student)}
+.anchor-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--student);font-weight:700;margin-bottom:.4rem}
+.anchor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.6rem;margin-top:.65rem}
+.a-item{font-size:.74rem;line-height:1.55;color:var(--ink-soft);padding:.45rem .65rem;background:var(--bg);border-radius:4px;border-left:2px solid var(--student)}
+.a-item strong{color:var(--ink);display:block;font-size:.76rem}
+.quick{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.25rem 0;padding-top:.85rem;border-top:1px solid var(--line)}
+footer{text-align:center;padding:1.5rem;font-size:.68rem;color:var(--ink-soft);border-top:1px solid var(--line);margin-top:1.5rem}
+footer a{color:var(--student);text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">Workshop 008 <span>/ Interactive Index</span></div>
+  <div class="nav-btns">
+    <a class="btn-nav" href="../index.html">허브</a>
+    <a class="btn-nav" href="../chapter-1/index.html">CH 1 LIVE</a>
+    <button class="btn-nav" onclick="document.documentElement.setAttribute('data-theme',document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark')">Light/Dark</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-label">Workshop 008 -- Tech Stack Landscape</div>
+  <h1>Interactive Index</h1>
+  <p class="sub">IT 기술 스택 전체 지도 · 비전공자 탑다운 로드맵 · Kenny x jarvis</p>
+  <div class="stats">
+    <div><span class="stat-num">10</span><div class="stat-label">Chapters</div></div>
+    <div><span class="stat-num">22</span><div class="stat-label">Videos</div></div>
+    <div><span class="stat-num">1</span><div class="stat-label">LIVE</div></div>
+    <div><span class="stat-num">9</span><div class="stat-label">Skeleton</div></div>
+  </div>
+</div>
+<div class="legend">
+  <span><span class="dot dot-live"></span>LIVE — 완성 인터랙티브</span>
+  <span><span class="dot dot-skel"></span>SKELETON — 영상 + 목차 박힘 / 본문 TBD</span>
+</div>
+
+<div class="wrap">
+
+  <div class="sec-label">보조 / 입문</div>
+  <div class="cards">
+    <div class="card pending" style="--card-accent:#8a3030">
+      <div class="card-num">PROLOGUE</div>
+      <div class="card-title">AI 시대 입문</div>
+      <div class="card-desc">코딩 몰라도 AI로 서비스 개발. 4050 바이브 코딩 이유. 탑다운 학습법.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 2개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#059669">
+      <div class="card-num">CHAPTER 0</div>
+      <div class="card-title">IT 기술 전체 지도</div>
+      <div class="card-desc">20분으로 IT 전체 조감. 소프트웨어부터 클라우드까지.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 1개</span></div>
+    </div>
+  </div>
+
+  <div class="sec-label">MAIN PART</div>
+  <div class="cards">
+    <a class="card" href="../chapter-1/index.html" style="--card-accent:#4f46e5">
+      <div class="card-num">CHAPTER 1 -- Kenny 픽</div>
+      <div class="card-title">개발자 기본 지식</div>
+      <div class="card-desc">React / Node.js / Python. OOP·함수·모듈·패키지. 4탭 인터랙티브 + 좌측 glossary.</div>
+      <div class="card-foot"><span class="badge badge-live">LIVE</span><span class="card-vids">보강 영상 3개</span></div>
+    </a>
+    <div class="card pending" style="--card-accent:#7c3aed">
+      <div class="card-num">CHAPTER 1.5</div>
+      <div class="card-title">App vs Web / Java vs Python</div>
+      <div class="card-desc">소프트웨어 종류. 하이브리드·네이티브. 언어 vs 프레임워크. 비교표.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 3개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#4f46e5">
+      <div class="card-num">CHAPTER 2</div>
+      <div class="card-title">API / 동기-비동기 / JSON</div>
+      <div class="card-desc">개발 1순위 필수. REST API · HTTP 메소드 · async/await · JSON.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 1개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#b45309">
+      <div class="card-num">CHAPTER 3</div>
+      <div class="card-title">SW 공학 / DevOps / Agile</div>
+      <div class="card-desc">폭포수 vs Agile. CI/CD. Docker·GitHub Actions.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 2개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#6b7280">
+      <div class="card-num">CHAPTER 4</div>
+      <div class="card-title">컴퓨터 구조 / OS</div>
+      <div class="card-desc">폰노이만. CPU·RAM·SSD. OS·커널·셸. 프로세스·스레드.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 1개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#1d4ed8">
+      <div class="card-num">CHAPTER 5</div>
+      <div class="card-title">네트워크</div>
+      <div class="card-desc">HTTP/HTTPS · IP · TCP · DNS. 브라우저 동작. Tailscale.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 3개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#059669">
+      <div class="card-num">CHAPTER 6</div>
+      <div class="card-title">데이터베이스</div>
+      <div class="card-desc">RDB vs NoSQL. MySQL·PostgreSQL·MongoDB. SQL 핵심.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 1개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#7c3aed">
+      <div class="card-num">CHAPTER 7</div>
+      <div class="card-title">IT 인프라 / 아키텍처</div>
+      <div class="card-desc">모놀리식 vs MSA. 로그인·JWT. 20년 변천사.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 3개</span></div>
+    </div>
+    <div class="card pending" style="--card-accent:#0369a1">
+      <div class="card-num">CHAPTER 8</div>
+      <div class="card-title">클라우드 IaaS / PaaS / SaaS</div>
+      <div class="card-desc">가상화 · AWS·GCP·Azure · 서버리스 · 탄력성.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 1개</span></div>
+    </div>
+  </div>
+
+  <div class="sec-label">부록</div>
+  <div class="cards">
+    <div class="card pending" style="--card-accent:#059669">
+      <div class="card-num">EPILOGUE</div>
+      <div class="card-title">AI 시대 부록</div>
+      <div class="card-desc">AI 코드 보안. 30년 개발자 생존 스킬. 천공카드부터 AI 까지.</div>
+      <div class="card-foot"><span class="badge badge-skel">SKELETON</span><span class="card-vids">영상 2개</span></div>
+    </div>
+  </div>
+
+  <div class="anchor-box">
+    <div class="anchor-label">Kenny Anchor — OOP to NewtonHQ</div>
+    <p style="font-size:.79rem;line-height:1.65;color:var(--ink-soft)">
+      Workshop 008 의 모든 IT 개념 = NewtonHQ 가 이미 살고 있는 세계.
+    </p>
+    <div class="anchor-grid">
+      <div class="a-item"><strong>CH 2 — API</strong>GSuite / Wave / Apify = REST API 소비자</div>
+      <div class="a-item"><strong>CH 5 — 네트워크</strong>Tailscale + Cloudflare + localhost:8188</div>
+      <div class="a-item"><strong>CH 6 — DB</strong>Immich = PostgreSQL + Redis</div>
+      <div class="a-item"><strong>CH 7 — 아키텍처</strong>3-2-1 Sovereign = Kenny 직접 설계</div>
+      <div class="a-item"><strong>CH 8 — 클라우드</strong>Phase 2 = Self-cloud 졸업 목표</div>
+      <div class="a-item"><strong>Prologue</strong>Kenny + jarvis = 4050 바이브 코딩 사례</div>
+    </div>
+  </div>
+
+  <div class="quick">
+    <a class="btn-nav" href="../chapter-1/index.html">CH 1 LIVE</a>
+    <a class="btn-nav" href="../index.html">Workshop 허브</a>
+  </div>
+</div>
+
+<footer>
+  Workshop 008 · Newton HQ · 2026-05-17 ·
+  <a href="../chapter-1/index.html">CH 1 LIVE</a> ·
+  Skeleton chapters = ab336 결과 도착 시 순차 업데이트
+</footer>
+</body>
+</html>
