@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<!--
+  _plan master index
+  Kenny Baek Portal — WIP Index (date-sorted)
+  Pattern: kenny-baek-portal/index.html (same tokens, same modal)
+  2026-05-17 by jarvis
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>_plan — 전체 인덱스 · Kenny Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS (same as portal) ── */
+  :root {
+    --student:      #6366f1;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(99,102,241,0.18);
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+    --max-w:  720px;
+  }
+  [data-theme="light"] {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+  body.modal-open { overflow: hidden; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.75rem; height: 52px;
+  }
+  .nav-brand { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; color: var(--student); text-transform: uppercase; }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-back {
+    font-size: 0.75rem; color: var(--ink-soft); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 6px; padding: 0.28rem 0.65rem;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .nav-back:hover { color: var(--student); border-color: var(--student); }
+  .nav-actions { display: flex; gap: 0.6rem; align-items: center; }
+  .btn-sm {
+    background: var(--student-soft); border: 1px solid var(--line);
+    color: var(--student); border-radius: 6px; padding: 0.28rem 0.65rem;
+    font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+  /* WRAP */
+  .wrap { max-width: var(--max-w); margin: 0 auto; background: var(--paper); box-shadow: 0 2px 24px rgba(0,0,0,0.18); }
+
+  /* MASTHEAD */
+  .masthead {
+    text-align: center; padding: 48px 32px 24px;
+    border-bottom: 3px double var(--student);
+  }
+  .wip-badge {
+    display: inline-block; background: #fef3c7; color: #92400e;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; border-radius: 4px; padding: 2px 10px;
+    margin-bottom: 12px; border: 1px solid #fde68a;
+  }
+  [data-theme="dark"] .wip-badge { background: #451a03; color: #fbbf24; border-color: #78350f; }
+  .masthead .label { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--student); font-weight: 700; margin-bottom: 12px; }
+  .masthead h1 { font-family: var(--serif); font-size: clamp(1.8rem, 6vw, 2.8rem); font-weight: 700; line-height: 1.1; margin-bottom: 6px; }
+  .masthead .subtitle { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-soft); margin-bottom: 4px; }
+
+  /* SECTION */
+  section.s { padding: 24px 32px; border-bottom: 1px solid var(--line); }
+  .s-label { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--student); font-weight: 700; margin-bottom: 8px; }
+  .s-title { font-family: var(--serif); font-size: 1.35rem; font-weight: 700; margin-bottom: 12px; line-height: 1.25; }
+
+  /* DAY CARD */
+  .day-card {
+    background: var(--card-bg); border: 1px solid var(--line); border-radius: var(--radius);
+    margin-bottom: 20px; overflow: hidden;
+  }
+  .day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px; border-bottom: 1px solid var(--line);
+    background: var(--student-soft);
+    cursor: pointer; user-select: none;
+  }
+  [data-theme="dark"] .day-header { background: rgba(99,102,241,0.12); }
+  .day-date { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; color: var(--student); }
+  .day-summary { font-size: 0.78rem; color: var(--ink-soft); flex: 1; margin: 0 12px; }
+  .day-status { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+  .stat-chip {
+    font-size: 10px; font-weight: 700; border-radius: 3px; padding: 2px 6px;
+    letter-spacing: 0.04em;
+  }
+  .stat-done { background: #d1fae5; color: #065f46; }
+  .stat-wip  { background: #fef3c7; color: #92400e; }
+  .stat-left { background: #fee2e2; color: #7f1d1d; }
+  [data-theme="dark"] .stat-done { background: #064e3b; color: #6ee7b7; }
+  [data-theme="dark"] .stat-wip  { background: #451a03; color: #fbbf24; }
+  [data-theme="dark"] .stat-left { background: #450a0a; color: #fca5a5; }
+  .day-toggle { color: var(--student); font-size: 14px; transition: transform 0.2s; flex-shrink: 0; }
+  .day-toggle.open { transform: rotate(90deg); }
+
+  .day-body { padding: 16px 20px; }
+  .day-desc { font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 12px; font-style: italic; }
+
+  /* FILE TABLE */
+  .file-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .file-table th {
+    text-align: left; padding: 6px 10px;
+    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--student); font-weight: 700; border-bottom: 1px solid var(--line);
+  }
+  .file-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .file-table tr:last-child td { border-bottom: none; }
+  .file-table tr:hover td { background: var(--student-soft); }
+  [data-theme="dark"] .file-table tr:hover td { background: rgba(99,102,241,0.08); }
+  .file-link { color: var(--student); text-decoration: none; font-weight: 500; }
+  .file-link:hover { text-decoration: underline; }
+  .group-tag {
+    display: inline-block; font-size: 9px; font-weight: 700;
+    background: var(--student-soft); color: var(--student-deep);
+    border-radius: 3px; padding: 1px 5px; text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .board-link {
+    display: inline-block; margin-bottom: 12px;
+    background: var(--student); color: #fff;
+    border-radius: 6px; padding: 5px 14px; font-size: 12px; font-weight: 600;
+    text-decoration: none; transition: opacity 0.15s;
+  }
+  .board-link:hover { opacity: 0.85; }
+  .no-board { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 12px; font-style: italic; }
+
+  /* CARRY TABLE */
+  .carry-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .carry-table th { text-align: left; padding: 6px 10px; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--student); font-weight: 700; border-bottom: 1px solid var(--line); }
+  .carry-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .carry-table tr:last-child td { border-bottom: none; }
+  .carry-chip { font-size: 10px; font-weight: 700; border-radius: 3px; padding: 2px 6px; background: #fef3c7; color: #92400e; }
+  [data-theme="dark"] .carry-chip { background: #451a03; color: #fbbf24; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 24px 32px; font-size: 11px; color: var(--ink-soft); border-top: 1px solid var(--line); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10,10,20,0.82);
+    display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--paper); border-radius: 12px; width: 96vw; max-width: none; height: 96vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5); border: 1px solid var(--student);
+  }
+  .modal-header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--ink-soft); flex-shrink: 0; background: var(--paper); }
+  .modal-title { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .modal-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--ink-soft); padding: 0 6px; flex-shrink: 0; line-height: 1; transition: color 0.15s; }
+  .modal-close:hover { color: var(--student); }
+  .modal-iframe { flex: 1; border: none; width: 100%; }
+
+  /* BTT */
+  #btt { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--student); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 150; transition: opacity 0.2s; }
+  #btt.show { display: flex; }
+  #btt:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">_plan <span>/ 전체 인덱스</span></div>
+  <div class="nav-actions">
+    <a class="nav-back" href="../index.html">← Portal</a>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="wip-badge">WIP</div>
+    <div class="label">Kenny Baek · Newton School</div>
+    <h1>_plan — 전체 인덱스</h1>
+    <div class="subtitle">date 별 작업 이력 · 최신 순</div>
+  </header>
+
+  <!-- 2026-05-17 -->
+  <section class="s">
+    <div class="s-label">오늘</div>
+    <div class="s-title">2026-05-17</div>
+
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d517')">
+        <div class="day-date">05-17</div>
+        <div class="day-summary">Workshop 008 + Traci portal + ASCII skill + Kenny portal UX 개선</div>
+        <div class="day-status">
+          <span class="stat-chip stat-done">22 DONE</span>
+          <span class="stat-chip stat-left">3 남음</span>
+        </div>
+        <div class="day-toggle" id="toggle-d517">&#9658;</div>
+      </div>
+      <div class="day-body" id="body-d517" style="display:none;">
+        <div class="day-desc">6 Group (A-F). TOTAL 25 task. Sub-agent 세션 다수.</div>
+        <a class="board-link" href="20260517/board.html">작업 보드 열기</a>
+        <table class="file-table">
+          <tr><th>파일</th><th>그룹</th><th>내용</th></tr>
+          <tr><td><a class="file-link" href="javascript:void(0)" onclick="openModal('20260517/index-sub.html','20260517 INDEX')">INDEX.md</a></td><td><span class="group-tag">마스터</span></td><td>6 group 크로스링크</td></tr>
+          <tr><td>01-workshop-008-tech-stack.md</td><td><span class="group-tag">A</span></td><td>Whisper 20/20 + 3-layer research + hub + chapters</td></tr>
+          <tr><td>02-valorant-project-soyeon.md</td><td><span class="group-tag">B</span></td><td>gift/gear/consensus/merge/deep-pick + Cantabile 3md</td></tr>
+          <tr><td>03-traci-portal-soyeon.md</td><td><span class="group-tag">C</span></td><td>portal deploy + Valorant interactive + cantabile</td></tr>
+          <tr><td>04-kenny-portal-update.md</td><td><span class="group-tag">D</span></td><td>chapter1 deploy + modal 96vw + sidebar remove</td></tr>
+          <tr><td>05-infrastructure-fix.md</td><td><span class="group-tag">E</span></td><td>dash links + Yeon-yi-&gt;Soyeon + legacy redirect</td></tr>
+          <tr><td>06-therapist-presentation.md</td><td><span class="group-tag">F</span></td><td>slides v8 + brain interactive (5/16 ref only)</td></tr>
+          <tr><td>pending-decisions.md</td><td><span class="group-tag">결재</span></td><td>Kenny 대기 항목</td></tr>
+          <tr><td>sub-agent-mode-session.md</td><td><span class="group-tag">로그</span></td><td>sub-agent 세션 기록</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2026-05-16 -->
+  <section class="s">
+    <div class="s-label">어제</div>
+    <div class="s-title">2026-05-16</div>
+
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d516')">
+        <div class="day-date">05-16</div>
+        <div class="day-summary">v20 architect spec + Newton Method 25 파일 + Workshop 005-007 + 정신과 발표 v8</div>
+        <div class="day-status">
+          <span class="stat-chip stat-done">15 DONE</span>
+          <span class="stat-chip stat-wip">3 진행</span>
+          <span class="stat-chip stat-left">3 남음</span>
+        </div>
+        <div class="day-toggle" id="toggle-d516">&#9658;</div>
+      </div>
+      <div class="day-body" id="body-d516" style="display:none;">
+        <div class="day-desc">3 Day Sprint Day 0. 18 큰 박스. TOTAL 21 task.</div>
+        <a class="board-link" href="20260516/board.html">작업 보드 열기</a>
+        <table class="file-table">
+          <tr><th>파일</th><th>내용</th></tr>
+          <tr><td>00-README.md</td><td>3 Day Sprint 개요</td></tr>
+          <tr><td>00-architect.md</td><td>v20 아키텍처 단일 소스</td></tr>
+          <tr><td>01-summoner-file-trigger.md</td><td>Summoner 파일 트리거 설계</td></tr>
+          <tr><td>02-a-team-pattern.md</td><td>A-Team 3-agent 패턴</td></tr>
+          <tr><td>03-ascii-mode-skill.md</td><td>ASCII mode skill spec</td></tr>
+          <tr><td>04-validator-dialogue.md</td><td>Validator 대화 패턴</td></tr>
+          <tr><td>05-meta-glasses-pipeline.md</td><td>Meta Glasses 파이프라인</td></tr>
+          <tr><td>06-text-message-email-phase1.md</td><td>문자/이메일 Phase 1</td></tr>
+          <tr><td>07-newton-portal-track-a.md</td><td>Newton Portal Track A</td></tr>
+          <tr><td>08-master-student-dashboard.md</td><td>마스터 학생 대시보드</td></tr>
+          <tr><td>09-oauth-consolidation.md</td><td>OAuth 통합</td></tr>
+          <tr><td>10~19.md</td><td>정합성 감사 / M365 / Claude API / Oracle / Armory / 기타</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2026-05-15 -->
+  <section class="s">
+    <div class="s-label">이틀 전</div>
+    <div class="s-title">2026-05-15</div>
+
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d515')">
+        <div class="day-date">05-15</div>
+        <div class="day-summary">Phase 1 Scaffolding + Phase 2 Classify + /j 통합 + Summoner + A-Team 발견</div>
+        <div class="day-status">
+          <span class="stat-chip stat-done">3 DONE</span>
+          <span class="stat-chip stat-left">5 남음</span>
+        </div>
+        <div class="day-toggle" id="toggle-d515">&#9658;</div>
+      </div>
+      <div class="day-body" id="body-d515" style="display:none;">
+        <div class="day-desc">TOTAL 8 task. Phase 1+2 plan-only (결재 대기). 5 종 발견 박제.</div>
+        <a class="board-link" href="20260515/board.html">작업 보드 열기</a>
+        <table class="file-table">
+          <tr><th>파일</th><th>내용</th></tr>
+          <tr><td>00-master-index.md</td><td>마스터 인덱스</td></tr>
+          <tr><td>01-phase1-scaffolding.md</td><td>Phase 1 스캐폴딩 spec (888줄)</td></tr>
+          <tr><td>02-phase2-classify.md</td><td>Phase 2 프로젝트 재분류</td></tr>
+          <tr><td>03-memory-ref-flow-diagram.md</td><td>메모리 ref 흐름 다이어그램</td></tr>
+          <tr><td>04-phase1-ascii-visualization.md</td><td>Phase 1 ASCII 시각화</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2026-05-14 -->
+  <section class="s">
+    <div class="s-label">이전</div>
+    <div class="s-title">2026-05-14 이전</div>
+
+    <div class="day-card">
+      <div class="day-header" onclick="toggleDay('d514')">
+        <div class="day-date">05-13/14</div>
+        <div class="day-summary">시스템 정합 감사 + Arsenal 통합 + OAuth + 학교 finale</div>
+        <div class="day-status">
+          <span class="stat-chip stat-done">12 파일</span>
+        </div>
+        <div class="day-toggle" id="toggle-d514">&#9658;</div>
+      </div>
+      <div class="day-body" id="body-d514" style="display:none;">
+        <p class="no-board">board.md 없음 (루트 level plan 파일)</p>
+        <table class="file-table">
+          <tr><th>파일</th><th>내용</th></tr>
+          <tr><td>2026-05-13-jarvis-arsenal-unification.md</td><td>Arsenal 통합</td></tr>
+          <tr><td>2026-05-13-system-consistency-audit.md</td><td>시스템 정합 감사</td></tr>
+          <tr><td>00_meta-*-handoff-protocol.md</td><td>핸드오프 프로토콜</td></tr>
+          <tr><td>00_meta-*-oauth-consolidation.md</td><td>OAuth 통합</td></tr>
+          <tr><td>03_personal-*-rent-workflow.md</td><td>임대 워크플로우</td></tr>
+          <tr><td>04_newtonschool-*-jee-family-finale.md</td><td>Jee family finale</td></tr>
+          <tr><td>04_newtonschool-*-master-dashboard.md</td><td>마스터 대시보드</td></tr>
+          <tr><td>기타</td><td>M365 리서치 / personal cleanup / HQ 프로모션</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARRY -->
+  <section class="s">
+    <div class="s-label">미완 항목</div>
+    <div class="s-title">Carry — 전체 날짜 통합</div>
+    <table class="carry-table">
+      <tr><th>날짜</th><th>항목</th><th>상태</th></tr>
+      <tr><td><span class="carry-chip">05-17</span></td><td>Traci portal 영문 확인</td><td>Kenny 확인 필요</td></tr>
+      <tr><td><span class="carry-chip">05-16</span></td><td>Chromosome interactive</td><td>API 500 대기</td></tr>
+      <tr><td><span class="carry-chip">05-16</span></td><td>visual skill book style 등록</td><td>대기</td></tr>
+      <tr><td><span class="carry-chip">05-16</span></td><td>Gene-dna day/dark + EN 보강</td><td>대기</td></tr>
+      <tr><td><span class="carry-chip">05-15</span></td><td>Phase 3 Migration 실행</td><td>Phase 1+2 결재 후</td></tr>
+      <tr><td><span class="carry-chip">05-15</span></td><td>Q1-Q34 Kenny 결재</td><td>대기</td></tr>
+      <tr><td><span class="carry-chip">05-15</span></td><td>Quick-info skill 이름 픽</td><td>대기</td></tr>
+      <tr><td><span class="carry-chip">05-15</span></td><td>sync daemon 실행</td><td>대기</td></tr>
+    </table>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>Kenny Baek · _plan 인덱스 · 2026-05-17</div>
+    <div style="margin-top:5px;font-style:italic;">jarvis 자동 생성 — 단일 소스: 00_meta/_plan/INDEX.md</div>
+  </footer>
+
+</div>
+
+<!-- BTT -->
+<button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8593;</button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
+        <span class="modal-title" id="modalTitle"></span>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    </div>
+    <iframe class="modal-iframe" id="modalIframe" src="about:blank"></iframe>
+  </div>
+</div>
+
+<script>
+  /* THEME */
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+
+  /* DAY TOGGLE */
+  function toggleDay(id) {
+    const body = document.getElementById('body-' + id);
+    const tog  = document.getElementById('toggle-' + id);
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    tog.classList.toggle('open', !open);
+  }
+
+  /* MODAL */
+  const overlay = document.getElementById('modalOverlay');
+  const iframe  = document.getElementById('modalIframe');
+  const titleEl = document.getElementById('modalTitle');
+  function openModal(src, label) {
+    iframe.src = src;
+    titleEl.textContent = label;
+    overlay.classList.add('open');
+    document.body.classList.add('modal-open');
+  }
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.classList.remove('modal-open');
+    iframe.src = 'about:blank';
+  }
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* BTT */
+  const btt = document.getElementById('btt');
+  window.addEventListener('scroll', () => { btt.classList.toggle('show', window.scrollY > 300); });
+</script>
+<script src="../_assets/stealth-comment.js" defer></script>
+</body>
+</html>

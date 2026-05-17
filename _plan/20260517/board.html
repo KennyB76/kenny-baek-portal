@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!--
+  2026-05-17 작업 보드 — HTML 변환
+  Source: 00_meta/_plan/20260517/board.md
+  Kenny Baek Portal pattern
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-05-17 작업 보드 · Kenny Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --student:#4f46e5;--student-soft:#eef2ff;--student-deep:#3730a3;
+    --ink:#1e1b4b;--ink-soft:#6b7280;--paper:#fff;--bg:#f8f9ff;--line:#dde1f7;--card-bg:#fff;
+    --sans:'Inter',system-ui,sans-serif;--mono:'Cascadia Code','Consolas',monospace;--radius:10px;
+  }
+  [data-theme="dark"]{--student:#6366f1;--student-soft:#1e1e38;--student-deep:#a5b4fc;--ink:#e2e8f0;--ink-soft:#94a3b8;--paper:#12121e;--bg:#0a0a14;--line:#1e1e38;--card-bg:#15152a;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;padding:0;min-height:100vh;}
+  nav{position:sticky;top:0;z-index:100;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:48px;}
+  .nav-brand{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;color:var(--student);text-transform:uppercase;}
+  .nav-back{font-size:0.72rem;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:0.22rem 0.6rem;transition:color 0.15s,border-color 0.15s;}
+  .nav-back:hover{color:var(--student);border-color:var(--student);}
+  .btn-sm{background:var(--student-soft);border:1px solid var(--line);color:var(--student);border-radius:5px;padding:0.22rem 0.6rem;font-size:0.72rem;font-weight:600;cursor:pointer;}
+  .wrap{max-width:800px;margin:0 auto;padding:24px 20px;}
+  h1{font-size:1.5rem;font-weight:700;color:var(--student);margin-bottom:4px;}
+  .meta{font-size:0.8rem;color:var(--ink-soft);margin-bottom:20px;}
+  .summary-box{background:var(--card-bg);border:1px solid var(--line);border-radius:var(--radius);padding:14px 20px;margin-bottom:24px;font-family:var(--mono);font-size:13px;}
+  .summary-box div{margin:2px 0;}
+  .summary-box .hi{color:var(--student);font-weight:700;}
+  h2{font-size:0.95rem;font-weight:700;color:var(--student);text-transform:uppercase;letter-spacing:0.08em;margin:20px 0 8px;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px;}
+  th{text-align:left;padding:6px 10px;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--student);font-weight:700;border-bottom:1px solid var(--line);}
+  td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  .done{color:#059669;font-weight:600;}
+  .wip{color:#d97706;font-weight:600;}
+  .left{color:#dc2626;font-weight:600;}
+  .group-tag{display:inline-block;font-size:9px;font-weight:700;background:var(--student-soft);color:var(--student-deep);border-radius:3px;padding:1px 5px;text-transform:uppercase;}
+  .note-text{font-size:11px;color:var(--ink-soft);}
+  footer{text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">2026-05-17 보드</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <a class="nav-back" href="../index.html">← 인덱스</a>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>2026-05-17 작업 진행 보드</h1>
+  <p class="meta">Kenny + jarvis &middot; 6 Group (A-F) &middot; source: _plan/20260517/</p>
+
+  <div class="summary-box">
+    <div><span class="hi">TOTAL</span>  25 task</div>
+    <div><span class="hi">DONE </span>  22</div>
+    <div><span class="hi">진행 </span>   0</div>
+    <div><span class="hi">남음 </span>   3  (5/16 carry + 포탈 영문 확인)</div>
+  </div>
+
+  <h2>Task 표 (Group 별)</h2>
+  <table>
+    <tr><th>#</th><th>Group</th><th>Task</th><th>Status</th><th>Note</th></tr>
+    <tr><td>A1</td><td><span class="group-tag">A</span></td><td>Whisper batch 20/20 transcripts</td><td class="done">DONE</td><td class="note-text">srt + txt 완료</td></tr>
+    <tr><td>A2</td><td><span class="group-tag">A</span></td><td>FULL RESEARCH 3-layer (20+11+1)</td><td class="done">DONE</td><td class="note-text">완료</td></tr>
+    <tr><td>A3</td><td><span class="group-tag">A</span></td><td>Workshop hub (index.html)</td><td class="done">DONE</td><td class="note-text">완료</td></tr>
+    <tr><td>A4</td><td><span class="group-tag">A</span></td><td>Chapter 1 interactive</td><td class="done">DONE</td><td class="note-text">Group D 연동</td></tr>
+    <tr><td>A5</td><td><span class="group-tag">A</span></td><td>Chapter interactive (전체)</td><td class="done">DONE</td><td class="note-text">완료</td></tr>
+    <tr><td>A6</td><td><span class="group-tag">A</span></td><td>Interactive index</td><td class="done">DONE</td><td class="note-text">Group D 연동</td></tr>
+    <tr><td>A7</td><td><span class="group-tag">A</span></td><td>ASCII skill 신설</td><td class="done">DONE</td><td class="note-text">정식 state file 포함</td></tr>
+    <tr><td>B1</td><td><span class="group-tag">B</span></td><td>Valorant gift + gear + consensus 파일</td><td class="done">DONE</td><td class="note-text">6 카테고리</td></tr>
+    <tr><td>B2</td><td><span class="group-tag">B</span></td><td>Valorant merge + deep-pick</td><td class="done">DONE</td><td class="note-text">손 size 기준 최종 픽</td></tr>
+    <tr><td>B3</td><td><span class="group-tag">B</span></td><td>Cantabile 3 md 신설</td><td class="done">DONE</td><td class="note-text">Group C 연동</td></tr>
+    <tr><td>C1</td><td><span class="group-tag">C</span></td><td>Traci portal initial deploy</td><td class="done">DONE</td><td class="note-text">repo 신설</td></tr>
+    <tr><td>C2</td><td><span class="group-tag">C</span></td><td>Valorant interactive (portal 안)</td><td class="done">DONE</td><td class="note-text">gift + gear 인터랙티브</td></tr>
+    <tr><td>C3</td><td><span class="group-tag">C</span></td><td>cantabile-easy.md (Traci 입문용)</td><td class="done">DONE</td><td class="note-text">ASCII dry 톤</td></tr>
+    <tr><td>C4</td><td><span class="group-tag">C</span></td><td>newton-school-dash Traci link 정합</td><td class="done">DONE</td><td class="note-text">Group E 연동</td></tr>
+    <tr><td>D1</td><td><span class="group-tag">D</span></td><td>chapter 1 + workshop index deploy</td><td class="done">DONE</td><td class="note-text">from Group A</td></tr>
+    <tr><td>D2</td><td><span class="group-tag">D</span></td><td>portal defaults (light + ko)</td><td class="done">DONE</td><td class="note-text">기본값 변경</td></tr>
+    <tr><td>D3</td><td><span class="group-tag">D</span></td><td>modal 96vw + onclick handler fix</td><td class="done">DONE</td><td class="note-text">완료</td></tr>
+    <tr><td>D4</td><td><span class="group-tag">D</span></td><td>sidebar 추가 후 제거</td><td class="done">DONE</td><td class="note-text">Kenny 결정 = cleaner</td></tr>
+    <tr><td>D5</td><td><span class="group-tag">D</span></td><td>hero gratitude 제거</td><td class="done">DONE</td><td class="note-text">원본 톤 복원</td></tr>
+    <tr><td>E1</td><td><span class="group-tag">E</span></td><td>newton-school-dash broken links fix</td><td class="done">DONE</td><td class="note-text">완료</td></tr>
+    <tr><td>E2</td><td><span class="group-tag">E</span></td><td>Yeon-yi &rarr; Soyeon 전수 정정</td><td class="done">DONE</td><td class="note-text">실명 정정</td></tr>
+    <tr><td>E3</td><td><span class="group-tag">E</span></td><td>legacy URL redirect</td><td class="done">DONE</td><td class="note-text">옛 URL &rarr; 신규 portal</td></tr>
+    <tr><td>F1</td><td><span class="group-tag">F</span></td><td>slides v8 최종 (5/16 완료)</td><td class="done">DONE</td><td class="note-text">5/17 ref only</td></tr>
+    <tr><td>F2</td><td><span class="group-tag">F</span></td><td>brain interactive (5/16 완료)</td><td class="done">DONE</td><td class="note-text">5/17 ref only</td></tr>
+    <tr><td>--</td><td><span class="group-tag">포탈</span></td><td>포탈 영문 미확인 (메뉴/텍스트)</td><td class="left">남음</td><td class="note-text">Kenny 확인 요청</td></tr>
+  </table>
+
+  <h2>남음</h2>
+  <ul style="font-size:13px;padding-left:20px;line-height:2;">
+    <li>Traci portal 영문 확인 (메뉴/텍스트 전체 English 여부)</li>
+    <li>5/16 carry: Chromosome interactive / visual book style / Gene-dna day+dark+EN</li>
+  </ul>
+
+  <footer>source: 00_meta/_plan/20260517/board.md &middot; 2026-05-17</footer>
+</div>
+<script>
+  (function(){const s=localStorage.getItem('kenny-theme')||'light';document.documentElement.setAttribute('data-theme',s);document.getElementById('theme-toggle').textContent=s==='dark'?'Light':'Dark';})();
+  function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('data-theme')==='dark';const n=d?'light':'dark';h.setAttribute('data-theme',n);document.getElementById('theme-toggle').textContent=d?'Dark':'Light';localStorage.setItem('kenny-theme',n);}
+</script>
+<script src="../../_assets/stealth-comment.js" defer></script>
+</body>
+</html>

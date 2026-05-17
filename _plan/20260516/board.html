@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<!--
+  2026-05-16 작업 보드 — HTML 변환
+  Source: 00_meta/_plan/20260516/board.md
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026-05-16 작업 보드 · Kenny Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--student:#4f46e5;--student-soft:#eef2ff;--student-deep:#3730a3;--ink:#1e1b4b;--ink-soft:#6b7280;--paper:#fff;--bg:#f8f9ff;--line:#dde1f7;--card-bg:#fff;--sans:'Inter',system-ui,sans-serif;--mono:'Cascadia Code','Consolas',monospace;--radius:10px;}
+  [data-theme="dark"]{--student:#6366f1;--student-soft:#1e1e38;--student-deep:#a5b4fc;--ink:#e2e8f0;--ink-soft:#94a3b8;--paper:#12121e;--bg:#0a0a14;--line:#1e1e38;--card-bg:#15152a;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh;}
+  nav{position:sticky;top:0;z-index:100;background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;height:48px;}
+  .nav-brand{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;color:var(--student);text-transform:uppercase;}
+  .nav-back{font-size:0.72rem;color:var(--ink-soft);text-decoration:none;border:1px solid var(--line);border-radius:5px;padding:0.22rem 0.6rem;transition:color 0.15s,border-color 0.15s;}
+  .nav-back:hover{color:var(--student);border-color:var(--student);}
+  .btn-sm{background:var(--student-soft);border:1px solid var(--line);color:var(--student);border-radius:5px;padding:0.22rem 0.6rem;font-size:0.72rem;font-weight:600;cursor:pointer;}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 20px;}
+  h1{font-size:1.5rem;font-weight:700;color:var(--student);margin-bottom:4px;}
+  .meta{font-size:0.8rem;color:var(--ink-soft);margin-bottom:20px;}
+  .summary-box{background:var(--card-bg);border:1px solid var(--line);border-radius:var(--radius);padding:14px 20px;margin-bottom:24px;font-family:var(--mono);font-size:13px;}
+  .summary-box div{margin:2px 0;}
+  .summary-box .hi{color:var(--student);font-weight:700;}
+  h2{font-size:0.95rem;font-weight:700;color:var(--student);text-transform:uppercase;letter-spacing:0.08em;margin:20px 0 8px;}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;}
+  th{text-align:left;padding:6px 10px;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--student);font-weight:700;border-bottom:1px solid var(--line);}
+  td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  .done{color:#059669;font-weight:600;}
+  .wip{color:#d97706;font-weight:600;}
+  .left{color:#dc2626;font-weight:600;}
+  .note-text{font-size:11px;color:var(--ink-soft);}
+  footer{text-align:center;margin-top:32px;padding-top:16px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">2026-05-16 보드</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <a class="nav-back" href="../index.html">← 인덱스</a>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+<div class="wrap">
+  <h1>2026-05-16 작업 진행 보드</h1>
+  <p class="meta">Kenny + jarvis &middot; 3 Day Sprint Day 0 + 18 큰 박스 &middot; source: _plan/20260516/</p>
+
+  <div class="summary-box">
+    <div><span class="hi">TOTAL</span>  21 task</div>
+    <div><span class="hi">DONE </span>  15</div>
+    <div><span class="hi">진행 </span>   3  (끊김/임시)</div>
+    <div><span class="hi">남음 </span>   3  (3 대기)</div>
+  </div>
+
+  <h2>Task 표 (묶음)</h2>
+  <table>
+    <tr><th>#</th><th>Task</th><th>Status</th><th>Output</th><th>Note</th></tr>
+    <tr><td>01</td><td>v20 architect spec 확정 + 박제</td><td class="done">DONE</td><td class="note-text">_plan/20260516/00-architect.md</td><td class="note-text">단일 ref</td></tr>
+    <tr><td>02</td><td>orchestrator/decisions/architecture.md</td><td class="done">DONE</td><td class="note-text">00_meta/orchestrator/decisions/</td><td class="note-text">도메인 sync ref</td></tr>
+    <tr><td>03</td><td>7 도메인 structure.md → docs/ref/ 이동</td><td class="done">DONE</td><td class="note-text">각 도메인/mind/docs/ref/structure.md</td><td class="note-text">일관 이동</td></tr>
+    <tr><td>04</td><td>CLAUDE.md 2 종 신설</td><td class="done">DONE</td><td class="note-text">NewtonHQ/CLAUDE.md + 00_meta/CLAUDE.md</td><td class="note-text">project root entry</td></tr>
+    <tr><td>05</td><td>javis.md 갱신 (4 ref cascade)</td><td class="done">DONE</td><td class="note-text">00_meta/mind/javis.md</td><td class="note-text">v20 ref 반영</td></tr>
+    <tr><td>06</td><td>12 보석 plan 파일 박제 (01~12)</td><td class="done">DONE</td><td class="note-text">_plan/20260516/01-12.md 각</td><td class="note-text">3 Day Sprint map</td></tr>
+    <tr><td>07</td><td>Mirror hook TOGGLE 버그 fix</td><td class="done">DONE</td><td class="note-text">.claude/hooks/prompt-mirror.sh</td><td class="note-text">생각 + 수정</td></tr>
+    <tr><td>08</td><td>Memory cleanup -14.6%</td><td class="done">DONE</td><td class="note-text">Workshop 004 메모리</td><td class="note-text">정리 완료</td></tr>
+    <tr><td>09</td><td>Workshop 005 Battle 01 Path Refactor</td><td class="done">DONE</td><td class="note-text">HQ_Workshop/workshops/005-*/</td><td class="note-text">완료</td></tr>
+    <tr><td>10</td><td>Workshop 006 Battle 02 AI as Mind</td><td class="done">DONE</td><td class="note-text">HQ_Workshop/workshops/006-*/</td><td class="note-text">완료</td></tr>
+    <tr><td>11</td><td>Newton Method 풀 스캐폴딩 (25 파일)</td><td class="done">DONE</td><td class="note-text">00_meta/projects/HQ_Newton_Method/</td><td class="note-text">marketing/ 10 파일 포함</td></tr>
+    <tr><td>12</td><td>Workshop 007 Matrix/Oracle 디자인</td><td class="done">DONE</td><td class="note-text">HQ_Workshop/workshops/007-*/</td><td class="note-text">Plan 16-19 연동</td></tr>
+    <tr><td>13</td><td>정신과 선생님 발표 slides v1-v8</td><td class="done">DONE</td><td class="note-text">presentation/therapist-2026-05-16/</td><td class="note-text">8 라운드 코멘트 흡수</td></tr>
+    <tr><td>14</td><td>Gene/DNA interactive page</td><td class="done">DONE</td><td class="note-text">gene-dna-interactive/</td><td class="note-text">slides link 2 곳</td></tr>
+    <tr><td>15</td><td>Kenny student portal 신설 (학생 0호)</td><td class="done">DONE</td><td class="note-text">04_newtonschool/students/kenny-baek/</td><td class="note-text">Kenny = 학생 0호</td></tr>
+    <tr><td>16</td><td>ASCII mode skill 임시 ON</td><td class="wip">진행</td><td class="note-text">.claude/skills/ascii/</td><td class="note-text">정식 skill 필요</td></tr>
+    <tr><td>17</td><td>communication 단일화</td><td class="wip">진행</td><td class="note-text">mind/communication.md</td><td class="note-text">폴더 → 단일 파일</td></tr>
+    <tr><td>18</td><td>6 도메인 subagent @ref 4 종 갱신</td><td class="wip">진행</td><td class="note-text">각 도메인/mind/ 운영자 파일</td><td class="note-text">진행 중</td></tr>
+    <tr><td>19</td><td>Chromosome interactive</td><td class="left">남음</td><td class="note-text">chromosome-*/</td><td class="note-text">API 500 끊김</td></tr>
+    <tr><td>20</td><td>visual skill book style 등록</td><td class="left">남음</td><td class="note-text">.claude/skills/visual/</td><td class="note-text">대기</td></tr>
+    <tr><td>21</td><td>Gene-dna interactive 보강</td><td class="left">남음</td><td class="note-text">gene-dna-interactive/</td><td class="note-text">day/dark + EN 토글</td></tr>
+  </table>
+
+  <footer>source: 00_meta/_plan/20260516/board.md &middot; 2026-05-16</footer>
+</div>
+<script>
+  (function(){const s=localStorage.getItem('kenny-theme')||'light';document.documentElement.setAttribute('data-theme',s);document.getElementById('theme-toggle').textContent=s==='dark'?'Light':'Dark';})();
+  function toggleTheme(){const h=document.documentElement;const d=h.getAttribute('data-theme')==='dark';const n=d?'light':'dark';h.setAttribute('data-theme',n);document.getElementById('theme-toggle').textContent=d?'Dark':'Light';localStorage.setItem('kenny-theme',n);}
+</script>
+<script src="../../_assets/stealth-comment.js" defer></script>
+</body>
+</html>

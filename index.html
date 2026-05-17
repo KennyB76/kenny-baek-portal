@@ -335,6 +335,15 @@
     flex-shrink: 0;
   }
 
+  .type-badge.wip {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  [data-theme="dark"] .type-badge.wip {
+    background: #451a03;
+    color: #fbbf24;
+  }
+
   /* ── INTERACTIVE CARDS (2-col grid — same as Evelyn) ── */
   .lesson-cards {
     display: grid;
@@ -675,6 +684,17 @@
              data-en="Workshop 008 — Developer Fundamentals (8 chapters)"
              onclick="openModal(this.dataset.src, this.getAttribute('data-ko'))">Workshop 008 — 개발자 기본 지식 (8 chapter)</a>
           <span class="type-badge">workshop</span>
+        </li>
+
+        <li data-filter="wip plan 인덱스 진행 master index 작업 보드 date 날짜 이력">
+          <span class="tl-date">05-17</span>
+          <a class="lesson-link wip"
+             href="javascript:void(0)"
+             data-src="_plan/index.html"
+             data-ko="WIP — 전체 플랜 인덱스 (date 별)"
+             data-en="WIP — Master Plan Index (by date)"
+             onclick="openModal(this.dataset.src, this.getAttribute('data-ko'))">WIP — 전체 플랜 인덱스 (date 별)</a>
+          <span class="type-badge wip">wip</span>
         </li>
 
       </ul>
