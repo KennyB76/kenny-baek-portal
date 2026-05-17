@@ -8,7 +8,7 @@
   Features: light/dark toggle, ko/en toggle, search, localStorage
   v4: hero = 감사의 말씀 / timeline scrollable / About section added
 -->
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -790,7 +790,7 @@
 <script>
   /* ── THEME ── */
   (function() {
-    const saved = localStorage.getItem('kenny-theme') || 'dark';
+    const saved = localStorage.getItem('kenny-theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
     document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
   })();
