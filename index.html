@@ -554,111 +554,6 @@
   #btt.show { display: flex; }
   #btt:hover { opacity: 0.85; }
 
-  /* ── LAYOUT CONTAINER (sidebar + wrap) ── */
-  .page-container {
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    max-width: 1060px;
-    margin: 0 auto;
-  }
-
-  /* ── SIDEBAR ── */
-  .sidebar {
-    width: 260px;
-    min-width: 260px;
-    position: sticky;
-    top: 52px;
-    height: calc(100vh - 52px);
-    overflow-y: auto;
-    padding: 1.25rem 1rem;
-    background: var(--paper);
-    border-right: 1px solid var(--line);
-    flex-shrink: 0;
-  }
-  .sidebar::-webkit-scrollbar { width: 4px; }
-  .sidebar::-webkit-scrollbar-thumb { background: var(--student); border-radius: 2px; }
-  .sidebar-label {
-    font-size: 9px;
-    letter-spacing: 0.38em;
-    text-transform: uppercase;
-    color: var(--student);
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-  }
-  .sidebar-search {
-    width: 100%;
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 0.4rem 0.7rem;
-    font-size: 0.78rem;
-    color: var(--ink);
-    margin-bottom: 0.85rem;
-    outline: none;
-    font-family: var(--sans);
-    transition: border-color 0.15s;
-  }
-  .sidebar-search::placeholder { color: var(--ink-soft); }
-  .sidebar-search:focus { border-color: var(--student); }
-  .glossary-list { list-style: none; }
-  .glossary-list li {
-    padding: 0.55rem 0.5rem;
-    border-bottom: 1px solid var(--line);
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.12s;
-  }
-  .glossary-list li:last-child { border-bottom: none; }
-  .glossary-list li:hover { background: var(--student-glow); }
-  .gl-term {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--student-deep);
-    margin-bottom: 2px;
-  }
-  [data-theme="dark"] .gl-term { color: var(--student); }
-  .gl-def {
-    font-size: 0.72rem;
-    color: var(--ink-soft);
-    line-height: 1.5;
-  }
-  .gl-hidden { display: none !important; }
-
-  /* sidebar toggle button (mobile) */
-  .sidebar-toggle {
-    display: none;
-    background: var(--student-soft);
-    border: 1px solid var(--line);
-    color: var(--student);
-    border-radius: 6px;
-    padding: 0.28rem 0.65rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-right: 0.4rem;
-  }
-
-  @media (max-width: 860px) {
-    .page-container { flex-direction: column; }
-    .sidebar {
-      position: static;
-      width: 100%;
-      height: auto;
-      max-height: 0;
-      overflow: hidden;
-      border-right: none;
-      border-bottom: 1px solid var(--line);
-      padding: 0 1rem;
-      transition: max-height 0.3s ease, padding 0.2s;
-    }
-    .sidebar.open {
-      max-height: 400px;
-      padding: 1rem;
-      overflow-y: auto;
-    }
-    .sidebar-toggle { display: inline-block; }
-  }
 </style>
 </head>
 <body>
@@ -667,41 +562,10 @@
 <nav>
   <div class="nav-brand">Newton School <span>/ Student Portal</span></div>
   <div class="nav-actions">
-    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">Glossary</button>
     <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
     <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Light</button>
   </div>
 </nav>
-
-<div class="page-container">
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-label">Glossary</div>
-  <input class="sidebar-search" id="glossary-search" type="text" placeholder="Search..." oninput="filterGlossary()" />
-  <ul class="glossary-list" id="glossary-list">
-    <li>
-      <div class="gl-term">Newton School</div>
-      <div class="gl-def">Kenny 의 개인 학습 설계 스튜디오. 수학 · 물리 · AI 교육 기반.</div>
-    </li>
-    <li>
-      <div class="gl-term">Cognitive Architect</div>
-      <div class="gl-def">사람의 기억망과 사고 구조를 설계하는 역할. Kenny 의 핵심 정체성.</div>
-    </li>
-    <li>
-      <div class="gl-term">학생 0호</div>
-      <div class="gl-def">Newton School 최초 학생. 선생님이자 학생 — Kenny 본인.</div>
-    </li>
-    <li>
-      <div class="gl-term">Workshop / Chapter / Lesson</div>
-      <div class="gl-def">학습 단위 계층. Workshop &gt; Chapter &gt; Lesson 순으로 내려감.</div>
-    </li>
-    <li>
-      <div class="gl-term">Identity</div>
-      <div class="gl-def">4 차원 좌표: Cognitive Architect · AI Agent Designer · Educator · Knowledge Worker.</div>
-    </li>
-  </ul>
-</aside>
 
 <div class="wrap">
 
@@ -810,15 +674,6 @@
              data-ko="Chapter 1 — 개발자 기본 지식 (React + Node + Python)"
              data-en="Chapter 1 — Developer Fundamentals"
              onclick="openModal(this.dataset.src, this.getAttribute('data-ko'))">Chapter 1 — 개발자 기본 지식 (React + Node + Python)</a>
-          <span class="type-badge">workshop</span>
-        </li>
-
-        <li data-filter="workshop 008 tech stack landscape 전체지도 개발자 지식 인덱스 index 22 영상 chapter">
-          <span class="tl-date">05-17</span>
-          <a class="lesson-link"
-             href="workshop-008/index.html"
-             data-ko="Workshop 008 인덱스 — Tech Stack Landscape 전체 지도"
-             data-en="Workshop 008 Index — Tech Stack Landscape Full Map">Workshop 008 인덱스 — Tech Stack Landscape 전체 지도</a>
           <span class="type-badge">workshop</span>
         </li>
 
@@ -937,8 +792,6 @@
 
 </div><!-- /.wrap -->
 
-</div><!-- /.page-container -->
-
 <!-- BACK TO TOP -->
 <button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
 
@@ -1015,21 +868,6 @@
   window.addEventListener('scroll', () => {
     btt.classList.toggle('show', window.scrollY > 300);
   });
-
-  /* ── SIDEBAR TOGGLE (mobile) ── */
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-  }
-
-  /* ── GLOSSARY FILTER ── */
-  function filterGlossary() {
-    const q = document.getElementById('glossary-search').value.toLowerCase().trim();
-    document.querySelectorAll('#glossary-list li').forEach(li => {
-      if (!q) { li.classList.remove('gl-hidden'); return; }
-      const text = li.textContent.toLowerCase();
-      li.classList.toggle('gl-hidden', !text.includes(q));
-    });
-  }
 
   /* ── MODAL ── */
   const overlay = document.getElementById('modalOverlay');
