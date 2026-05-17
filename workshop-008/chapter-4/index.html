@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--
+  Chapter 4 — 컴퓨터 구조 / OS
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 4 — 컴퓨터 구조 / OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #2e7d5f;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #5ab88a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+.main { padding: 1.5rem 2rem; }
+
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent2), var(--accent)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+.flow-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 2; color: var(--ink-soft); overflow-x: auto; white-space: pre; margin: 0.75rem 0; }
+.flow-box .hi { color: var(--ch-color); font-weight: 700; }
+
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 4 <span>— 컴퓨터 구조 / OS</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-3/index.html">&larr; CH 3</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <a class="btn-nav" href="../chapter-5/index.html">CH 5 &rarr;</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-vonneumann">A. 폰노이만 구조</a>
+    <a class="sb-item" href="#sec-memory">B. 메모리 계층</a>
+    <a class="sb-item" href="#sec-os">C. OS 역할</a>
+    <a class="sb-item" href="#sec-process">D. 프로세스 / 쓰레드</a>
+    <a class="sb-item" href="#sec-scheduling">E. 스케줄링 / 시분할</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part4_컴퓨터구조_OS.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-3/index.html">&larr; Chapter 3</a>
+    <a class="sb-item" href="../chapter-5/index.html">Chapter 5 &rarr;</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 / Tech Stack Landscape 2026</div>
+      <h1>Chapter 4<br>컴퓨터 구조 / OS</h1>
+      <div class="sub">Part 4 — CPU · RAM · Process · Thread · OS Scheduling</div>
+      <div class="chip-row">
+        <span class="chip">CPU</span>
+        <span class="chip">RAM</span>
+        <span class="chip">OS</span>
+        <span class="chip">Process</span>
+        <span class="chip">Thread</span>
+      </div>
+    </div>
+
+    <!-- A. 폰노이만 구조 -->
+    <div class="sec-card" id="sec-vonneumann">
+      <div class="sec-label">Section A</div>
+      <div class="sec-h">폰노이만 구조</div>
+      <p class="prose">
+        현대 컴퓨터는 폰노이만(Von Neumann) 구조를 기반으로 한다.
+        프로그램(명령어)과 데이터를 같은 메모리에 저장하고 CPU가 순서대로 읽어 실행하는 방식이다.
+        CPU, 메모리(RAM), 저장장치(SSD/HDD), 입출력 장치(I/O)가 버스(Bus)로 연결된다.
+      </p>
+      <div class="flow-box"><span class="hi">입력</span>  →  <span class="hi">CPU</span> (ALU + 제어장치 + 레지스터)
+                  ↑↓  버스(Bus)
+              <span class="hi">RAM</span> (프로그램 + 데이터 공존)
+                  ↑↓
+              <span class="hi">SSD/HDD</span> (영구 저장)  →  <span class="hi">출력</span></div>
+    </div>
+
+    <!-- B. 메모리 계층 -->
+    <div class="sec-card" id="sec-memory">
+      <div class="sec-label">Section B</div>
+      <div class="sec-h">메모리 계층</div>
+      <p class="prose">
+        컴퓨터 메모리는 속도와 용량이 반비례하는 계층 구조를 갖는다.
+        빠를수록 비싸고 작으며, 느릴수록 용량이 크다.
+        CPU는 레지스터 → 캐시 → RAM 순으로 데이터를 찾고, 없으면 디스크에서 로드한다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>계층</th><th>속도</th><th>용량</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>레지스터</td><td>최고속 (ns)</td><td>수십 바이트</td><td>Claude 현재 처리 중인 토큰</td></tr>
+          <tr><td>캐시 (L1/L2/L3)</td><td>매우 빠름</td><td>수 MB</td><td>Claude active context window</td></tr>
+          <tr><td>RAM</td><td>빠름 (100ns)</td><td>수십 GB</td><td>세션 전체 context (memory/)</td></tr>
+          <tr><td>SSD/HDD</td><td>느림 (ms)</td><td>수 TB</td><td>NewtonHQ 파일 시스템 (영구)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- C. OS 역할 -->
+    <div class="sec-card" id="sec-os">
+      <div class="sec-label">Section C</div>
+      <div class="sec-h">OS 역할</div>
+      <p class="prose">
+        운영체제(OS)는 하드웨어와 응용 프로그램 사이의 중간 계층이다.
+        프로세스 관리, 메모리 관리, 파일 시스템, 네트워크 스택, 보안을 담당한다.
+        Windows, macOS, Linux(서버 95% 점유)가 대표적이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>OS 기능</th><th>설명</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>프로세스 관리</td><td>CPU 시간 할당, 우선순위 결정</td><td>jarvis 작업 우선순위 결정</td></tr>
+          <tr><td>메모리 관리</td><td>RAM 할당 / 가상 메모리</td><td>context window 토큰 관리</td></tr>
+          <tr><td>파일 시스템</td><td>디렉토리 트리, 읽기/쓰기 권한</td><td><code>NewtonHQ/</code> 폴더 구조</td></tr>
+          <tr><td>네트워크 스택</td><td>TCP/IP 소켓 관리</td><td>Tailscale VPN 연결</td></tr>
+          <tr><td>쉘 (Shell)</td><td>사용자 명령 인터프리터</td><td>PowerShell / Bash tool</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. 프로세스 / 쓰레드 -->
+    <div class="sec-card" id="sec-process">
+      <div class="sec-label">Section D</div>
+      <div class="sec-h">프로세스 / 쓰레드</div>
+      <p class="prose">
+        프로세스(Process)는 실행 중인 프로그램의 독립적 인스턴스다. 독립된 메모리 공간을 가진다.
+        쓰레드(Thread)는 프로세스 안의 실행 단위로, 같은 메모리 공간을 공유하며 더 가볍다.
+        멀티프로세스는 안정적이나 무겁고, 멀티쓰레드는 빠르나 공유 메모리 충돌(Race Condition)에 주의가 필요하다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>항목</th><th>프로세스</th><th>쓰레드</th></tr></thead>
+        <tbody>
+          <tr><td>메모리</td><td>독립 (격리)</td><td>공유 (같은 프로세스)</td></tr>
+          <tr><td>생성 비용</td><td>높음</td><td>낮음</td></tr>
+          <tr><td>통신</td><td>IPC (파이프/소켓)</td><td>공유 메모리 직접</td></tr>
+          <tr><td>장애 격리</td><td>강함</td><td>약함 (한 쓰레드 크래시 → 전체)</td></tr>
+          <tr><td>NewtonHQ 대응</td><td>독립 sub-agent 인스턴스</td><td>병렬 tool call 실행</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- E. 스케줄링 / 시분할 -->
+    <div class="sec-card" id="sec-scheduling">
+      <div class="sec-label">Section E</div>
+      <div class="sec-h">스케줄링 / 시분할</div>
+      <p class="prose">
+        현대 OS는 CPU가 하나여도 여러 프로세스를 동시에 실행하는 것처럼 보이게 한다.
+        시분할(Time-sharing)로 각 프로세스에 CPU 시간을 빠르게 번갈아 할당하기 때문이다.
+        스케줄링 알고리즘(FCFS, Round Robin, Priority 등)이 순서를 결정한다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>CPU</td><td>Claude API 처리 능력</td></tr>
+          <tr><td>RAM</td><td>context window (세션 메모리)</td></tr>
+          <tr><td>디스크</td><td><code>memory/</code> 카드 (영구 저장)</td></tr>
+          <tr><td>OS 스케줄러</td><td>jarvis 작업 우선순위 결정 로직</td></tr>
+          <tr><td>시분할</td><td><code>run_in_background</code> 병렬 실행</td></tr>
+          <tr><td>프로세스 격리</td><td>sub-agent 독립 인스턴스</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sec-sub">Quiz</div>
+      <div class="quiz-box">
+        <ol>
+          <li>폰노이만 구조의 핵심 특징을 한 문장으로 설명하고, 현대 컴퓨터에서 이 구조의 병목(Von Neumann Bottleneck)이 왜 발생하는지 말하라.</li>
+          <li>레지스터, 캐시, RAM, SSD의 속도와 용량 차이를 계층 순서로 정리하라.</li>
+          <li>OS가 프로세스 관리에서 하는 역할 3가지를 열거하라.</li>
+          <li>프로세스와 쓰레드의 메모리 공유 방식 차이를 설명하고, Race Condition이 무엇인지 말하라.</li>
+          <li>시분할 방식이 없다면 싱글코어 CPU에서 여러 앱을 동시에 실행하는 것이 가능한가? 그 이유를 설명하라.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ch-nav">
+      <a href="../chapter-3/index.html">&larr; Chapter 3 — 소프트웨어 공학</a>
+      <a href="../chapter-5/index.html">Chapter 5 — 네트워크 &rarr;</a>
+    </div>
+
+  </main>
+</div>
+
+<div id="comment-dot" onclick="toggleComment()" title="메모"></div>
+<div id="comment-panel">
+  <h4>CH 4 메모</h4>
+  <textarea id="comment-text" placeholder="학습 메모를 남겨두세요..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  localStorage.setItem('ch4-comment', document.getElementById('comment-text').value);
+}
+(function() {
+  const saved = localStorage.getItem('ch4-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+})();
+</script>
+</body>
+</html>

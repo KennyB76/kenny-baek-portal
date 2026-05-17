@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<!--
+  Chapter 7 — IT 인프라 / 아키텍처
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 7 — IT 인프라 / 아키텍처</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #6b4c2a;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #c89a5a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+.main { padding: 1.5rem 2rem; }
+
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent2), var(--accent3)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+.flow-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 2; color: var(--ink-soft); overflow-x: auto; white-space: pre; margin: 0.75rem 0; }
+.flow-box .hi { color: var(--ch-color); font-weight: 700; }
+
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 7 <span>— IT 인프라 / 아키텍처</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-6/index.html">&larr; CH 6</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <a class="btn-nav" href="../chapter-8/index.html">CH 8 &rarr;</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-arch">A. 아키텍처 = 설계도</a>
+    <a class="sb-item" href="#sec-3tier">B. 3-Tier 아키텍처</a>
+    <a class="sb-item" href="#sec-msa">C. 모놀리스 → MSA</a>
+    <a class="sb-item" href="#sec-lb">D. 로드밸런서 / 스케일링</a>
+    <a class="sb-item" href="#sec-apigw">E. API Gateway / BFF</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part7_IT인프라_아키텍처.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">보조 영상</div>
+    <a class="sb-item" href="../transcripts/보조_20년_IT아키텍처_변천.summary.md">20년 아키텍처 변천</a>
+    <a class="sb-item" href="../transcripts/보조_서비스_실패_예방.summary.md">서비스 실패 예방</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-6/index.html">&larr; Chapter 6</a>
+    <a class="sb-item" href="../chapter-8/index.html">Chapter 8 &rarr;</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 / Tech Stack Landscape 2026</div>
+      <h1>Chapter 7<br>IT 인프라 / 아키텍처</h1>
+      <div class="sub">Part 7 — 3-Tier · MSA · Load Balancer · API Gateway</div>
+      <div class="chip-row">
+        <span class="chip">3-Tier</span>
+        <span class="chip">MSA</span>
+        <span class="chip">LB</span>
+        <span class="chip">API GW</span>
+        <span class="chip">BFF</span>
+      </div>
+    </div>
+
+    <!-- A. 아키텍처 = 설계도 -->
+    <div class="sec-card" id="sec-arch">
+      <div class="sec-label">Section A</div>
+      <div class="sec-h">아키텍처 = 설계도</div>
+      <p class="prose">
+        IT 아키텍처는 시스템을 구성하는 컴포넌트와 그 관계를 정의하는 설계도다.
+        좋은 아키텍처는 가용성, 확장성, 유지보수성, 보안을 동시에 고려한다.
+        아키텍처는 비즈니스 요구사항에서 출발하며, 정답이 하나가 아니라 트레이드오프의 선택이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>관심사</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td>가용성 (Availability)</td><td>시스템이 얼마나 오래 정상 작동하는가 (9999 = 99.99%)</td></tr>
+          <tr><td>확장성 (Scalability)</td><td>트래픽 증가 시 성능 유지 능력 (수직 vs 수평 확장)</td></tr>
+          <tr><td>유지보수성 (Maintainability)</td><td>코드/시스템 변경이 얼마나 쉬운가</td></tr>
+          <tr><td>보안 (Security)</td><td>인증, 인가, 암호화, 최소 권한 원칙</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- B. 3-Tier 아키텍처 -->
+    <div class="sec-card" id="sec-3tier">
+      <div class="sec-label">Section B</div>
+      <div class="sec-h">3-Tier 아키텍처</div>
+      <p class="prose">
+        3-Tier는 웹 서비스의 전통적 구조다. 프레젠테이션(FE), 비즈니스 로직(BE), 데이터(DB) 3층으로 분리한다.
+        각 층은 독립적으로 확장·교체 가능하며, 역할 분리로 유지보수성이 높다.
+      </p>
+      <div class="flow-box"><span class="hi">[Tier 1] 프레젠테이션</span>  브라우저 / 앱 (React, Next.js)
+           ↑↓  HTTP/API
+<span class="hi">[Tier 2] 비즈니스 로직</span>  서버 (Node.js, Django, Spring)
+           ↑↓  SQL / ORM
+<span class="hi">[Tier 3] 데이터</span>          DB 서버 (PostgreSQL, Redis)</div>
+      <table class="anchor-table">
+        <thead><tr><th>Tier</th><th>역할</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>Tier 1 — FE</td><td>UI, 사용자 인터랙션</td><td>Kenny (요청 주체)</td></tr>
+          <tr><td>Tier 2 — BE</td><td>비즈니스 로직, API</td><td>jarvis (실행 + 판단)</td></tr>
+          <tr><td>Tier 3 — DB</td><td>데이터 영구 저장</td><td><code>memory/</code> 카드 파일 시스템</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- C. 모놀리스 → MSA -->
+    <div class="sec-card" id="sec-msa">
+      <div class="sec-label">Section C</div>
+      <div class="sec-h">모놀리스 → MSA 진화</div>
+      <p class="prose">
+        초기 서비스는 대부분 모놀리식으로 시작한다. 규모가 커지면 한 팀이 배포하면 다른 기능이 영향을 받고, 특정 기능만 스케일 아웃이 어렵다.
+        MSA는 각 기능을 독립적인 서비스로 분리해 이 문제를 해결한다. 단, 서비스 간 통신 복잡도와 분산 트랜잭션 관리가 추가된다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>진화 단계</th><th>특징</th><th>적합 시점</th></tr></thead>
+        <tbody>
+          <tr><td>Monolith</td><td>단일 코드베이스, 빠른 초기 개발</td><td>MVP, 소규모 팀</td></tr>
+          <tr><td>Modular Monolith</td><td>내부 모듈 분리, 단일 배포</td><td>중간 규모</td></tr>
+          <tr><td>MSA</td><td>독립 서비스 + 독립 DB</td><td>대규모, 다팀 운영</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. 로드밸런서 / 스케일링 -->
+    <div class="sec-card" id="sec-lb">
+      <div class="sec-label">Section D</div>
+      <div class="sec-h">로드밸런서 / 스케일링</div>
+      <p class="prose">
+        로드밸런서(Load Balancer)는 들어오는 트래픽을 여러 서버에 분산한다. 단일 서버 과부하 방지 + 고가용성 확보.
+        수직 확장(Scale Up)은 서버 사양을 높이고, 수평 확장(Scale Out)은 서버 수를 늘린다. 클라우드 시대엔 수평 확장이 일반적이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>개념</th><th>설명</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>Load Balancer</td><td>트래픽 분산 (Round Robin / 최소 연결)</td><td>orchestrator/ 작업 분배</td></tr>
+          <tr><td>Scale Up</td><td>서버 CPU/RAM 증설</td><td>Claude 더 큰 모델 업그레이드</td></tr>
+          <tr><td>Scale Out</td><td>서버 대수 증가</td><td>sub-agent 병렬 확장</td></tr>
+          <tr><td>Auto Scaling</td><td>트래픽 따라 자동 증감</td><td><code>run_in_background</code> 동적 실행</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- E. API Gateway / BFF -->
+    <div class="sec-card" id="sec-apigw">
+      <div class="sec-label">Section E</div>
+      <div class="sec-h">API Gateway / BFF</div>
+      <p class="prose">
+        API Gateway는 클라이언트와 MSA 서비스 사이에서 단일 진입점(Single Entry Point) 역할을 한다.
+        인증, 라우팅, 속도 제한, 로깅을 일괄 처리한다.
+        BFF(Backend For Frontend)는 클라이언트 유형(웹/모바일)별로 최적화된 API를 제공하는 패턴이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>3-Tier 아키텍처</td><td>Kenny / jarvis / memory/</td></tr>
+          <tr><td>API Gateway</td><td><code>orchestrator/</code> (단일 위임 진입점)</td></tr>
+          <tr><td>MSA 서비스</td><td>도메인별 독립 sub-agent</td></tr>
+          <tr><td>로드밸런서</td><td>orchestrator/ 작업 분배 룰</td></tr>
+          <tr><td>서비스 메시</td><td>sub-agent 간 통신 프로토콜</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sec-sub">Quiz</div>
+      <div class="quiz-box">
+        <ol>
+          <li>IT 아키텍처 설계에서 가용성, 확장성, 유지보수성, 보안 중 트레이드오프가 발생하는 예를 하나 들어라.</li>
+          <li>3-Tier 아키텍처에서 각 Tier의 역할과 분리의 장점을 설명하라.</li>
+          <li>스타트업이 Monolith로 시작해 MSA로 전환하는 시점과 이유를 설명하라.</li>
+          <li>Scale Up과 Scale Out의 차이를 설명하고, 클라우드 환경에서 Scale Out이 선호되는 이유를 말하라.</li>
+          <li>API Gateway가 없을 때 MSA 클라이언트가 겪는 문제를 설명하고, API Gateway가 어떻게 해결하는지 말하라.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ch-nav">
+      <a href="../chapter-6/index.html">&larr; Chapter 6 — 데이터베이스</a>
+      <a href="../chapter-8/index.html">Chapter 8 — 클라우드 &rarr;</a>
+    </div>
+
+  </main>
+</div>
+
+<div id="comment-dot" onclick="toggleComment()" title="메모"></div>
+<div id="comment-panel">
+  <h4>CH 7 메모</h4>
+  <textarea id="comment-text" placeholder="학습 메모를 남겨두세요..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  localStorage.setItem('ch7-comment', document.getElementById('comment-text').value);
+}
+(function() {
+  const saved = localStorage.getItem('ch7-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+})();
+</script>
+</body>
+</html>

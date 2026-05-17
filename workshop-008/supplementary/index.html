@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<!--
+  Workshop 008 -- Supplementary Videos Hub
+  14 보조 영상 카테고리별 포탈
+  Design: portal-consistent (indigo / Playfair + Inter)
+  Self-contained -- no external lib except Google Fonts
+  2026-05-17
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보조 영상 허브 — Workshop 008</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --student:      #4f46e5;
+  --student-soft: #eef2ff;
+  --student-deep: #3730a3;
+  --student-glow: rgba(79,70,229,0.12);
+  --ink:          #1e1b4b;
+  --ink-soft:     #6b7280;
+  --paper:        #ffffff;
+  --bg:           #f8f9ff;
+  --line:         #dde1f7;
+  --card-bg:      #ffffff;
+  --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'Cascadia Code', 'Consolas', monospace;
+  --radius: 10px;
+  --max-w: 860px;
+  /* category colors */
+  --vibe:   #7c3aed;
+  --fund:   #0369a1;
+  --net:    #059669;
+  --arch:   #b45309;
+  --career: #be185d;
+}
+[data-theme="dark"] {
+  --student:      #6366f1;
+  --student-soft: #1e1e38;
+  --student-deep: #a5b4fc;
+  --student-glow: rgba(99,102,241,0.18);
+  --ink:          #e2e8f0;
+  --ink-soft:     #94a3b8;
+  --paper:        #12121e;
+  --bg:           #0a0a14;
+  --line:         #1e1e38;
+  --card-bg:      #15152a;
+  --vibe:   #a78bfa;
+  --fund:   #38bdf8;
+  --net:    #34d399;
+  --arch:   #fbbf24;
+  --career: #f472b6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.65;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.75rem; height: 52px; gap: 1rem;
+}
+.nav-brand { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; color: var(--student); text-transform: uppercase; white-space: nowrap; }
+.nav-brand span { color: var(--ink-soft); font-weight: 400; }
+.nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+.btn-sm {
+  background: var(--student-soft); border: 1px solid var(--line); color: var(--student);
+  border-radius: 6px; padding: 0.28rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+  cursor: pointer; transition: background 0.15s; white-space: nowrap; text-decoration: none;
+}
+.btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+/* WRAP */
+.wrap { max-width: var(--max-w); margin: 0 auto; background: var(--paper); box-shadow: 0 2px 24px rgba(0,0,0,0.12); }
+
+/* MASTHEAD */
+.masthead {
+  text-align: center; padding: 44px 32px 24px;
+  border-bottom: 3px double var(--student); position: relative;
+}
+.masthead .ws-badge {
+  display: inline-block; background: var(--student-soft); color: var(--student-deep);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  border-radius: 4px; padding: 2px 8px; margin-bottom: 12px; border: 1px solid var(--line);
+}
+.masthead .school { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--student); font-weight: 700; margin-bottom: 12px; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 700; line-height: 1.12; margin-bottom: 6px; }
+.masthead .sub { font-family: var(--serif); font-style: italic; font-size: 0.95rem; color: var(--ink-soft); }
+.masthead .info { margin-top: 12px; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.05em; }
+.masthead .info span { margin: 0 6px; }
+
+/* SECTION */
+section.s { padding: 24px 32px; border-bottom: 1px solid var(--line); }
+.s-label { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--student); font-weight: 700; margin-bottom: 6px; }
+.s-title { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; line-height: 1.25; }
+.s-desc { font-size: 0.84rem; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.7; }
+
+/* CATEGORY FILTER */
+.filter-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 16px; }
+.filter-btn {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 20px; padding: 0.2rem 0.7rem; font-size: 0.7rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em;
+}
+.filter-btn:hover { border-color: var(--student); color: var(--student); }
+.filter-btn.active { background: var(--student); color: #fff; border-color: var(--student); }
+
+/* VIDEO GRID */
+.vid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .vid-grid { grid-template-columns: 1fr; } }
+
+.vid-card {
+  background: var(--card-bg); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 16px;
+  transition: all 0.15s; position: relative;
+}
+.vid-card:hover { box-shadow: 0 4px 16px var(--student-glow); border-color: var(--student); transform: translateY(-1px); }
+.vid-cat {
+  display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; border-radius: 3px; padding: 1px 6px; margin-bottom: 8px;
+  border: 1px solid;
+}
+.vid-cat.vibe   { color: var(--vibe);   border-color: var(--vibe);   background: transparent; }
+.vid-cat.fund   { color: var(--fund);   border-color: var(--fund);   background: transparent; }
+.vid-cat.net    { color: var(--net);    border-color: var(--net);    background: transparent; }
+.vid-cat.arch   { color: var(--arch);   border-color: var(--arch);   background: transparent; }
+.vid-cat.career { color: var(--career); border-color: var(--career); background: transparent; }
+
+.vid-num { font-family: var(--mono); font-size: 9px; color: var(--ink-soft); margin-bottom: 4px; }
+.vid-title { font-family: var(--serif); font-size: 0.92rem; font-weight: 700; color: var(--ink); margin-bottom: 5px; line-height: 1.3; }
+.vid-desc { font-size: 0.75rem; color: var(--ink-soft); line-height: 1.55; margin-bottom: 10px; }
+.vid-links { display: flex; gap: 6px; flex-wrap: wrap; }
+.vid-link {
+  color: var(--student); text-decoration: none; font-size: 11px; font-weight: 600;
+  border-bottom: 1px solid transparent; transition: border-color 0.12s;
+}
+.vid-link:hover { border-bottom-color: var(--student); }
+.vid-link.txt { color: var(--ink-soft); }
+.vid-link.txt:hover { border-bottom-color: var(--ink-soft); }
+
+/* CATEGORY LEGEND */
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-soft); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+.legend-dot.vibe   { background: var(--vibe); }
+.legend-dot.fund   { background: var(--fund); }
+.legend-dot.net    { background: var(--net); }
+.legend-dot.arch   { background: var(--arch); }
+.legend-dot.career { background: var(--career); }
+
+/* FOOTER */
+footer { text-align: center; padding: 24px 32px; font-size: 11px; color: var(--ink-soft); border-top: 1px solid var(--line); }
+footer a { color: var(--student); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* BACK TO TOP */
+#btt {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  background: var(--student); color: #fff; border: none; border-radius: 50%;
+  width: 38px; height: 38px; font-size: 16px; cursor: pointer;
+  display: none; align-items: center; justify-content: center; z-index: 150;
+  box-shadow: 0 4px 14px var(--student-glow);
+}
+#btt.show { display: flex; }
+#btt:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Workshop 008 <span>/ 보조 영상</span></div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="../index.html">Hub &larr;</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="ws-badge">Workshop 008</div>
+    <div class="school">Newton School &middot; 학생 0호 포탈</div>
+    <h1>보조 영상 허브</h1>
+    <div class="sub">Supplementary Videos &mdash; 14 영상 카테고리별</div>
+    <div class="info">
+      <span>14 영상</span>
+      <span>&middot;</span>
+      <span>5 카테고리</span>
+      <span>&middot;</span>
+      <span>2026 봄</span>
+    </div>
+  </header>
+
+  <!-- LEGEND + FILTER -->
+  <section class="s" id="videos">
+    <div class="s-label">보조 영상 목록</div>
+    <div class="s-title">14 Videos by Category</div>
+    <p class="s-desc">Main series (Part 1-8) 을 보완하는 보조 영상 전체. 카테고리 필터로 원하는 주제만 보기.</p>
+
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterCat('all', this)">전체 (14)</button>
+      <button class="filter-btn" onclick="filterCat('vibe', this)">Vibe Coding (2)</button>
+      <button class="filter-btn" onclick="filterCat('fund', this)">IT Fundamentals (4)</button>
+      <button class="filter-btn" onclick="filterCat('net', this)">Network &amp; Security (3)</button>
+      <button class="filter-btn" onclick="filterCat('arch', this)">Architecture (3)</button>
+      <button class="filter-btn" onclick="filterCat('career', this)">Career (2)</button>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot vibe"></div> Vibe Coding</div>
+      <div class="legend-item"><div class="legend-dot fund"></div> IT Fundamentals</div>
+      <div class="legend-item"><div class="legend-dot net"></div> Network &amp; Security</div>
+      <div class="legend-item"><div class="legend-dot arch"></div> Architecture</div>
+      <div class="legend-item"><div class="legend-dot career"></div> Career</div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="vid-grid" id="vidGrid">
+
+      <!-- #9 -->
+      <div class="vid-card" data-cat="vibe">
+        <div class="vid-num">#09</div>
+        <span class="vid-cat vibe">Vibe Coding</span>
+        <div class="vid-title">코딩 몰라도 AI 로 서비스 개발</div>
+        <div class="vid-desc">비전공 초보도 소규모 서비스 개발 가능. 경력자 업 지식 + AI = 최강 조합.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_코딩몰라도_AI로_서비스개발.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_코딩몰라도_AI로_서비스개발.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #10 -->
+      <div class="vid-card" data-cat="vibe">
+        <div class="vid-num">#10</div>
+        <span class="vid-cat vibe">Vibe Coding</span>
+        <div class="vid-title">4050대 바이브 코딩 이유 3가지</div>
+        <div class="vid-desc">평균 은퇴 49세 시대. 경력 + AI 도구 = 생존. 바이브 코딩은 배우는 게 아니라 그냥 하는 것.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_4050대_바이브코딩_이유.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_4050대_바이브코딩_이유.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #11 -->
+      <div class="vid-card" data-cat="fund">
+        <div class="vid-num">#11</div>
+        <span class="vid-cat fund">IT Fundamentals</span>
+        <div class="vid-title">IT 기술 지식 20분 전체 지도</div>
+        <div class="vid-desc">비전공자를 위한 CS 전체 그림. FE → BE → DB → 인프라 탑다운 학습 순서.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_IT기술지식_20분_전체지도.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_IT기술지식_20분_전체지도.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #12 -->
+      <div class="vid-card" data-cat="fund">
+        <div class="vid-num">#12</div>
+        <span class="vid-cat fund">IT Fundamentals</span>
+        <div class="vid-title">Web / WebApp / Hybrid / Native 앱 유형</div>
+        <div class="vid-desc">서비스 만들기 전 앱 유형 선택. 목적+예산+속도 기준으로 최적 선택.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_Web_WebApp_Hybrid_Native.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_Web_WebApp_Hybrid_Native.srt">SRT</a>
+        </div>
+      </div>
+
+      <!-- #13 -->
+      <div class="vid-card" data-cat="net">
+        <div class="vid-num">#13</div>
+        <span class="vid-cat net">Network</span>
+        <div class="vid-title">URL 입력 시 브라우저가 하는 일</div>
+        <div class="vid-desc">DNS → IP → TCP → HTTP → 응답 → 렌더링. 6단계 자동 프로세스.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_URL입력시_브라우저_일.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_URL입력시_브라우저_일.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #14 -->
+      <div class="vid-card" data-cat="net">
+        <div class="vid-num">#14</div>
+        <span class="vid-cat net">Network</span>
+        <div class="vid-title">localhost / 서버 / 클라이언트 쉬운 설명</div>
+        <div class="vid-desc">localhost = 127.0.0.1. 내 컴퓨터가 서버+클라이언트 동시. 포트 = 서비스 구분.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_localhost_서버_클라이언트.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_localhost_서버_클라이언트.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #15 -->
+      <div class="vid-card" data-cat="net">
+        <div class="vid-num">#15</div>
+        <span class="vid-cat net">Security</span>
+        <div class="vid-title">로그인 / 쿠키 / 세션 / JWT</div>
+        <div class="vid-desc">HTTP = Stateless. 로그인 상태 유지 = 쿠키/세션/JWT 중 하나. 각 방법 장단점.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_로그인_쿠키_세션_JWT.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_로그인_쿠키_세션_JWT.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #16 -->
+      <div class="vid-card" data-cat="fund">
+        <div class="vid-num">#16</div>
+        <span class="vid-cat fund">IT Fundamentals</span>
+        <div class="vid-title">프론트 / 백 / DB 20분 완성</div>
+        <div class="vid-desc">웹 서비스 = FE(화면) + BE(로직) + DB(데이터). 연결 고리 = API.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_프론트_백_DB_20분.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_프론트_백_DB_20분.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #17 -->
+      <div class="vid-card" data-cat="arch">
+        <div class="vid-num">#17</div>
+        <span class="vid-cat arch">Architecture</span>
+        <div class="vid-title">20년 IT 아키텍처 변천사</div>
+        <div class="vid-desc">웹 1.0 단일서버 → SOA → MSA → 클라우드 네이티브 → AI 네이티브. 방향 = 분산.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_20년_IT아키텍처_변천.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_20년_IT아키텍처_변천.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #18 -->
+      <div class="vid-card" data-cat="arch">
+        <div class="vid-num">#18</div>
+        <span class="vid-cat arch">Engineering</span>
+        <div class="vid-title">서비스 실패 예방</div>
+        <div class="vid-desc">트래픽 폭주 / DB 병목 / 코드 버그 = 3대 원인. 사전 설계 &gt; 사후 복구.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_서비스_실패_예방.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_서비스_실패_예방.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #19 -->
+      <div class="vid-card" data-cat="net">
+        <div class="vid-num">#19</div>
+        <span class="vid-cat net">Security</span>
+        <div class="vid-title">AI 코드 보안 점검</div>
+        <div class="vid-desc">AI 코드 = 기능 작동. 보안은 검수 필요. SQL Injection / XSS / 인증 누락 단골 취약점.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_AI코드_보안_점검.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_AI코드_보안_점검.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #20 -->
+      <div class="vid-card" data-cat="career">
+        <div class="vid-num">#20</div>
+        <span class="vid-cat career">Career</span>
+        <div class="vid-title">30년 AI 시대 개발자 생존 스킬</div>
+        <div class="vid-desc">25년 경력 관점 = 아키텍처 설계 + 비즈니스 이해 + AI 협업. 코딩 능력 가치 하락.</div>
+        <div class="vid-links">
+          <a class="vid-link" href="../transcripts/보조_30년_AI시대_개발자_생존스킬.summary.md">Summary</a>
+          <a class="vid-link txt" href="../transcripts/보조_30년_AI시대_개발자_생존스킬.txt">TXT</a>
+        </div>
+      </div>
+
+      <!-- #21 placeholder (보조_프론트_백_DB is #16, 20year is #17) -->
+      <!-- fund 4th = 보조_Web_WebApp already counted. Total = 14 correct -->
+
+    </div>
+  </section>
+
+  <footer>
+    <div><a href="../index.html">&larr; Workshop 008 Hub</a> &middot; <a href="../OVERVIEW.md">OVERVIEW.md</a></div>
+    <div class="cr">Newton School &middot; Kenny Baek &middot; 2026</div>
+  </footer>
+
+</div>
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})">^</button>
+
+<script>
+// theme toggle
+function toggleTheme() {
+  const d = document.documentElement;
+  const dark = d.getAttribute('data-theme') === 'dark';
+  d.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('theme-toggle').textContent = dark ? 'Dark' : 'Light';
+}
+
+// category filter
+function filterCat(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.vid-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat === cat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// back to top
+window.addEventListener('scroll', () => {
+  document.getElementById('btt').classList.toggle('show', window.scrollY > 300);
+});
+</script>
+</body>
+</html>

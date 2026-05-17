@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<!--
+  Chapter 5 — 네트워크
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 5 — 네트워크</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #9e5c2a;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #d4885a;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+.main { padding: 1.5rem 2rem; }
+
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent), var(--accent3)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+.flow-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 2; color: var(--ink-soft); overflow-x: auto; white-space: pre; margin: 0.75rem 0; }
+.flow-box .hi { color: var(--ch-color); font-weight: 700; }
+
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 5 <span>— 네트워크</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-4/index.html">&larr; CH 4</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <a class="btn-nav" href="../chapter-6/index.html">CH 6 &rarr;</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-client-server">A. 클라이언트-서버</a>
+    <a class="sb-item" href="#sec-http">B. HTTP / HTTPS</a>
+    <a class="sb-item" href="#sec-dns">C. DNS / IP</a>
+    <a class="sb-item" href="#sec-tcp">D. TCP / UDP</a>
+    <a class="sb-item" href="#sec-cdn">E. CDN / 프록시</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part5_네트워크.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">보조 영상</div>
+    <a class="sb-item" href="../transcripts/보조_URL입력시_브라우저_일.summary.md">URL 입력 시 브라우저</a>
+    <a class="sb-item" href="../transcripts/보조_localhost_서버_클라이언트.summary.md">localhost 설명</a>
+    <a class="sb-item" href="../transcripts/보조_로그인_쿠키_세션_JWT.summary.md">로그인 / JWT</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-4/index.html">&larr; Chapter 4</a>
+    <a class="sb-item" href="../chapter-6/index.html">Chapter 6 &rarr;</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 / Tech Stack Landscape 2026</div>
+      <h1>Chapter 5<br>네트워크</h1>
+      <div class="sub">Part 5 — HTTP · DNS · TCP · CDN · 프로토콜 계층</div>
+      <div class="chip-row">
+        <span class="chip">HTTP</span>
+        <span class="chip">DNS</span>
+        <span class="chip">TCP/IP</span>
+        <span class="chip">CDN</span>
+        <span class="chip">HTTPS</span>
+      </div>
+    </div>
+
+    <!-- A. 클라이언트-서버 -->
+    <div class="sec-card" id="sec-client-server">
+      <div class="sec-label">Section A</div>
+      <div class="sec-h">클라이언트-서버 모델</div>
+      <p class="prose">
+        클라이언트는 요청(Request)을 보내는 주체(브라우저, 앱)이고, 서버는 응답(Response)을 돌려주는 주체다.
+        인터넷의 모든 통신은 이 요청-응답 패턴을 기반으로 한다.
+        서버는 24시간 대기하며 포트(Port)를 열어 클라이언트의 요청을 수신한다.
+      </p>
+      <div class="flow-box"><span class="hi">Kenny</span> (클라이언트/브라우저)
+  →  HTTP Request  (GET /page.html)
+  →  DNS 조회: domain → IP
+  →  <span class="hi">서버</span> (IP:80/443 포트에서 대기)
+  ←  HTTP Response (200 OK + HTML)</div>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>클라이언트</td><td>Kenny (요청 주체)</td></tr>
+          <tr><td>서버</td><td>jarvis (응답 주체)</td></tr>
+          <tr><td>요청 (Request)</td><td>Kenny 메시지 / 명령</td></tr>
+          <tr><td>응답 (Response)</td><td>jarvis 실행 결과 반환</td></tr>
+          <tr><td>포트</td><td>MCP tool 엔드포인트</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- B. HTTP / HTTPS -->
+    <div class="sec-card" id="sec-http">
+      <div class="sec-label">Section B</div>
+      <div class="sec-h">HTTP / HTTPS</div>
+      <p class="prose">
+        HTTP(HyperText Transfer Protocol)는 웹 통신 프로토콜이다. 텍스트 기반, 무상태(Stateless)가 특징이다.
+        HTTPS는 HTTP + TLS(암호화)로, 데이터를 암호화해 중간자 공격을 방지한다.
+        상태 코드(Status Code)로 응답 결과를 전달한다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>상태 코드</th><th>의미</th><th>예시</th></tr></thead>
+        <tbody>
+          <tr><td>200 OK</td><td>성공</td><td>페이지 정상 로드</td></tr>
+          <tr><td>301 Redirect</td><td>영구 이동</td><td>http → https 리다이렉트</td></tr>
+          <tr><td>401 Unauthorized</td><td>인증 필요</td><td>로그인 안 한 상태</td></tr>
+          <tr><td>403 Forbidden</td><td>권한 없음</td><td>접근 거부</td></tr>
+          <tr><td>404 Not Found</td><td>리소스 없음</td><td>잘못된 URL</td></tr>
+          <tr><td>500 Server Error</td><td>서버 오류</td><td>백엔드 버그</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- C. DNS / IP -->
+    <div class="sec-card" id="sec-dns">
+      <div class="sec-label">Section C</div>
+      <div class="sec-h">DNS / IP</div>
+      <p class="prose">
+        IP 주소는 인터넷상의 컴퓨터 주소(숫자). DNS(Domain Name System)는 도메인 이름을 IP 주소로 변환하는 전화번호부다.
+        브라우저에 URL을 입력하면 DNS 조회 → IP 확인 → 서버 접속 순으로 진행된다.
+        Cloudflare(1.1.1.1), Google(8.8.8.8)이 대표적인 퍼블릭 DNS다.
+      </p>
+      <div class="flow-box">브라우저 주소창: <span class="hi">newtonschool.net</span>
+  → OS가 캐시 확인
+  → DNS Resolver (1.1.1.1) 에 쿼리
+  → Root NS → TLD NS (.net) → Authoritative NS
+  → <span class="hi">IP: 185.x.x.x</span> 반환
+  → TCP 연결 → HTTPS 핸드셰이크 → 페이지 로드</div>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>DNS</td><td>MCP tool 라우팅 (이름 → 실제 tool)</td></tr>
+          <tr><td>IP 주소</td><td>Tailscale IP (100.109.224.71 = homedesktop)</td></tr>
+          <tr><td>도메인</td><td><code>newtonschool.net</code>, <code>newtonrealty.org</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. TCP / UDP -->
+    <div class="sec-card" id="sec-tcp">
+      <div class="sec-label">Section D</div>
+      <div class="sec-h">TCP / UDP</div>
+      <p class="prose">
+        TCP(Transmission Control Protocol)는 신뢰성 있는 전송을 보장한다. 3-way Handshake로 연결을 확립하고, 패킷 손실 시 재전송한다.
+        UDP(User Datagram Protocol)는 빠르지만 신뢰성을 보장하지 않는다. 스트리밍, 게임, DNS 쿼리에 사용된다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>항목</th><th>TCP</th><th>UDP</th></tr></thead>
+        <tbody>
+          <tr><td>신뢰성</td><td>보장 (재전송)</td><td>미보장 (최선 전달)</td></tr>
+          <tr><td>속도</td><td>느림 (오버헤드)</td><td>빠름</td></tr>
+          <tr><td>연결</td><td>3-way Handshake</td><td>비연결</td></tr>
+          <tr><td>사용처</td><td>HTTP, 파일 전송, 이메일</td><td>동영상 스트리밍, 게임, DNS</td></tr>
+          <tr><td>NewtonHQ 대응</td><td>jarvis API call (결과 보장)</td><td>TTS 실시간 스트리밍</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- E. CDN / 프록시 -->
+    <div class="sec-card" id="sec-cdn">
+      <div class="sec-label">Section E</div>
+      <div class="sec-h">CDN / 프록시</div>
+      <p class="prose">
+        CDN(Content Delivery Network)은 전 세계 엣지 서버에 콘텐츠를 캐싱해 사용자와 가장 가까운 서버에서 응답한다. 속도 향상 + 오리진 서버 부하 감소.
+        프록시(Proxy)는 클라이언트와 서버 사이에서 요청을 중계한다. 캐싱, 보안, 로드밸런싱에 활용된다.
+        Cloudflare, AWS CloudFront가 대표적인 CDN이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>HTTP 클라이언트-서버</td><td>Kenny(요청) / jarvis(응답)</td></tr>
+          <tr><td>DNS</td><td>MCP tool 라우팅</td></tr>
+          <tr><td>3-Tier 아키텍처</td><td>Kenny / jarvis / memory/</td></tr>
+          <tr><td>CDN 캐시</td><td>GitHub Pages 정적 파일 서빙</td></tr>
+          <tr><td>VPN 터널</td><td>Tailscale WireGuard (homedesktop ↔ office)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sec-sub">Quiz</div>
+      <div class="quiz-box">
+        <ol>
+          <li>클라이언트-서버 모델에서 "무상태(Stateless)"란 무엇을 의미하며, 이를 보완하기 위해 쿠키/세션을 사용하는 이유를 설명하라.</li>
+          <li>브라우저에 <code>https://newtonschool.net</code>을 입력했을 때 일어나는 과정을 DNS → TCP → TLS 순으로 설명하라.</li>
+          <li>HTTP 상태 코드 200, 301, 401, 404, 500의 의미를 각각 한 줄로 설명하라.</li>
+          <li>TCP와 UDP의 주요 차이점을 신뢰성, 속도, 사용 사례 관점에서 비교하라.</li>
+          <li>CDN을 사용하면 웹사이트 성능이 어떻게 개선되는지 설명하고, Newton 포탈에 CDN 적용이 필요한 이유를 말하라.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ch-nav">
+      <a href="../chapter-4/index.html">&larr; Chapter 4 — 컴퓨터 구조 / OS</a>
+      <a href="../chapter-6/index.html">Chapter 6 — 데이터베이스 &rarr;</a>
+    </div>
+
+  </main>
+</div>
+
+<div id="comment-dot" onclick="toggleComment()" title="메모"></div>
+<div id="comment-panel">
+  <h4>CH 5 메모</h4>
+  <textarea id="comment-text" placeholder="학습 메모를 남겨두세요..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  localStorage.setItem('ch5-comment', document.getElementById('comment-text').value);
+}
+(function() {
+  const saved = localStorage.getItem('ch5-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+})();
+</script>
+</body>
+</html>

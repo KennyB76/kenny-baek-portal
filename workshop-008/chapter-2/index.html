@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!--
+  Chapter 2 — API / 동기·비동기 / JSON
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 2 — API / 동기·비동기 / JSON</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #3d6b9e;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #6a9fd8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+/* LAYOUT */
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+/* SIDEBAR */
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+/* MAIN */
+.main { padding: 1.5rem 2rem; }
+
+/* MASTHEAD */
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent2), var(--accent3)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+/* SECTIONS */
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+/* ANCHOR TABLE */
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+/* QUIZ */
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+/* FLOW DIAGRAM */
+.flow-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 2; color: var(--ink-soft); overflow-x: auto; white-space: pre; margin: 0.75rem 0; }
+.flow-box .hi { color: var(--ch-color); font-weight: 700; }
+
+/* NAV ARROWS */
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+
+/* STEALTH COMMENT DOT */
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 2 <span>— API / 동기·비동기 / JSON</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-1/index.html">&larr; CH 1</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <a class="btn-nav" href="../chapter-3/index.html">CH 3 &rarr;</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-api">A. API 핵심</a>
+    <a class="sb-item" href="#sec-rest">B. REST 4동사</a>
+    <a class="sb-item" href="#sec-async">C. 동기 / 비동기</a>
+    <a class="sb-item" href="#sec-json">D. JSON / XML</a>
+    <a class="sb-item" href="#sec-polling">E. Polling vs 이벤트</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part2_API_동기비동기_JSON.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-1/index.html">&larr; Chapter 1</a>
+    <a class="sb-item" href="../chapter-3/index.html">Chapter 3 &rarr;</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 · Chapter 2 · 2026-05-17</div>
+      <h1>API / 동기·비동기 / JSON</h1>
+      <div class="sub">깨봉 25 7-8 — Kenny Study Notebook · 시스템 간 통신 전체 지도</div>
+      <div class="chip-row">
+        <span class="chip">REST API</span>
+        <span class="chip">async/await</span>
+        <span class="chip">JSON</span>
+        <span class="chip">Polling vs Event</span>
+        <span class="chip">API → jarvis tool call</span>
+      </div>
+    </div>
+
+    <!-- A. API -->
+    <div class="sec-card" id="sec-api">
+      <div class="sec-label">Group A</div>
+      <h2 class="sec-h">API = 약속된 통신 계약</h2>
+      <p class="prose">API (Application Programming Interface) 는 시스템 간 데이터를 교환하는 규약. 웨이터 = API: 손님(클라이언트)의 주문을 받아 주방(서버)에 전달하고 결과를 가져다 준다.</p>
+      <div class="flow-box"><span class="hi">클라이언트</span>  --[Request]-->  <span class="hi">API</span>  --[처리]-->  서버 (DB)
+              <--[Response]--      <--[결과]--</div>
+
+      <h3 class="sec-sub">Kenny anchor</h3>
+      <table class="anchor-table">
+        <thead><tr><th>API 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>API call</td><td>jarvis tool call</td></tr>
+          <tr><td>API key</td><td>Claude/Google/Wave API 토큰</td></tr>
+          <tr><td>Rate limit</td><td>API 호출 제한 (분당 요청 수)</td></tr>
+          <tr><td>OpenAPI</td><td>MCP tool schema (자동 문서)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- B. REST -->
+    <div class="sec-card" id="sec-rest">
+      <div class="sec-label">Group B</div>
+      <h2 class="sec-h">REST API 4동사 = CRUD 매핑</h2>
+      <table class="anchor-table">
+        <thead><tr><th>HTTP 동사</th><th>CRUD</th><th>SQL</th><th>jarvis tool</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET</code></td><td>Read</td><td>SELECT</td><td>Read tool</td></tr>
+          <tr><td><code>POST</code></td><td>Create</td><td>INSERT</td><td>Write tool</td></tr>
+          <tr><td><code>PUT/PATCH</code></td><td>Update</td><td>UPDATE</td><td>Edit tool</td></tr>
+          <tr><td><code>DELETE</code></td><td>Delete</td><td>DELETE</td><td>Bash rm (Kenny 결재)</td></tr>
+        </tbody>
+      </table>
+      <p class="prose" style="margin-top:0.75rem;">HTTP 상태코드: 200 OK / 201 Created / 400 Bad Request / 401 Unauthorized / 404 Not Found / 500 Server Error</p>
+    </div>
+
+    <!-- C. 비동기 -->
+    <div class="sec-card" id="sec-async">
+      <div class="sec-label">Group C</div>
+      <h2 class="sec-h">동기 vs 비동기</h2>
+      <p class="prose"><strong>동기 (Sync)</strong> = 은행 창구. 번호표 받고 내 차례까지 꼼짝 못함. 순서 보장. 블로킹.<br>
+      <strong>비동기 (Async)</strong> = 카페 키오스크. 번호표 받고 자유. 음료 나오면 픽업.</p>
+      <div class="flow-box"><span class="hi">async</span> function fetchData() {
+  try {
+    const res = <span class="hi">await</span> fetch('/api/data');   // 기다리는 동안 다른 일 가능
+    const json = await res.json();
+    return json;
+  } catch (err) {
+    console.error(err);                   // 에러 처리
+  }
+}</div>
+      <table class="anchor-table">
+        <thead><tr><th>패턴</th><th>설명</th><th>NewtonHQ</th></tr></thead>
+        <tbody>
+          <tr><td>Callback</td><td>완료 후 실행할 함수 등록</td><td>구식 패턴</td></tr>
+          <tr><td>Promise</td><td>.then().catch() 체이닝</td><td>MCP tool 내부</td></tr>
+          <tr><td>async/await</td><td>동기처럼 읽히는 비동기</td><td>jarvis 선호 패턴</td></tr>
+          <tr><td>run_in_background</td><td>백그라운드 실행 플래그</td><td>sub-agent 위임</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. JSON -->
+    <div class="sec-card" id="sec-json">
+      <div class="sec-label">Group D</div>
+      <h2 class="sec-h">JSON vs XML</h2>
+      <div class="flow-box"><span class="hi">// JSON (현대 표준 — 간결)</span>
+{
+  "student": "Kenny",
+  "chapter": 2,
+  "topics": ["API", "async", "JSON"]
+}
+
+<span class="hi">// XML (옛 표준 — verbose)</span>
+&lt;student&gt;
+  &lt;name&gt;Kenny&lt;/name&gt;
+  &lt;chapter&gt;2&lt;/chapter&gt;
+&lt;/student&gt;</div>
+      <p class="prose">JSON = JavaScript Object Notation. key-value 쌍. 배열 지원. 사람도 읽기 쉬움. jarvis 응답 = JSON 구조.</p>
+    </div>
+
+    <!-- E. Polling -->
+    <div class="sec-card" id="sec-polling">
+      <div class="sec-label">Group E</div>
+      <h2 class="sec-h">Polling vs Event-driven</h2>
+      <table class="anchor-table">
+        <thead><tr><th>방식</th><th>동작</th><th>단점</th><th>사용처</th></tr></thead>
+        <tbody>
+          <tr><td>Polling</td><td>클라이언트가 주기적 체크 "됐어?"</td><td>불필요한 요청 多</td><td>단순 상태 체크</td></tr>
+          <tr><td>Long Polling</td><td>서버가 응답 늦게 줌 (연결 유지)</td><td>서버 자원 점유</td><td>채팅 (옛 방식)</td></tr>
+          <tr><td>WebSocket</td><td>양방향 실시간 연결 유지</td><td>연결 관리 복잡</td><td>채팅 / 게임</td></tr>
+          <tr><td>SSE</td><td>서버 → 클라이언트 단방향 스트림</td><td>단방향만</td><td>알림 / AI 스트림</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="sec-card">
+      <div class="sec-label">자가 점검</div>
+      <h2 class="sec-h">Quiz — Kenny Check</h2>
+      <div class="quiz-box">
+        <ol>
+          <li>REST API 4동사를 CRUD + SQL + jarvis tool 로 매핑하라.</li>
+          <li>동기/비동기를 은행 vs 카페 비유로 설명하라.</li>
+          <li>JSON 과 XML 실제 코드 형식 차이는?</li>
+          <li>Polling 이 비효율적인 이유와 WebSocket 대안은?</li>
+          <li>카카오 지도 API 쓸 때 내 앱 = provider vs consumer?</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ch-nav">
+      <a href="../chapter-1/index.html">&larr; Chapter 1 — 개발자 기본 지식</a>
+      <a href="../chapter-3/index.html">Chapter 3 — 소프트웨어 공학 &rarr;</a>
+    </div>
+
+  </main>
+</div>
+
+<!-- STEALTH COMMENT DOT -->
+<div id="comment-dot" title="메모 남기기" onclick="toggleComment()"></div>
+<div id="comment-panel">
+  <h4>Kenny 메모</h4>
+  <textarea id="comment-text" placeholder="이 챕터에 대한 메모..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const d = document.documentElement;
+  const dark = d.getAttribute('data-theme') === 'dark';
+  d.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('theme-btn').textContent = dark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  const t = document.getElementById('comment-text').value;
+  if (t.trim()) {
+    localStorage.setItem('ch2-comment', t);
+    document.getElementById('comment-panel').classList.remove('show');
+  }
+}
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('ch2-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<!--
+  Chapter 8 — 클라우드 / IaaS / PaaS / SaaS
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 8 — 클라우드 / IaaS / PaaS / SaaS</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #1a4d7a;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #5fa8e0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+.main { padding: 1.5rem 2rem; }
+
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent2), var(--accent3)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+.flow-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 2; color: var(--ink-soft); overflow-x: auto; white-space: pre; margin: 0.75rem 0; }
+.flow-box .hi { color: var(--ch-color); font-weight: 700; }
+
+/* Responsibility stack visualization */
+.resp-stack { display: flex; flex-direction: column; gap: 0; margin: 0.75rem 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.resp-row { display: grid; grid-template-columns: 120px 1fr 1fr 1fr 1fr; font-size: 0.75rem; }
+.resp-row.header { background: var(--card-bg); font-weight: 700; font-size: 0.63rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ch-color); }
+.resp-row > div { padding: 0.4rem 0.6rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.resp-row > div:last-child { border-right: none; }
+.you { background: rgba(95, 168, 224, 0.12); color: var(--ch-color); font-weight: 600; }
+.vendor { background: var(--card-bg); color: var(--ink-soft); }
+
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+.ch-nav .end-note { color: var(--ink-soft); font-size: 0.78rem; font-style: italic; }
+
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 8 <span>— 클라우드 / IaaS / PaaS / SaaS</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-7/index.html">&larr; CH 7</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <span class="btn-nav" style="opacity:0.4; cursor:default;">완료</span>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-cloud">A. 클라우드 = 가상화</a>
+    <a class="sb-item" href="#sec-iaas">B. IaaS</a>
+    <a class="sb-item" href="#sec-paas">C. PaaS</a>
+    <a class="sb-item" href="#sec-saas">D. SaaS</a>
+    <a class="sb-item" href="#sec-docker">E. Docker / Kubernetes</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part8_클라우드_IaaS_PaaS_SaaS.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">보조 영상</div>
+    <a class="sb-item" href="../transcripts/보조_IT기술지식_20분_전체지도.summary.md">IT 전체 지도</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-7/index.html">&larr; Chapter 7</a>
+    <a class="sb-item" href="../index.html">Workshop Hub</a>
+    <a class="sb-item" href="../supplementary/index.html">보조 영상 허브</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 / Tech Stack Landscape 2026 — Final Chapter</div>
+      <h1>Chapter 8<br>클라우드 / IaaS / PaaS / SaaS</h1>
+      <div class="sub">Part 8 — 가상화 · AWS · Vercel · Docker · Kubernetes · Serverless</div>
+      <div class="chip-row">
+        <span class="chip">IaaS</span>
+        <span class="chip">PaaS</span>
+        <span class="chip">SaaS</span>
+        <span class="chip">Docker</span>
+        <span class="chip">Serverless</span>
+      </div>
+    </div>
+
+    <!-- A. 클라우드 = 가상화 -->
+    <div class="sec-card" id="sec-cloud">
+      <div class="sec-label">Section A</div>
+      <div class="sec-h">클라우드 = 인터넷으로 서버 임대</div>
+      <p class="prose">
+        클라우드 이전에는 온프레미스(On-Premise)로 물리 서버를 직접 구매·운영했다.
+        서버 용량 산정에 수개월이 걸리고, 초기 대규모 CapEx(자본 지출)가 필요했다.
+        클라우드는 가상화(Virtualization) 기술로 물리 서버를 여러 VM으로 분할해 필요한 만큼 임대한다.
+        5분 만에 서버 생성 가능, OpEx(운영 지출) 모델로 전환.
+      </p>
+      <div class="flow-box"><span class="hi">온프레미스</span>  물리 서버 구매 → 수개월 설치 → CapEx 선투자
+             트래픽 예측 실패 시 → 유휴 or 다운
+
+<span class="hi">클라우드 </span>  콘솔/API → VM 즉시 생성 (5분)
+             트래픽 급증 → Auto Scaling 자동 대응
+             사용량 기반 과금 (OpEx)</div>
+    </div>
+
+    <!-- B. IaaS -->
+    <div class="sec-card" id="sec-iaas">
+      <div class="sec-label">Section B</div>
+      <div class="sec-h">IaaS — 인프라 임대</div>
+      <p class="prose">
+        IaaS(Infrastructure as a Service)는 VM + 네트워크 + 스토리지를 임대한다.
+        OS 설치부터 미들웨어, 런타임, 앱 배포까지 사용자가 직접 관리한다.
+        높은 자유도 대신 관리 부담이 크다. AWS EC2, Google Compute Engine이 대표적이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>책임 영역</th><th>온프레미스</th><th>IaaS</th><th>PaaS</th><th>SaaS</th></tr></thead>
+        <tbody>
+          <tr><td>애플리케이션</td><td class="you">사용자</td><td class="you">사용자</td><td class="you">사용자</td><td class="vendor">벤더</td></tr>
+          <tr><td>런타임 / 미들웨어</td><td class="you">사용자</td><td class="you">사용자</td><td class="vendor">벤더</td><td class="vendor">벤더</td></tr>
+          <tr><td>OS</td><td class="you">사용자</td><td class="you">사용자</td><td class="vendor">벤더</td><td class="vendor">벤더</td></tr>
+          <tr><td>가상화 / 네트워크</td><td class="you">사용자</td><td class="vendor">벤더</td><td class="vendor">벤더</td><td class="vendor">벤더</td></tr>
+          <tr><td>물리 하드웨어</td><td class="you">사용자</td><td class="vendor">벤더</td><td class="vendor">벤더</td><td class="vendor">벤더</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:0.75rem; color:var(--ink-soft); margin-top:0.4rem;">* 파란색 = 사용자 책임 / 회색 = 벤더 책임</p>
+    </div>
+
+    <!-- C. PaaS -->
+    <div class="sec-card" id="sec-paas">
+      <div class="sec-label">Section C</div>
+      <div class="sec-h">PaaS — 플랫폼 임대</div>
+      <p class="prose">
+        PaaS(Platform as a Service)는 OS + 미들웨어 + 런타임이 이미 구성된 배포 플랫폼을 제공한다.
+        개발자는 코드와 앱 설정만 신경 쓰면 된다. 인프라 관리 부담이 대폭 감소한다.
+        Vercel, Heroku, Google App Engine, Railway가 대표적이다.
+        Newton 포탈은 현재 GitHub Pages(정적 PaaS)로 운영 중이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>서비스</th><th>특화</th><th>Newton 활용</th></tr></thead>
+        <tbody>
+          <tr><td>Vercel</td><td>Next.js, 엣지 배포</td><td>newton-school-website 후보</td></tr>
+          <tr><td>GitHub Pages</td><td>정적 사이트 무료 호스팅</td><td>현재 kenny-baek-portal 운영</td></tr>
+          <tr><td>Railway</td><td>백엔드 + DB 통합 배포</td><td>미래 API 서버 후보</td></tr>
+          <tr><td>Supabase</td><td>PostgreSQL + Auth + Storage</td><td>Newton BaaS 후보</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. SaaS -->
+    <div class="sec-card" id="sec-saas">
+      <div class="sec-label">Section D</div>
+      <div class="sec-h">SaaS — 완성 소프트웨어 구독</div>
+      <p class="prose">
+        SaaS(Software as a Service)는 완성된 소프트웨어를 구독(월정액)으로 사용한다.
+        설치 없이 브라우저나 앱으로 즉시 사용 가능. 업데이트는 벤더가 자동으로 제공한다.
+        Gmail, Notion, Slack, Claude.ai, Wave(회계), Immich(셀프호스트 대안)가 예시다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>IaaS</td><td>homedesktop KVM (Tailscale 직접 연결)</td></tr>
+          <tr><td>PaaS</td><td>GitHub Pages (kenny-baek-portal 배포)</td></tr>
+          <tr><td>SaaS</td><td>Claude / Wave / Google Workspace</td></tr>
+          <tr><td>셀프호스트 SaaS</td><td>Immich (Newton Gallery) + ComfyUI</td></tr>
+          <tr><td>CapEx → OpEx</td><td>서버 구매 X → Claude API 토큰 과금</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- E. Docker / Kubernetes -->
+    <div class="sec-card" id="sec-docker">
+      <div class="sec-label">Section E</div>
+      <div class="sec-h">Docker / Kubernetes / Serverless</div>
+      <p class="prose">
+        Docker는 앱과 모든 의존성을 컨테이너(Container)로 패키징한다. "내 PC에서는 됐는데" 문제를 해결한다.
+        Kubernetes(K8s)는 수백~수천 개의 컨테이너를 오케스트레이션(스케줄링, 복구, 확장)하는 플랫폼이다.
+        Serverless(AWS Lambda 등)는 서버 관리 없이 함수 단위로 실행하고 호출 횟수만큼 과금한다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>기술</th><th>핵심 개념</th><th>NewtonHQ 현재 사용</th></tr></thead>
+        <tbody>
+          <tr><td>Docker</td><td>컨테이너 패키징 (이삿짐 박스)</td><td>Immich + ComfyUI 운영 중</td></tr>
+          <tr><td>docker-compose</td><td>다중 컨테이너 정의 + 실행</td><td>Newton Gallery 3 컨테이너</td></tr>
+          <tr><td>Kubernetes</td><td>컨테이너 오케스트레이션</td><td>Phase 3 이후 고려</td></tr>
+          <tr><td>Serverless</td><td>함수 단위 실행, 이벤트 트리거</td><td>미래 webhook 처리 후보</td></tr>
+          <tr><td>Sovereign Cloud</td><td>Newton 3-2-1 자체 클라우드</td><td>2026 Phase 2 비전</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sec-sub">Quiz</div>
+      <div class="quiz-box">
+        <ol>
+          <li>온프레미스와 클라우드의 용량 산정(Capacity Planning) 접근 방식 차이를 설명하고, 클라우드에서 Auto Scaling이 왜 가능한지 말하라.</li>
+          <li>IaaS, PaaS, SaaS에서 각각 사용자가 관리해야 하는 영역을 정리하고, 스타트업이 PaaS를 선택하는 이유를 설명하라.</li>
+          <li>NewtonHQ가 현재 사용하는 IaaS, PaaS, SaaS 각 예시를 최소 1개씩 들어라.</li>
+          <li>Docker 컨테이너와 VM의 차이를 설명하고, "내 PC에서는 됐는데" 문제를 Docker가 어떻게 해결하는지 말하라.</li>
+          <li>Serverless 아키텍처의 장점과 콜드 스타트(Cold Start)라는 단점을 설명하라.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ch-nav">
+      <a href="../chapter-7/index.html">&larr; Chapter 7 — IT 인프라 / 아키텍처</a>
+      <span class="end-note">Workshop 008 완료 — 보조 영상으로 심화 학습</span>
+    </div>
+
+  </main>
+</div>
+
+<div id="comment-dot" onclick="toggleComment()" title="메모"></div>
+<div id="comment-panel">
+  <h4>CH 8 메모</h4>
+  <textarea id="comment-text" placeholder="학습 메모를 남겨두세요..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  localStorage.setItem('ch8-comment', document.getElementById('comment-text').value);
+}
+(function() {
+  const saved = localStorage.getItem('ch8-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+})();
+</script>
+</body>
+</html>

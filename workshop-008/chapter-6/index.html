@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<!--
+  Chapter 6 — 데이터베이스
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 6 — 데이터베이스</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #2a6b5c;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #4ab8a2;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+.main { padding: 1.5rem 2rem; }
+
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent3), var(--accent)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+.code-block { background: var(--card-bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 1.8; color: var(--ink-soft); overflow-x: auto; margin: 0.75rem 0; }
+.code-block .kw { color: var(--ch-color); font-weight: 700; }
+.code-block .cm { color: var(--ink-soft); opacity: 0.7; }
+
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 6 <span>— 데이터베이스</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-5/index.html">&larr; CH 5</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <a class="btn-nav" href="../chapter-7/index.html">CH 7 &rarr;</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-rdb">A. RDB — 관계형 DB</a>
+    <a class="sb-item" href="#sec-sql">B. SQL 4동사</a>
+    <a class="sb-item" href="#sec-nosql">C. NoSQL</a>
+    <a class="sb-item" href="#sec-index">D. 인덱스 / 정규화</a>
+    <a class="sb-item" href="#sec-orm">E. ORM / 트랜잭션</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part6_데이터베이스.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">보조 영상</div>
+    <a class="sb-item" href="../transcripts/보조_프론트_백_DB_20분.summary.md">프론트 / 백 / DB</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-5/index.html">&larr; Chapter 5</a>
+    <a class="sb-item" href="../chapter-7/index.html">Chapter 7 &rarr;</a>
+  </aside>
+
+  <main class="main">
+
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 / Tech Stack Landscape 2026</div>
+      <h1>Chapter 6<br>데이터베이스</h1>
+      <div class="sub">Part 6 — SQL · NoSQL · Index · ORM · Transaction</div>
+      <div class="chip-row">
+        <span class="chip">SQL</span>
+        <span class="chip">NoSQL</span>
+        <span class="chip">Index</span>
+        <span class="chip">ORM</span>
+        <span class="chip">Transaction</span>
+      </div>
+    </div>
+
+    <!-- A. RDB -->
+    <div class="sec-card" id="sec-rdb">
+      <div class="sec-label">Section A</div>
+      <div class="sec-h">RDB — 관계형 데이터베이스</div>
+      <p class="prose">
+        관계형 데이터베이스(RDB)는 데이터를 표(Table) 형태로 저장하고, 테이블 간 관계(Relation)로 연결한다.
+        각 행(Row)은 레코드, 각 열(Column)은 필드다.
+        Primary Key(PK)로 각 행을 고유 식별하고, Foreign Key(FK)로 다른 테이블과 연결한다.
+        PostgreSQL, MySQL, SQLite가 대표적이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>DB 개념</th><th>비유</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>테이블 (Table)</td><td>엑셀 시트</td><td><code>memory/</code> 카드 컬렉션</td></tr>
+          <tr><td>행 (Row)</td><td>엑셀 한 줄</td><td>카드 한 장</td></tr>
+          <tr><td>열 (Column)</td><td>필드 이름</td><td>카드 YAML frontmatter 키</td></tr>
+          <tr><td>PK (Primary Key)</td><td>고유 ID</td><td>파일명 (단일 식별자)</td></tr>
+          <tr><td>FK (Foreign Key)</td><td>다른 표 참조</td><td>cascade @ref 링크</td></tr>
+          <tr><td>JOIN</td><td>표 합치기</td><td>@ref 여러 카드 cascade 로드</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- B. SQL 4동사 -->
+    <div class="sec-card" id="sec-sql">
+      <div class="sec-label">Section B</div>
+      <div class="sec-h">SQL 4동사 (CRUD)</div>
+      <p class="prose">
+        SQL(Structured Query Language)은 RDB와 대화하는 언어다. 핵심 4동사는 CRUD 작업에 대응한다.
+      </p>
+      <div class="code-block"><span class="kw">SELECT</span> * <span class="kw">FROM</span> students <span class="kw">WHERE</span> grade = 'A';  <span class="cm">-- Read</span>
+<span class="kw">INSERT INTO</span> students (name, grade) <span class="kw">VALUES</span> ('Trinity', 'A');  <span class="cm">-- Create</span>
+<span class="kw">UPDATE</span> students <span class="kw">SET</span> grade = 'A+' <span class="kw">WHERE</span> name = 'Trinity';  <span class="cm">-- Update</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> name = 'Trinity';  <span class="cm">-- Delete</span></div>
+      <table class="anchor-table">
+        <thead><tr><th>SQL 동사</th><th>CRUD</th><th>HTTP</th><th>jarvis tool</th></tr></thead>
+        <tbody>
+          <tr><td>SELECT</td><td>Read</td><td>GET</td><td>Read tool</td></tr>
+          <tr><td>INSERT</td><td>Create</td><td>POST</td><td>Write tool</td></tr>
+          <tr><td>UPDATE</td><td>Update</td><td>PUT/PATCH</td><td>Edit tool</td></tr>
+          <tr><td>DELETE</td><td>Delete</td><td>DELETE</td><td>Bash rm (결재 필요)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- C. NoSQL -->
+    <div class="sec-card" id="sec-nosql">
+      <div class="sec-label">Section C</div>
+      <div class="sec-h">NoSQL</div>
+      <p class="prose">
+        NoSQL(Not Only SQL)은 RDB의 표 구조를 벗어나 유연한 데이터 모델을 사용한다.
+        스키마 없이 빠른 개발이 가능하고 대규모 수평 확장에 유리하다.
+        단, 복잡한 JOIN 쿼리가 어렵고 트랜잭션 지원이 제한적일 수 있다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>유형</th><th>구조</th><th>대표 DB</th><th>사용처</th></tr></thead>
+        <tbody>
+          <tr><td>Document</td><td>JSON 문서</td><td>MongoDB, Firestore</td><td>CMS, 블로그, 프로필</td></tr>
+          <tr><td>Key-Value</td><td>키 = 값</td><td>Redis, DynamoDB</td><td>세션, 캐시</td></tr>
+          <tr><td>Column</td><td>컬럼 패밀리</td><td>Cassandra, HBase</td><td>시계열, 분석</td></tr>
+          <tr><td>Graph</td><td>노드 + 엣지</td><td>Neo4j</td><td>소셜 그래프, 추천</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. 인덱스 / 정규화 -->
+    <div class="sec-card" id="sec-index">
+      <div class="sec-label">Section D</div>
+      <div class="sec-h">인덱스 / 정규화</div>
+      <p class="prose">
+        인덱스(Index)는 책의 색인처럼 특정 컬럼 기준으로 빠르게 검색할 수 있게 한다. 읽기 속도는 향상되지만 쓰기 속도와 저장 공간을 소비한다.
+        정규화(Normalization)는 데이터 중복을 제거해 일관성을 높이는 설계 원칙이다. 1NF → 2NF → 3NF 단계로 적용한다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>개념</th><th>효과</th><th>주의점</th></tr></thead>
+        <tbody>
+          <tr><td>인덱스 (Index)</td><td>SELECT 속도 대폭 향상</td><td>INSERT/UPDATE 느려짐, 공간 소비</td></tr>
+          <tr><td>정규화 (Normalization)</td><td>중복 제거, 데이터 일관성</td><td>JOIN 증가로 쿼리 복잡도 상승</td></tr>
+          <tr><td>비정규화 (Denormalization)</td><td>JOIN 줄여 읽기 속도 향상</td><td>중복 데이터 관리 필요</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- E. ORM / 트랜잭션 -->
+    <div class="sec-card" id="sec-orm">
+      <div class="sec-label">Section E</div>
+      <div class="sec-h">ORM / 트랜잭션</div>
+      <p class="prose">
+        ORM(Object-Relational Mapping)은 코드의 객체(Class)와 DB 테이블을 자동으로 매핑한다. SQL을 직접 쓰지 않고 객체 메서드로 DB 조작이 가능하다.
+        트랜잭션(Transaction)은 여러 DB 작업을 하나의 단위로 묶는다. 모두 성공하거나(Commit), 하나라도 실패하면 모두 취소(Rollback)한다.
+        ACID(Atomicity, Consistency, Isolation, Durability)가 트랜잭션의 4대 속성이다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>테이블</td><td><code>memory/</code> 카드 컬렉션</td></tr>
+          <tr><td>PK</td><td>파일명 (단일 식별자)</td></tr>
+          <tr><td>JOIN</td><td>cascade @ref 링크</td></tr>
+          <tr><td>트랜잭션</td><td>작업 단위 (Edit → 검증 → 완료 or 롤백)</td></tr>
+          <tr><td>ORM</td><td>jarvis tool call (SQL 대신 추상화된 인터페이스)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sec-sub">Quiz</div>
+      <div class="quiz-box">
+        <ol>
+          <li>관계형 DB에서 Primary Key와 Foreign Key의 역할 차이를 설명하고, JOIN이 필요한 이유를 말하라.</li>
+          <li>SQL 4동사(SELECT/INSERT/UPDATE/DELETE)를 HTTP 메서드(GET/POST/PUT/DELETE)와 각각 대응시켜라.</li>
+          <li>Document DB(MongoDB)와 RDB(PostgreSQL)를 사용하기에 각각 적합한 상황을 예시와 함께 설명하라.</li>
+          <li>인덱스를 추가하면 읽기 속도가 향상되는 이유와 쓰기 속도가 느려지는 이유를 설명하라.</li>
+          <li>트랜잭션의 ACID 속성 중 Atomicity와 Isolation을 설명하고, 실생활 예시를 들어라.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ch-nav">
+      <a href="../chapter-5/index.html">&larr; Chapter 5 — 네트워크</a>
+      <a href="../chapter-7/index.html">Chapter 7 — IT 인프라 / 아키텍처 &rarr;</a>
+    </div>
+
+  </main>
+</div>
+
+<div id="comment-dot" onclick="toggleComment()" title="메모"></div>
+<div id="comment-panel">
+  <h4>CH 6 메모</h4>
+  <textarea id="comment-text" placeholder="학습 메모를 남겨두세요..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  localStorage.setItem('ch6-comment', document.getElementById('comment-text').value);
+}
+(function() {
+  const saved = localStorage.getItem('ch6-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+})();
+</script>
+</body>
+</html>

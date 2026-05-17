@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<!--
+  Chapter 3 — 소프트웨어 공학 / DevOps / Agile
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Skeleton: portal-consistent tokens (Nanum Myeongjo + Inter)
+  Dark/Light toggle / sidebar TOC / comment widget stealth dot
+  2026-05-17
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 3 — 소프트웨어 공학 / DevOps / Agile</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #2c2416; --ink-soft:   #6b5f4a; --paper:      #f5f0e8;
+  --bg:         #ede8dc; --line:       #d4c9b0; --card-bg:    #faf7f2;
+  --accent:     #3d6b9e; --accent2:    #7a4b8f; --accent3:    #2e7d5f;
+  --ch-color:   #7a4b8f;
+  --serif: 'Nanum Myeongjo', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+  --radius: 6px; --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink: #d4c9b0; --ink-soft: #8a7f6c; --paper: #1a1812; --bg: #141210;
+  --line: #2e2a22; --card-bg: #201e18; --accent: #6a9fd8; --accent2: #b07fd0; --accent3: #5ab88a;
+  --ch-color: #b07fd0;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--bg); color: var(--ink); min-height: 100vh; transition: background 0.2s, color 0.2s; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 200; background: var(--paper);
+  border-bottom: 1px solid var(--line); display: flex; align-items: center;
+  justify-content: space-between; padding: 0 1.5rem; height: 48px; box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title { font-family: var(--serif); font-size: 0.9rem; font-weight: 700; color: var(--ch-color); letter-spacing: 0.02em; }
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg); border: 1px solid var(--line); color: var(--ink-soft);
+  border-radius: 4px; padding: 0.22rem 0.6rem; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+  font-family: var(--sans); transition: all 0.15s; text-decoration: none;
+}
+.btn-nav:hover { background: var(--ch-color); color: #fff; border-color: var(--ch-color); }
+
+/* LAYOUT */
+.layout { display: grid; grid-template-columns: 220px 1fr; max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 48px); }
+@media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+/* SIDEBAR */
+.sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 1.25rem 1rem; position: sticky; top: 48px; height: calc(100vh - 48px); overflow-y: auto; }
+.sb-label { font-size: 0.63rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; margin-bottom: 0.6rem; margin-top: 1.25rem; }
+.sb-label:first-child { margin-top: 0; }
+.sb-item { font-size: 0.72rem; color: var(--ink-soft); padding: 0.25rem 0.4rem; border-radius: 3px; cursor: pointer; display: block; border-left: 2px solid transparent; transition: all 0.1s; text-decoration: none; }
+.sb-item:hover { color: var(--ch-color); border-left-color: var(--ch-color); background: var(--line); }
+
+/* MAIN */
+.main { padding: 1.5rem 2rem; }
+
+/* MASTHEAD */
+.masthead {
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+  position: relative; overflow: hidden;
+}
+.masthead::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--ch-color), var(--accent2), var(--accent3)); }
+.masthead-label { font-size: 0.63rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.5rem; }
+.masthead h1 { font-family: var(--serif); font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.5rem; }
+.masthead .sub { font-size: 0.82rem; color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+.chip { font-size: 0.68rem; font-weight: 700; padding: 0.18rem 0.6rem; border-radius: 20px; border: 1px solid; letter-spacing: 0.04em; color: var(--ch-color); border-color: var(--ch-color); }
+
+/* SECTIONS */
+.sec-card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+.sec-label { font-size: 0.63rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 0.4rem; }
+.sec-h { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+.sec-sub { font-size: 0.9rem; font-weight: 700; color: var(--ch-color); margin: 1rem 0 0.5rem; font-family: var(--serif); }
+.prose { font-size: 0.88rem; line-height: 1.8; color: var(--ink); margin-bottom: 0.75rem; }
+
+/* ANCHOR TABLE */
+.anchor-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+.anchor-table th { background: var(--card-bg); color: var(--ch-color); font-weight: 700; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 2px solid var(--ch-color); }
+.anchor-table td { padding: 0.45rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.anchor-table tr:hover td { background: var(--card-bg); }
+.anchor-table code { font-family: var(--mono); font-size: 0.75rem; color: var(--accent3); background: var(--card-bg); padding: 0.1rem 0.3rem; border-radius: 3px; }
+
+/* QUIZ */
+.quiz-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 0.75rem; }
+.quiz-box ol { padding-left: 1.25rem; }
+.quiz-box li { font-size: 0.84rem; line-height: 1.8; color: var(--ink-soft); margin-bottom: 0.35rem; }
+
+/* FLOW DIAGRAM */
+.flow-box { background: var(--card-bg); border: 1px solid var(--line); border-left: 3px solid var(--ch-color); border-radius: var(--radius); padding: 1rem 1.25rem; font-family: var(--mono); font-size: 12.5px; line-height: 2; color: var(--ink-soft); overflow-x: auto; white-space: pre; margin: 0.75rem 0; }
+.flow-box .hi { color: var(--ch-color); font-weight: 700; }
+
+/* NAV ARROWS */
+.ch-nav { display: flex; justify-content: space-between; padding: 1.25rem 0 2rem; }
+.ch-nav a { color: var(--ch-color); text-decoration: none; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.4rem; }
+.ch-nav a:hover { text-decoration: underline; }
+
+/* STEALTH COMMENT DOT */
+#comment-dot {
+  position: fixed; bottom: 1.5rem; right: 1.5rem; width: 10px; height: 10px;
+  background: var(--ch-color); border-radius: 50%; opacity: 0.35; cursor: pointer;
+  z-index: 300; transition: opacity 0.2s, transform 0.2s;
+}
+#comment-dot:hover { opacity: 0.8; transform: scale(1.4); }
+#comment-panel {
+  display: none; position: fixed; bottom: 3rem; right: 1.5rem; width: 280px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 301; padding: 1rem;
+}
+#comment-panel.show { display: block; }
+#comment-panel h4 { font-family: var(--serif); font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--ch-color); }
+#comment-panel textarea { width: 100%; height: 80px; font-size: 0.78rem; font-family: var(--sans); background: var(--card-bg); border: 1px solid var(--line); border-radius: 4px; padding: 0.4rem; color: var(--ink); resize: none; outline: none; }
+#comment-panel button { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 700; background: var(--ch-color); color: #fff; border: none; border-radius: 4px; padding: 0.3rem 0.75rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">Chapter 3 <span>— 소프트웨어 공학 / DevOps / Agile</span></div>
+  <div class="nav-btns">
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn">Light</button>
+    <a class="btn-nav" href="../chapter-2/index.html">&larr; CH 2</a>
+    <a class="btn-nav" href="../index.html">Hub</a>
+    <a class="btn-nav" href="../chapter-4/index.html">CH 4 &rarr;</a>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sb-label">목차</div>
+    <a class="sb-item" href="#sec-waterfall">A. 폭포수 vs Agile</a>
+    <a class="sb-item" href="#sec-sprint">B. 스프린트 / 스크럼</a>
+    <a class="sb-item" href="#sec-cicd">C. CI/CD 파이프라인</a>
+    <a class="sb-item" href="#sec-msa">D. 모놀리스 vs MSA</a>
+    <a class="sb-item" href="#sec-devops">E. DevOps 문화</a>
+    <div class="sb-label">참조</div>
+    <a class="sb-item" href="../transcripts/Part3_소프트웨어공학_DevOps_Agile.summary.md">Summary</a>
+    <a class="sb-item" href="glossary.md">Glossary</a>
+    <a class="sb-item" href="README.md">README</a>
+    <div class="sb-label">네비게이션</div>
+    <a class="sb-item" href="../chapter-2/index.html">&larr; Chapter 2</a>
+    <a class="sb-item" href="../chapter-4/index.html">Chapter 4 &rarr;</a>
+  </aside>
+
+  <main class="main">
+
+    <!-- MASTHEAD -->
+    <div class="masthead">
+      <div class="masthead-label">Workshop 008 / Tech Stack Landscape 2026</div>
+      <h1>Chapter 3<br>소프트웨어 공학 / DevOps / Agile</h1>
+      <div class="sub">Part 3 — Agile · CI/CD · MSA · DevOps</div>
+      <div class="chip-row">
+        <span class="chip">Agile</span>
+        <span class="chip">Scrum</span>
+        <span class="chip">CI/CD</span>
+        <span class="chip">MSA</span>
+        <span class="chip">DevOps</span>
+      </div>
+    </div>
+
+    <!-- A. 폭포수 vs Agile -->
+    <div class="sec-card" id="sec-waterfall">
+      <div class="sec-label">Section A</div>
+      <div class="sec-h">폭포수 vs Agile</div>
+      <p class="prose">
+        폭포수(Waterfall)는 요구사항 분석 → 설계 → 개발 → 테스트 → 배포를 순서대로 진행한다.
+        각 단계가 완료되어야 다음으로 넘어가므로 변경이 어렵고 납기가 수개월~수년이다.
+        Agile은 짧은 반복 주기(Sprint)로 작동 가능한 소프트웨어를 반복 배포하며
+        고객 피드백을 빠르게 반영한다.
+      </p>
+      <div class="flow-box"><span class="hi">Waterfall</span>  요구사항 → 설계 → 개발 → 테스트 → 배포  (한 방향, 수개월)
+
+<span class="hi">Agile   </span>  [Sprint 1: 2주] → [Sprint 2: 2주] → [Sprint 3: 2주] → ...
+          요구 → 개발 → 테스트 → 배포 (매 Sprint 반복)</div>
+      <table class="anchor-table">
+        <thead><tr><th>항목</th><th>폭포수</th><th>Agile</th></tr></thead>
+        <tbody>
+          <tr><td>주기</td><td>수개월~수년</td><td>2~4주 Sprint</td></tr>
+          <tr><td>변경 대응</td><td>어려움 (계획 고정)</td><td>용이 (백로그 조정)</td></tr>
+          <tr><td>고객 참여</td><td>초기 + 납품 시</td><td>매 Sprint Review</td></tr>
+          <tr><td>위험</td><td>후반부 발견</td><td>초반 조기 발견</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- B. 스프린트 / 스크럼 -->
+    <div class="sec-card" id="sec-sprint">
+      <div class="sec-label">Section B</div>
+      <div class="sec-h">스프린트 / 스크럼</div>
+      <p class="prose">
+        스크럼(Scrum)은 Agile 프레임워크 중 가장 널리 쓰이는 방식이다.
+        Product Backlog(요구사항 목록)에서 Sprint Backlog를 뽑아 2주 Sprint를 실행한다.
+        매일 Daily Standup(15분)으로 진행 상황을 공유하고, Sprint 종료 시 Review + Retrospective를 진행한다.
+      </p>
+      <div class="flow-box"><span class="hi">Product Backlog</span>  (우선순위 정렬 요구사항 목록)
+        |
+        v  Sprint Planning
+<span class="hi">Sprint Backlog</span>  (이번 Sprint 할 일)
+        |
+        v  Daily Standup x 10일
+<span class="hi">Sprint Review</span>   (작동 소프트웨어 시연)
+        |
+        v
+<span class="hi">Retrospective</span>   (팀 프로세스 개선)</div>
+      <table class="anchor-table">
+        <thead><tr><th>역할</th><th>책임</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>Product Owner</td><td>백로그 우선순위 결정</td><td>Kenny (요구사항 결정)</td></tr>
+          <tr><td>Scrum Master</td><td>장애 제거, 프로세스 촉진</td><td>jarvis (워크플로 조율)</td></tr>
+          <tr><td>Dev Team</td><td>Sprint 실행</td><td>sub-agent 팀</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- C. CI/CD 파이프라인 -->
+    <div class="sec-card" id="sec-cicd">
+      <div class="sec-label">Section C</div>
+      <div class="sec-h">CI/CD 파이프라인</div>
+      <p class="prose">
+        CI(Continuous Integration)는 코드 변경 시 자동으로 빌드 + 테스트를 실행한다.
+        CD(Continuous Delivery/Deployment)는 테스트 통과 시 자동 배포까지 진행한다.
+        GitHub Actions, Jenkins, GitLab CI 등이 대표적인 도구다.
+      </p>
+      <div class="flow-box"><span class="hi">Code Push</span>
+    → git push origin main
+    → <span class="hi">CI 트리거</span>: 자동 빌드 + 테스트 실행
+    → 테스트 PASS  →  <span class="hi">CD 트리거</span>: 스테이징 / 프로덕션 배포
+    → 테스트 FAIL  →  PR 블로킹 + 알림</div>
+      <table class="anchor-table">
+        <thead><tr><th>단계</th><th>동작</th><th>NewtonHQ 예시</th></tr></thead>
+        <tbody>
+          <tr><td>CI — Build</td><td>npm run build / pytest</td><td>GitHub Actions 자동 빌드</td></tr>
+          <tr><td>CI — Test</td><td>단위 테스트 / 통합 테스트</td><td>lint + HTML 검증</td></tr>
+          <tr><td>CD — Deploy</td><td>스테이징 → 프로덕션 자동 반영</td><td>GitHub Pages 자동 배포</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- D. 모놀리스 vs MSA -->
+    <div class="sec-card" id="sec-msa">
+      <div class="sec-label">Section D</div>
+      <div class="sec-h">모놀리스 vs MSA</div>
+      <p class="prose">
+        모놀리식(Monolithic) 아키텍처는 모든 기능이 하나의 코드베이스에 묶여 있다.
+        MSA(Microservices Architecture)는 각 기능을 독립적인 서비스로 분리해 배포·확장·장애 격리가 용이하다.
+        Netflix, Uber 등 대규모 서비스는 MSA를 사용하지만 소규모 프로젝트는 모놀리스가 더 효율적일 수 있다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>항목</th><th>모놀리스</th><th>MSA</th></tr></thead>
+        <tbody>
+          <tr><td>배포 단위</td><td>전체 앱 한 번에</td><td>서비스별 독립 배포</td></tr>
+          <tr><td>확장</td><td>전체 스케일 아웃</td><td>병목 서비스만 스케일 아웃</td></tr>
+          <tr><td>장애 격리</td><td>한 곳 문제 → 전체 영향</td><td>해당 서비스만 영향</td></tr>
+          <tr><td>복잡도</td><td>낮음 (단순 구조)</td><td>높음 (서비스 간 통신 필요)</td></tr>
+          <tr><td>NewtonHQ 대응</td><td>초기 단일 포탈</td><td>도메인별 sub-agent 분리</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- E. DevOps 문화 -->
+    <div class="sec-card" id="sec-devops">
+      <div class="sec-label">Section E</div>
+      <div class="sec-h">DevOps 문화</div>
+      <p class="prose">
+        DevOps는 개발(Dev)과 운영(Ops)의 사일로를 허물고 협업·자동화·지속적 개선을 추구하는 문화다.
+        코드 배포 주기 단축, 장애 복구 시간 단소, MTTR(Mean Time To Recovery) 개선이 핵심 지표다.
+        DevOps = 툴 도입이 아니라 팀 문화·프로세스의 변화다.
+      </p>
+      <table class="anchor-table">
+        <thead><tr><th>IT 개념</th><th>NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td>백로그</td><td><code>_plan/</code> 폴더 (Kenny 전용 계획)</td></tr>
+          <tr><td>스프린트</td><td>세션 단위 작업 사이클 (Kenny ↔ jarvis)</td></tr>
+          <tr><td>CI/CD</td><td>GitHub Pages 자동 배포 파이프라인</td></tr>
+          <tr><td>Daily Standup</td><td>세션 시작 시 <code>communication.md</code> 확인</td></tr>
+          <tr><td>MSA 서비스</td><td>도메인별 독립 sub-agent</td></tr>
+          <tr><td>Retrospective</td><td>memory 카드 피드백 루프</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sec-sub">Quiz</div>
+      <div class="quiz-box">
+        <ol>
+          <li>폭포수 방법론과 Agile 방법론의 가장 큰 차이점은 무엇인가?</li>
+          <li>Scrum에서 Product Owner, Scrum Master, Dev Team의 역할을 각각 설명하라.</li>
+          <li>CI와 CD의 차이점을 설명하고, GitHub Actions가 어떤 역할을 하는지 말하라.</li>
+          <li>모놀리식 아키텍처보다 MSA가 유리한 상황 2가지와 불리한 상황 1가지를 들어라.</li>
+          <li>DevOps가 단순히 툴 도입이 아닌 '문화'라는 말의 의미를 설명하라.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="ch-nav">
+      <a href="../chapter-2/index.html">&larr; Chapter 2 — API / 동기·비동기</a>
+      <a href="../chapter-4/index.html">Chapter 4 — 컴퓨터 구조 / OS &rarr;</a>
+    </div>
+
+  </main>
+</div>
+
+<!-- STEALTH COMMENT DOT -->
+<div id="comment-dot" onclick="toggleComment()" title="메모"></div>
+<div id="comment-panel">
+  <h4>CH 3 메모</h4>
+  <textarea id="comment-text" placeholder="학습 메모를 남겨두세요..."></textarea>
+  <button onclick="saveComment()">저장</button>
+</div>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? 'light' : 'dark';
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+}
+function toggleComment() {
+  document.getElementById('comment-panel').classList.toggle('show');
+}
+function saveComment() {
+  localStorage.setItem('ch3-comment', document.getElementById('comment-text').value);
+}
+(function() {
+  const saved = localStorage.getItem('ch3-comment');
+  if (saved) document.getElementById('comment-text').value = saved;
+})();
+</script>
+</body>
+</html>
