@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<!--
+  Chapter 1 — Developer Basics
+  Workshop 008-tech-stack-landscape / Newton HQ
+  Brain-mapping tone: Georgia + Nanum Myeongjo / paper cream / dark toggle
+  Kenny deep picks: React + Node + Python
+  Self-contained single file — no external dependencies except Google Fonts
+  2026-05-16
+-->
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1 — 개발자 기본 지식</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Georgia&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root {
+  --ink:        #2c2416;
+  --ink-soft:   #6b5f4a;
+  --paper:      #f5f0e8;
+  --bg:         #ede8dc;
+  --line:       #d4c9b0;
+  --card-bg:    #faf7f2;
+  --accent:     #3d6b9e;
+  --accent2:    #7a4b8f;
+  --accent3:    #2e7d5f;
+  --node-color: #c17f24;
+  --py-color:   #2e7d5f;
+  --react-color:#3d6b9e;
+  --serif: 'Nanum Myeongjo', Georgia, 'Times New Roman', serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+[data-theme="dark"] {
+  --ink:        #d4c9b0;
+  --ink-soft:   #8a7f6c;
+  --paper:      #1a1812;
+  --bg:         #141210;
+  --line:       #2e2a22;
+  --card-bg:    #201e18;
+  --accent:     #6a9fd8;
+  --accent2:    #b07fd0;
+  --accent3:    #5ab88a;
+  --node-color: #e8a840;
+  --py-color:   #5ab88a;
+  --react-color:#6a9fd8;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1.5rem; height: 48px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+}
+.nav-title {
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+.nav-title span { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; }
+.nav-btns { display: flex; gap: 0.5rem; }
+.btn-nav {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  border-radius: 4px;
+  padding: 0.22rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.15s;
+}
+.btn-nav:hover, .btn-nav.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* ── LAYOUT ── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: calc(100vh - 48px);
+}
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  padding: 1.25rem 1rem;
+  position: sticky;
+  top: 48px;
+  height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+.sb-label {
+  font-size: 0.63rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  margin-top: 1.25rem;
+}
+.sb-label:first-child { margin-top: 0; }
+
+.sb-search {
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.65rem;
+  font-size: 0.75rem;
+  color: var(--ink);
+  font-family: var(--sans);
+  outline: none;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.15s;
+}
+.sb-search:focus { border-color: var(--accent); }
+.sb-search::placeholder { color: var(--ink-soft); }
+
+.sb-group {
+  margin-bottom: 0.4rem;
+}
+.sb-group-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 0.3rem 0.5rem;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.1s;
+  user-select: none;
+}
+.sb-group-title:hover { background: var(--line); }
+.sb-group-title .arrow { font-size: 0.6rem; transition: transform 0.2s; }
+.sb-group.open .arrow { transform: rotate(90deg); }
+.sb-group-items { display: none; padding-left: 0.75rem; }
+.sb-group.open .sb-group-items { display: block; }
+.sb-item {
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  padding: 0.22rem 0.4rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-left: 2px solid transparent;
+  display: block;
+  text-decoration: none;
+}
+.sb-item:hover { color: var(--ink); background: var(--line); }
+.sb-item.highlight { color: var(--accent); border-left-color: var(--accent); }
+
+/* ── MAIN CONTENT ── */
+.main {
+  padding: 1.5rem 2rem;
+}
+
+/* ── MASTHEAD ── */
+.masthead {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.masthead::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--react-color), var(--node-color), var(--py-color));
+}
+.masthead-label {
+  font-size: 0.63rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.5rem;
+}
+.masthead h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+.masthead .sub {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  font-family: var(--serif);
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+.chip {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.18rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid;
+  letter-spacing: 0.04em;
+}
+.chip-react  { color: var(--react-color); border-color: var(--react-color); background: transparent; }
+.chip-node   { color: var(--node-color);  border-color: var(--node-color);  background: transparent; }
+.chip-python { color: var(--py-color);    border-color: var(--py-color);    background: transparent; }
+.chip-plain  { color: var(--ink-soft);    border-color: var(--line);        background: transparent; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active-react  { color: var(--react-color); border-bottom-color: var(--react-color); }
+.tab-btn.active-node   { color: var(--node-color);  border-bottom-color: var(--node-color); }
+.tab-btn.active-python { color: var(--py-color);    border-bottom-color: var(--py-color); }
+.tab-btn.active-compare { color: var(--accent2);     border-bottom-color: var(--accent2); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── SECTION HEADERS ── */
+.sec-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  margin-top: 1.75rem;
+}
+.sec-label:first-child { margin-top: 0; }
+h2.sec-h {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+h3.sec-sub {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+h3.sec-sub::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 1em;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ── PROSE ── */
+.prose {
+  font-size: 0.86rem;
+  line-height: 1.8;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+.prose p { margin-bottom: 0.6rem; }
+
+/* ── TABLE ── */
+.tbl-wrap { overflow-x: auto; margin: 0.75rem 0; }
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.78rem;
+}
+th {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.75rem;
+  text-align: left;
+  font-weight: 700;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+td {
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.75rem;
+  vertical-align: top;
+  line-height: 1.55;
+}
+tr:nth-child(even) td { background: var(--card-bg); }
+
+/* ── CODE ── */
+.code-block {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin: 0.75rem 0;
+  position: relative;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.code-lang {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.code-lang.js   { color: var(--node-color); }
+.code-lang.jsx  { color: var(--react-color); }
+.code-lang.py   { color: var(--py-color); }
+.code-lang.java { color: var(--accent2); }
+.code-lang.sql  { color: var(--ink-soft); }
+.code-lang.txt  { color: var(--ink-soft); }
+.btn-copy {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  border-radius: 3px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: all 0.15s;
+}
+.btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+.btn-copy.copied { border-color: var(--accent3); color: var(--accent3); }
+pre {
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  color: var(--ink);
+}
+pre::-webkit-scrollbar { height: 4px; }
+pre::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+/* ── HOOK CARD ── */
+.hook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+.hook-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-top: 2px solid transparent;
+}
+.hook-card:hover, .hook-card.active {
+  border-top-color: var(--react-color);
+  box-shadow: 0 3px 10px rgba(61,107,158,0.15);
+}
+.hook-name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--react-color);
+  margin-bottom: 0.3rem;
+}
+.hook-desc { font-size: 0.72rem; color: var(--ink-soft); line-height: 1.5; }
+
+/* ── LIVE DEMO ── */
+.demo-box {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin: 1rem 0;
+}
+.demo-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--react-color);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.demo-input-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+.demo-input {
+  flex: 1;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.4rem 0.65rem;
+  font-size: 0.82rem;
+  color: var(--ink);
+  font-family: var(--sans);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.demo-input:focus { border-color: var(--react-color); }
+.demo-btn {
+  background: var(--react-color);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+.demo-btn:hover { opacity: 0.85; }
+.demo-btn.danger { background: #b94040; }
+.demo-output {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.6rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  min-height: 60px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.counter-display {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--react-color);
+  text-align: center;
+  margin: 0.5rem 0;
+}
+.counter-btns { display: flex; gap: 0.5rem; justify-content: center; }
+
+/* ── FLOW DIAGRAM ── */
+.flow-diagram {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 2;
+  color: var(--ink-soft);
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── TASK TOGGLE (Node / Python comparison) ── */
+.lang-toggle-bar {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+.lang-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  color: var(--ink-soft);
+  transition: all 0.15s;
+}
+.lang-btn:hover { border-color: var(--accent); color: var(--accent); }
+.lang-btn.active-node   { background: var(--node-color); color: #fff; border-color: var(--node-color); }
+.lang-btn.active-python { background: var(--py-color);   color: #fff; border-color: var(--py-color); }
+.lang-btn.active-java   { background: var(--accent2);    color: #fff; border-color: var(--accent2); }
+
+.code-variant { display: none; }
+.code-variant.visible { display: block; }
+
+/* ── TASK CARDS ── */
+.task-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.task-card:hover { border-color: var(--accent); }
+.task-card.active { border-color: var(--accent); background: var(--card-bg); }
+.task-num {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  min-width: 1.5rem;
+}
+.task-title { font-size: 0.8rem; font-weight: 600; }
+.task-detail { display: none; margin-top: 0.75rem; }
+.task-card.active .task-detail { display: block; }
+
+/* ── ANCHOR BOX ── */
+.anchor-box {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 2;
+  margin: 0.75rem 0;
+}
+.anchor-box .a-key  { color: var(--accent); font-weight: 700; }
+.anchor-box .a-arr  { color: var(--ink-soft); }
+.anchor-box .a-val  { color: var(--ink); }
+
+/* ── COMPARE TABLE (Vue / Angular / ...) ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+.compare-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+}
+.cc-lang {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+.cc-one  { color: var(--react-color); }
+.cc-two  { color: var(--node-color); }
+.cc-three { color: var(--py-color); }
+.cc-four  { color: var(--accent2); }
+.cc-five  { color: var(--ink-soft); }
+.cc-desc { font-size: 0.72rem; color: var(--ink-soft); line-height: 1.55; }
+.cc-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 0.12rem 0.4rem;
+  border-radius: 3px;
+  margin-top: 0.35rem;
+  font-weight: 700;
+}
+.cc-badge.pick { background: var(--react-color); color: #fff; }
+.cc-badge.compare { background: var(--line); color: var(--ink-soft); }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+footer .anchor-footer {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  margin-top: 0.5rem;
+  color: var(--ink-soft);
+}
+.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-title">
+    Chapter 1 <span>/ 개발자 기본 지식</span>
+  </div>
+  <div class="nav-btns">
+    <button class="btn-nav" id="lang-btn" onclick="toggleLang()">EN</button>
+    <button class="btn-nav" id="theme-btn" onclick="toggleTheme()">Light</button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <input
+      class="sb-search"
+      type="text"
+      id="sb-search"
+      placeholder="검색..."
+      oninput="sidebarSearch()"
+    />
+
+    <div class="sb-label" data-ko="5 그룹" data-en="5 Groups">5 그룹</div>
+
+    <div class="sb-group open" id="grp-a">
+      <div class="sb-group-title" onclick="toggleGroup('grp-a')">
+        A — 자료 구조 <span class="arrow">▶</span>
+      </div>
+      <div class="sb-group-items">
+        <span class="sb-item" onclick="jumpTo('sect-a-ds')" data-ko="자료 구조" data-en="Data Structure">자료 구조</span>
+        <span class="sb-item" onclick="jumpTo('sect-a-json')" data-ko="JSON / XML" data-en="JSON / XML">JSON / XML</span>
+      </div>
+    </div>
+
+    <div class="sb-group" id="grp-b">
+      <div class="sb-group-title" onclick="toggleGroup('grp-b')">
+        B — API <span class="arrow">▶</span>
+      </div>
+      <div class="sb-group-items">
+        <span class="sb-item" onclick="jumpTo('sect-b-api')">API / REST</span>
+        <span class="sb-item" onclick="jumpTo('sect-b-crud')">CRUD vs HTTP</span>
+        <span class="sb-item" onclick="jumpTo('sect-b-ajax')">Ajax</span>
+      </div>
+    </div>
+
+    <div class="sb-group" id="grp-c">
+      <div class="sb-group-title" onclick="toggleGroup('grp-c')">
+        C — 코드 단위 <span class="arrow">▶</span>
+      </div>
+      <div class="sb-group-items">
+        <span class="sb-item" onclick="jumpTo('sect-c-oop')" data-ko="OOP → NewtonHQ" data-en="OOP → NewtonHQ">OOP → NewtonHQ</span>
+        <span class="sb-item" onclick="jumpTo('sect-c-terms')" data-ko="핵심 용어" data-en="Key Terms">핵심 용어</span>
+      </div>
+    </div>
+
+    <div class="sb-group" id="grp-d">
+      <div class="sb-group-title" onclick="toggleGroup('grp-d')">
+        D — 통신 방식 <span class="arrow">▶</span>
+      </div>
+      <div class="sb-group-items">
+        <span class="sb-item" onclick="jumpTo('sect-d-sync')" data-ko="동기 vs 비동기" data-en="Sync vs Async">동기 vs 비동기</span>
+        <span class="sb-item" onclick="jumpTo('sect-d-poll')" data-ko="폴링 vs 이벤트" data-en="Polling vs Event">폴링 vs 이벤트</span>
+      </div>
+    </div>
+
+    <div class="sb-group" id="grp-e">
+      <div class="sb-group-title" onclick="toggleGroup('grp-e')">
+        E — FE / BE <span class="arrow">▶</span>
+      </div>
+      <div class="sb-group-items">
+        <span class="sb-item" onclick="switchTab('tab-react')" data-ko="React (deep)" data-en="React (deep)">React (deep)</span>
+        <span class="sb-item" onclick="switchTab('tab-node')" data-ko="Node.js (deep)" data-en="Node.js (deep)">Node.js (deep)</span>
+        <span class="sb-item" onclick="switchTab('tab-python')" data-ko="Python (deep)" data-en="Python (deep)">Python (deep)</span>
+        <span class="sb-item" onclick="switchTab('tab-compare')" data-ko="비교" data-en="Compare">비교</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- MASTHEAD -->
+    <div class="masthead">
+      <div class="masthead-label" data-ko="Workshop 008 · Chapter 1 · 2026-05-16" data-en="Workshop 008 · Chapter 1 · 2026-05-16">Workshop 008 · Chapter 1 · 2026-05-16</div>
+      <h1 data-ko="개발자 기본 지식" data-en="Developer Fundamentals">개발자 기본 지식</h1>
+      <div class="sub" data-ko="깨봉 25 7-8 — Kenny Study Notebook · FE/BE 전체 지도" data-en="Kkaebong 25 7-8 — Kenny Study Notebook · Full FE/BE Map">깨봉 25 7-8 — Kenny Study Notebook · FE/BE 전체 지도</div>
+      <div class="chip-row">
+        <span class="chip chip-react">React</span>
+        <span class="chip chip-node">Node.js</span>
+        <span class="chip chip-python">Python</span>
+        <span class="chip chip-plain">HTTP / REST / CRUD</span>
+        <span class="chip chip-plain">동기 / 비동기</span>
+        <span class="chip chip-plain">OOP → NewtonHQ</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active-react" id="tab-react" onclick="switchTab('tab-react')" data-ko="React" data-en="React">React</button>
+      <button class="tab-btn" id="tab-node" onclick="switchTab('tab-node')" data-ko="Node.js" data-en="Node.js">Node.js</button>
+      <button class="tab-btn" id="tab-python" onclick="switchTab('tab-python')" data-ko="Python" data-en="Python">Python</button>
+      <button class="tab-btn" id="tab-compare" onclick="switchTab('tab-compare')" data-ko="비교" data-en="Compare">비교</button>
+    </div>
+
+    <!-- ========== TAB: REACT ========== -->
+    <div class="tab-panel active" id="panel-react">
+
+      <div class="sec-label">SECTION 1</div>
+      <h2 class="sec-h" data-ko="React — FE Deep" data-en="React — FE Deep">React — FE Deep</h2>
+
+      <p class="prose" data-ko="Meta(Facebook)가 만든 프론트엔드 라이브러리. 컴포넌트 트리 + Virtual DOM. 현재 FE 1위." data-en="Frontend library by Meta. Component tree + Virtual DOM. Currently #1 FE choice.">Meta(Facebook)가 만든 프론트엔드 라이브러리. 컴포넌트 트리 + Virtual DOM. 현재 FE 1위.</p>
+
+      <h3 class="sec-sub" data-ko="SPA + Component Tree" data-en="SPA + Component Tree">SPA + Component Tree</h3>
+
+      <div class="flow-diagram">  APP
+   ├── Nav
+   ├── Main
+   │    ├── StudentCard (kenny)
+   │    └── StudentCard (evelyn)
+   └── Footer</div>
+
+      <h3 class="sec-sub" data-ko="Hook — 클릭해서 코드 보기" data-en="Hook — Click to See Code">Hook — 클릭해서 코드 보기</h3>
+
+      <div class="hook-grid">
+        <div class="hook-card active" onclick="showHook('useState')">
+          <div class="hook-name">useState</div>
+          <div class="hook-desc" data-ko="상태 관리" data-en="State management">상태 관리</div>
+        </div>
+        <div class="hook-card" onclick="showHook('useEffect')">
+          <div class="hook-name">useEffect</div>
+          <div class="hook-desc" data-ko="사이드 이펙트 / API 호출" data-en="Side effects / API calls">사이드 이펙트 / API 호출</div>
+        </div>
+        <div class="hook-card" onclick="showHook('useContext')">
+          <div class="hook-name">useContext</div>
+          <div class="hook-desc" data-ko="전역 상태 공유" data-en="Global state sharing">전역 상태 공유</div>
+        </div>
+        <div class="hook-card" onclick="showHook('useReducer')">
+          <div class="hook-name">useReducer</div>
+          <div class="hook-desc" data-ko="복잡한 상태 로직" data-en="Complex state logic">복잡한 상태 로직</div>
+        </div>
+        <div class="hook-card" onclick="showHook('useMemo')">
+          <div class="hook-name">useMemo</div>
+          <div class="hook-desc" data-ko="값 계산 캐싱" data-en="Memoize computed values">값 계산 캐싱</div>
+        </div>
+        <div class="hook-card" onclick="showHook('useRef')">
+          <div class="hook-name">useRef</div>
+          <div class="hook-desc" data-ko="DOM 직접 접근" data-en="Direct DOM access">DOM 직접 접근</div>
+        </div>
+      </div>
+
+      <div id="hook-code-area"></div>
+
+      <!-- LIVE DEMO: useState -->
+      <h3 class="sec-sub" data-ko="useState Live Demo" data-en="useState Live Demo">useState Live Demo</h3>
+      <p class="prose" data-ko="실제 useState 동작 시뮬레이션. 상태 변경 → 렌더링." data-en="useState behavior simulation. State change → re-render.">실제 useState 동작 시뮬레이션. 상태 변경 → 렌더링.</p>
+
+      <div class="demo-box">
+        <div class="demo-label">LIVE — useState</div>
+        <div class="demo-input-row">
+          <input class="demo-input" id="lesson-input" type="text" placeholder="레슨 제목 입력..." data-ko-placeholder="레슨 제목 입력..." data-en-placeholder="Enter lesson title...">
+          <button class="demo-btn" onclick="addLesson()">Add</button>
+        </div>
+        <div id="lesson-list-demo" class="demo-output"></div>
+        <div style="margin-top:0.5rem;display:flex;gap:0.4rem;">
+          <button class="demo-btn danger" onclick="clearLessons()" style="font-size:0.72rem">Clear</button>
+          <span style="font-size:0.72rem;color:var(--ink-soft);align-self:center;" id="lesson-count">0 items</span>
+        </div>
+      </div>
+
+      <!-- useState Counter -->
+      <div class="demo-box" style="margin-top:0.75rem;">
+        <div class="demo-label">LIVE — Counter (useState)</div>
+        <div class="counter-display" id="counter-val">0</div>
+        <div class="counter-btns">
+          <button class="demo-btn" onclick="counterAct(-1)" style="background:var(--ink-soft)">- 1</button>
+          <button class="demo-btn" onclick="counterAct(1)">+ 1</button>
+          <button class="demo-btn" onclick="counterAct(0)" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft)">Reset</button>
+        </div>
+        <div style="margin-top:0.6rem;font-size:0.72rem;color:var(--ink-soft);font-family:var(--mono);" id="counter-log"></div>
+      </div>
+
+      <!-- 성질 -->
+      <h3 class="sec-sub" id="sect-c-oop" data-ko="Composition > Inheritance + Kenny Anchor" data-en="Composition > Inheritance + Kenny Anchor">Composition > Inheritance + Kenny Anchor</h3>
+
+      <div class="anchor-box">
+        <div><span class="a-key">Class</span><span class="a-arr">  →  </span><span class="a-val">skill 정의 (skill 설계도)</span></div>
+        <div><span class="a-key">Object</span><span class="a-arr"> →  </span><span class="a-val">skill 호출 시 발화된 인스턴스</span></div>
+        <div><span class="a-key">Inherit</span><span class="a-arr">→  </span><span class="a-val">CLAUDE.md cascade (@ref 조합)</span></div>
+        <div><span class="a-key">Method</span><span class="a-arr"> →  </span><span class="a-val">action flag (-on / -off / -team)</span></div>
+        <div><span class="a-key">Polymorphism</span><span class="a-arr"> → </span><span class="a-val">/j -on -off -team 변종</span></div>
+        <div><span class="a-key">Encapsulation</span><span class="a-arr"> → </span><span class="a-val">mind/memory cascade hub</span></div>
+        <div><span class="a-key">Module</span><span class="a-arr"> →  </span><span class="a-val">.claude/skills/ 한 폴더</span></div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: NODE ========== -->
+    <div class="tab-panel" id="panel-node">
+      <div class="sec-label">SECTION 2</div>
+      <h2 class="sec-h" data-ko="Node.js — BE Deep" data-en="Node.js — BE Deep">Node.js — BE Deep</h2>
+
+      <p class="prose" data-ko="JavaScript runtime. V8 엔진 위에서 서버 실행. 이벤트 루프 + 비동기 I/O 특화." data-en="JavaScript runtime on V8 engine. Event loop + async I/O specialist.">JavaScript runtime. V8 엔진 위에서 서버 실행. 이벤트 루프 + 비동기 I/O 특화.</p>
+
+      <h3 class="sec-sub" data-ko="같은 task — 언어 선택" data-en="Same Task — Pick Language">같은 task — 언어 선택</h3>
+
+      <div class="lang-toggle-bar">
+        <button class="lang-btn active-node" id="lb-node" onclick="setLang('node')">Node.js</button>
+        <button class="lang-btn" id="lb-python" onclick="setLang('python')">Python</button>
+        <button class="lang-btn" id="lb-java" onclick="setLang('java')">Java</button>
+      </div>
+
+      <div class="sec-label">Task 1 — HTTP 서버</div>
+      <div class="code-variant visible" id="cv-node-1">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang js">JavaScript / Express</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+          <pre>const express = require('express');
+const app = express();
+app.use(express.json());
+
+const students = [
+  { id: 1, name: 'Kenny', subject: 'Math' },
+  { id: 2, name: 'Evelyn', subject: 'Calculus' }
+];
+
+app.get('/students', (req, res) => res.json(students));
+
+app.listen(3000, () => console.log('Port 3000'));</pre>
+        </div>
+      </div>
+      <div class="code-variant" id="cv-python-1">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang py">Python / FastAPI</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+          <pre>from fastapi import FastAPI
+
+app = FastAPI()
+
+students = [
+    {'id': 1, 'name': 'Kenny', 'subject': 'Math'},
+    {'id': 2, 'name': 'Evelyn', 'subject': 'Calculus'}
+]
+
+@app.get('/students')
+def get_students():
+    return students
+
+# uvicorn main:app --port 3000</pre>
+        </div>
+      </div>
+      <div class="code-variant" id="cv-java-1">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang java">Java / Spring Boot</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+          <pre>@RestController
+@RequestMapping("/students")
+public class StudentController {
+
+    private final List<Map<String, Object>> students = Arrays.asList(
+        Map.of("id", 1, "name", "Kenny"),
+        Map.of("id", 2, "name", "Evelyn")
+    );
+
+    @GetMapping
+    public List<Map<String, Object>> getAll() {
+        return students;
+    }
+}</pre>
+        </div>
+      </div>
+
+      <div class="sec-label" style="margin-top:1.25rem;">Task 2 — 비동기 병렬 요청</div>
+      <div class="code-variant visible" id="cv-node-2">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang js">Node.js</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+          <pre>async function fetchAll(ids) {
+  const results = await Promise.all(
+    ids.map(id => fetch(`/api/students/${id}`).then(r => r.json()))
+  );
+  results.forEach(s => console.log(s.name));
+}
+
+fetchAll([1, 2, 3]);</pre>
+        </div>
+      </div>
+      <div class="code-variant" id="cv-python-2">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang py">Python / asyncio</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+          <pre>import asyncio, aiohttp
+
+async def fetch_student(session, sid):
+    async with session.get(f'/api/students/{sid}') as r:
+        return await r.json()
+
+async def fetch_all(ids):
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_student(session, i) for i in ids]
+        results = await asyncio.gather(*tasks)
+    for s in results:
+        print(s['name'])
+
+asyncio.run(fetch_all([1, 2, 3]))</pre>
+        </div>
+      </div>
+      <div class="code-variant" id="cv-java-2">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang java">Java / CompletableFuture</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+          <pre>ExecutorService pool = Executors.newFixedThreadPool(3);
+List&lt;CompletableFuture&lt;String>> futures =
+    List.of(1, 2, 3).stream()
+        .map(id -> CompletableFuture.supplyAsync(
+            () -> "Student " + id, pool))
+        .toList();
+
+CompletableFuture.allOf(
+    futures.toArray(new CompletableFuture[0])).join();
+futures.forEach(f -> System.out.println(f.join()));</pre>
+        </div>
+      </div>
+
+      <h3 class="sec-sub" data-ko="Newton 매핑 — Node.js" data-en="Newton Mapping — Node.js">Newton 매핑 — Node.js</h3>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th data-ko="Node.js 강점" data-en="Node.js Strength">Node.js 강점</th><th data-ko="Newton 활용" data-en="Newton Use">Newton 활용</th></tr></thead>
+          <tbody>
+            <tr><td>빠른 비동기 I/O</td><td>jarvis 가 여러 API 동시 호출</td></tr>
+            <tr><td>async/await</td><td>sub-agent 병렬 패턴</td></tr>
+            <tr><td>npm 생태계</td><td>Claude Code agent 도구</td></tr>
+            <tr><td>Express/Next.js</td><td>Newton 학생 포탈 API</td></tr>
+            <tr><td>파일시스템 조작</td><td>HQ_Workshop assets 생성</td></tr>
+            <tr><td>이벤트 기반</td><td>Drive 변경 webhook 처리</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-sub" id="sect-d-sync" data-ko="이벤트 루프 구조" data-en="Event Loop Structure">이벤트 루프 구조</h3>
+      <div class="flow-diagram">+----------------------------+
+|  Call Stack                |  JS 실행
+|    main() → fetch()        |
++----------------------------+
+            |
+            v
++----------------------------+
+|  Event Loop                |  빈 stack 감시
++----------------------------+
+            |
+            v
++----------------------------+
+|  Callback Queue            |  완료된 비동기 대기
+|    onStudentsFetched()     |
++----------------------------+</div>
+    </div>
+
+    <!-- ========== TAB: PYTHON ========== -->
+    <div class="tab-panel" id="panel-python">
+      <div class="sec-label">SECTION 3</div>
+      <h2 class="sec-h" data-ko="Python — BE Deep" data-en="Python — BE Deep">Python — BE Deep</h2>
+
+      <p class="prose" data-ko="데이터 분석 / AI / 스크래핑. 문법 간결. Newton AI Labs + Realty 데이터 파이프라인." data-en="Data analysis / AI / scraping. Clean syntax. Newton AI Labs + Realty data pipeline.">데이터 분석 / AI / 스크래핑. 문법 간결. Newton AI Labs + Realty 데이터 파이프라인.</p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th data-ko="Python 강점" data-en="Python Strength">Python 강점</th><th data-ko="Newton 활용" data-en="Newton Use">Newton 활용</th></tr></thead>
+          <tbody>
+            <tr><td>pandas / numpy</td><td>부동산 시장 데이터 분석</td></tr>
+            <tr><td>PyTorch / TensorFlow</td><td>Newton AI Labs 실험</td></tr>
+            <tr><td>requests / scrapy</td><td>Realty 매물 스크래핑</td></tr>
+            <tr><td>FastAPI</td><td>AI model serving 서버</td></tr>
+            <tr><td>asyncio</td><td>비동기 크롤러</td></tr>
+            <tr><td>Jupyter notebook</td><td>데이터 시각화 리포트</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="sec-sub" data-ko="핵심 코드 — 데이터 분석" data-en="Key Code — Data Analysis">핵심 코드 — 데이터 분석</h3>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang py">Python / pandas</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre>import pandas as pd
+import numpy as np
+
+# 매물 CSV 분석
+df = pd.read_csv('properties.csv')
+
+# 지역별 평균 가격
+median_by_city = df.groupby('city')['price'].median()
+print(median_by_city)
+
+# 분포 통계
+print(f"Mean:   ${df['price'].mean():,.0f}")
+print(f"Std:    ${df['price'].std():,.0f}")
+print(f"Median: ${df['price'].median():,.0f}")</pre>
+      </div>
+
+      <h3 class="sec-sub" data-ko="FastAPI 서버" data-en="FastAPI Server">FastAPI 서버</h3>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang py">Python / FastAPI</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre>from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import pandas as pd
+
+app = FastAPI()
+
+class AnalysisRequest(BaseModel):
+    zip_code: str
+    bedrooms: int = 3
+
+@app.post('/analyze')
+async def analyze(req: AnalysisRequest):
+    df = pd.read_csv('properties.csv')
+    subset = df[
+        (df['zip'] == req.zip_code) &
+        (df['beds'] == req.bedrooms)
+    ]
+    if subset.empty:
+        raise HTTPException(404, "No data")
+    return {
+        'zip': req.zip_code,
+        'count': len(subset),
+        'median': int(subset['price'].median()),
+        'avg':    int(subset['price'].mean())
+    }
+
+# uvicorn main:app --reload</pre>
+      </div>
+
+      <h3 class="sec-sub" data-ko="비동기 크롤러" data-en="Async Crawler">비동기 크롤러</h3>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang py">Python / asyncio + aiohttp</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre>import asyncio
+import aiohttp
+from bs4 import BeautifulSoup
+
+async def scrape_listing(session, url):
+    async with session.get(url) as r:
+        html = await r.text()
+    soup = BeautifulSoup(html, 'html.parser')
+    price = soup.select_one('.price').text.strip()
+    return {'url': url, 'price': price}
+
+async def scrape_all(urls):
+    async with aiohttp.ClientSession() as session:
+        tasks = [scrape_listing(session, u) for u in urls]
+        return await asyncio.gather(*tasks)
+
+urls = [
+    'https://zillow.com/homedetails/1/',
+    'https://zillow.com/homedetails/2/',
+]
+results = asyncio.run(scrape_all(urls))</pre>
+      </div>
+
+      <h3 class="sec-sub" id="sect-d-poll" data-ko="폴링 vs 이벤트 비교" data-en="Polling vs Event Comparison">폴링 vs 이벤트 비교</h3>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th></th><th data-ko="폴링" data-en="Polling">폴링</th><th data-ko="이벤트 방식" data-en="Event-driven">이벤트 방식</th></tr></thead>
+          <tbody>
+            <tr><td data-ko="방식" data-en="Method">방식</td><td data-ko="주기적으로 물어봄" data-en="Ask periodically">주기적으로 물어봄</td><td data-ko="변경 시 서버가 알림" data-en="Server notifies on change">변경 시 서버가 알림</td></tr>
+            <tr><td data-ko="효율" data-en="Efficiency">효율</td><td data-ko="낮음 (불필요 요청)" data-en="Low (wasteful requests)">낮음 (불필요 요청)</td><td data-ko="높음 (필요 시만)" data-en="High (only when needed)">높음 (필요 시만)</td></tr>
+            <tr><td data-ko="구현" data-en="Implementation">구현</td><td data-ko="단순" data-en="Simple">단순</td><td data-ko="WebSocket / Webhook" data-en="WebSocket / Webhook">WebSocket / Webhook</td></tr>
+            <tr><td data-ko="사용처" data-en="Use Case">사용처</td><td data-ko="Drive sync check" data-en="Drive sync check">Drive sync check</td><td data-ko="실시간 매물 알림" data-en="Real-time property alert">실시간 매물 알림</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========== TAB: COMPARE ========== -->
+    <div class="tab-panel" id="panel-compare">
+      <div class="sec-label">SECTION 4</div>
+      <h2 class="sec-h" data-ko="언어 비교 — 한 줄" data-en="Language Compare — One Line">언어 비교 — 한 줄</h2>
+
+      <div class="sec-label">FE</div>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="cc-lang cc-one">React</div>
+          <div class="cc-desc" data-ko="Meta. 컴포넌트 트리. Virtual DOM. FE 1위." data-en="Meta. Component tree. Virtual DOM. #1 FE.">Meta. 컴포넌트 트리. Virtual DOM. FE 1위.</div>
+          <span class="cc-badge pick" data-ko="Kenny 선택" data-en="Kenny's Pick">Kenny 선택</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-two">Vue.js</div>
+          <div class="cc-desc" data-ko="배우기 가장 쉬운 FE. 양방향 바인딩. 중소 SPA." data-en="Easiest FE to learn. Two-way binding. Mid-size SPA.">배우기 가장 쉬운 FE. 양방향 바인딩. 중소 SPA.</div>
+          <span class="cc-badge compare" data-ko="비교용" data-en="Compare only">비교용</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-four">Angular</div>
+          <div class="cc-desc" data-ko="Google. 완전 프레임워크. TypeScript 필수. 대기업." data-en="Google. Full framework. TypeScript required. Enterprise.">Google. 완전 프레임워크. TypeScript 필수. 대기업.</div>
+          <span class="cc-badge compare" data-ko="비교용" data-en="Compare only">비교용</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-five">Next.js</div>
+          <div class="cc-desc" data-ko="React meta-framework. SSR/SSG/API. Kenny 실제 선택." data-en="React meta-framework. SSR/SSG/API. Kenny's actual stack.">React meta-framework. SSR/SSG/API. Kenny 실제 선택.</div>
+          <span class="cc-badge pick" data-ko="스택 선택" data-en="Stack Pick">스택 선택</span>
+        </div>
+      </div>
+
+      <div class="sec-label" style="margin-top:1.25rem;">BE</div>
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="cc-lang cc-two">Node.js</div>
+          <div class="cc-desc" data-ko="JS runtime. 이벤트 루프. 빠른 I/O. jarvis sub-agent." data-en="JS runtime. Event loop. Fast I/O. jarvis sub-agent.">JS runtime. 이벤트 루프. 빠른 I/O. jarvis sub-agent.</div>
+          <span class="cc-badge pick" data-ko="Kenny 선택" data-en="Kenny's Pick">Kenny 선택</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-three">Python</div>
+          <div class="cc-desc" data-ko="데이터 + AI. 문법 간결. pandas / FastAPI / asyncio." data-en="Data + AI. Clean syntax. pandas / FastAPI / asyncio.">데이터 + AI. 문법 간결. pandas / FastAPI / asyncio.</div>
+          <span class="cc-badge pick" data-ko="Kenny 선택" data-en="Kenny's Pick">Kenny 선택</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-four">Java</div>
+          <div class="cc-desc" data-ko="JVM. Spring Boot. 대기업 엔터프라이즈 표준. 무거움." data-en="JVM. Spring Boot. Enterprise standard. Heavy.">JVM. Spring Boot. 대기업 엔터프라이즈 표준. 무거움.</div>
+          <span class="cc-badge compare" data-ko="비교용" data-en="Compare only">비교용</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-five">Go</div>
+          <div class="cc-desc" data-ko="Google. 동시성 native. Docker/K8s 다 Go. 클라우드 인프라." data-en="Google. Native concurrency. Docker/K8s built with Go. Cloud infra.">Google. 동시성 native. Docker/K8s 다 Go. 클라우드 인프라.</div>
+          <span class="cc-badge compare" data-ko="알아두기" data-en="Good to know">알아두기</span>
+        </div>
+        <div class="compare-card">
+          <div class="cc-lang cc-five">Rust</div>
+          <div class="cc-desc" data-ko="메모리 안전. GC 없음. WebAssembly. C/C++ 대체 후보." data-en="Memory safe. No GC. WebAssembly. C/C++ replacement candidate.">메모리 안전. GC 없음. WebAssembly. C/C++ 대체 후보.</div>
+          <span class="cc-badge compare" data-ko="먼 미래" data-en="Far future">먼 미래</span>
+        </div>
+      </div>
+
+      <div class="sec-label" style="margin-top:1.25rem;" id="sect-a-ds" data-ko="GROUP A — 자료 구조" data-en="GROUP A — Data Structure">GROUP A — 자료 구조</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th data-ko="구조" data-en="Structure">구조</th><th data-ko="한 줄" data-en="One Line">한 줄</th><th data-ko="Newton 예" data-en="Newton Example">Newton 예</th></tr></thead>
+          <tbody>
+            <tr><td>Array</td><td data-ko="순서 있는 목록" data-en="Ordered list">순서 있는 목록</td><td>lessons[0], lessons[1]...</td></tr>
+            <tr><td>Map / Dict</td><td data-ko="key → value" data-en="key → value">key → value</td><td data-ko="memory card: key=파일명 / value=본문" data-en="memory card: key=filename / value=content">memory card: key=파일명 / value=본문</td></tr>
+            <tr><td>Stack</td><td data-ko="LIFO. 마지막 것 먼저" data-en="LIFO. Last in first out">LIFO. 마지막 것 먼저</td><td data-ko="undo 히스토리" data-en="Undo history">undo 히스토리</td></tr>
+            <tr><td>Queue</td><td data-ko="FIFO. 먼저 온 것 먼저" data-en="FIFO. First in first out">FIFO. 먼저 온 것 먼저</td><td data-ko="sub-agent 작업 큐" data-en="sub-agent task queue">sub-agent 작업 큐</td></tr>
+            <tr><td>Tree</td><td data-ko="계층 구조" data-en="Hierarchical structure">계층 구조</td><td data-ko="폴더 트리 / React component tree" data-en="Folder tree / React component tree">폴더 트리 / React component tree</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sec-label" id="sect-a-json" data-ko="JSON vs XML" data-en="JSON vs XML">JSON vs XML</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang js">JSON (현재 표준)</span></div>
+          <pre>{
+  "student": {
+    "name": "Kenny",
+    "lessons": [7, 8, 9]
+  }
+}</pre>
+        </div>
+        <div class="code-block">
+          <div class="code-header"><span class="code-lang txt">XML (옛 표준)</span></div>
+          <pre>&lt;student&gt;
+  &lt;name&gt;Kenny&lt;/name&gt;
+  &lt;lessons&gt;
+    &lt;id&gt;7&lt;/id&gt;
+  &lt;/lessons&gt;
+&lt;/student&gt;</pre>
+        </div>
+      </div>
+
+      <div class="sec-label" style="margin-top:1.25rem;" id="sect-b-crud" data-ko="CRUD / HTTP / SQL 대응" data-en="CRUD / HTTP / SQL Mapping">CRUD / HTTP / SQL 대응</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>CRUD</th><th>HTTP</th><th>SQL</th><th data-ko="설명" data-en="Desc">설명</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Create</strong></td><td>POST</td><td>INSERT INTO</td><td data-ko="새 데이터 만들기" data-en="Create new data">새 데이터 만들기</td></tr>
+            <tr><td><strong>Read</strong></td><td>GET</td><td>SELECT</td><td data-ko="데이터 읽기" data-en="Read data">데이터 읽기</td></tr>
+            <tr><td><strong>Update</strong></td><td>PUT/PATCH</td><td>UPDATE SET</td><td data-ko="데이터 수정" data-en="Modify data">데이터 수정</td></tr>
+            <tr><td><strong>Delete</strong></td><td>DELETE</td><td>DELETE FROM</td><td data-ko="데이터 삭제" data-en="Remove data">데이터 삭제</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sec-label" id="sect-b-ajax">Ajax</div>
+      <p class="prose" data-ko="페이지 새로고침 없이 서버에서 데이터만 가져오는 기술. XMLHttpRequest → jQuery → fetch API 진화." data-en="Fetch data from server without full page reload. XMLHttpRequest → jQuery → fetch API evolution.">페이지 새로고침 없이 서버에서 데이터만 가져오는 기술. XMLHttpRequest → jQuery → fetch API 진화.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang js">JavaScript / fetch (현재 표준)</span><button class="btn-copy" onclick="copyCode(this)">Copy</button></div>
+        <pre>// 페이지 새로고침 없이 매물 검색
+async function searchProperties(zip) {
+  const res = await fetch(`/api/properties?zip=${zip}`);
+  const data = await res.json();
+  updateUI(data);  // DOM 일부만 업데이트
+}
+
+document.getElementById('search').addEventListener('click', () => {
+  searchProperties('07601');
+});</pre>
+      </div>
+    </div>
+
+    <!-- FOOTER ANCHOR -->
+    <footer>
+      <div data-ko="Chapter 1 — 개발자 기본 지식 · Newton HQ Workshop 008 · 2026-05-16" data-en="Chapter 1 — Developer Fundamentals · Newton HQ Workshop 008 · 2026-05-16">Chapter 1 — 개발자 기본 지식 · Newton HQ Workshop 008 · 2026-05-16</div>
+      <div class="anchor-footer">
+        Class → skill &nbsp;|&nbsp; Object → instance &nbsp;|&nbsp; Inheritance → CLAUDE.md cascade &nbsp;|&nbsp; Module → .claude/skills/
+      </div>
+    </footer>
+
+  </main><!-- /.main -->
+</div><!-- /.layout -->
+
+<script>
+/* ── THEME ── */
+(function() {
+  const saved = localStorage.getItem('ch1-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('theme-btn').textContent = saved === 'dark' ? 'Light' : 'Dark';
+})();
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  const next = isDark ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('theme-btn').textContent = isDark ? 'Dark' : 'Light';
+  localStorage.setItem('ch1-theme', next);
+}
+
+/* ── LANG ── */
+let lang = localStorage.getItem('ch1-lang') || 'ko';
+
+function applyLang() {
+  document.querySelectorAll('[data-ko]').forEach(el => {
+    const txt = el.getAttribute('data-' + lang);
+    if (txt) el.textContent = txt;
+  });
+  const sb = document.getElementById('sb-search');
+  sb.placeholder = lang === 'ko' ? '검색...' : 'Search...';
+  const li = document.getElementById('lesson-input');
+  if (li) li.placeholder = lang === 'ko' ? '레슨 제목 입력...' : 'Enter lesson title...';
+  document.getElementById('lang-btn').textContent = lang === 'ko' ? 'EN' : 'KO';
+}
+
+function toggleLang() {
+  lang = lang === 'ko' ? 'en' : 'ko';
+  localStorage.setItem('ch1-lang', lang);
+  applyLang();
+}
+
+if (lang === 'en') applyLang();
+
+/* ── TABS ── */
+const tabColors = {
+  'tab-react':   'active-react',
+  'tab-node':    'active-node',
+  'tab-python':  'active-python',
+  'tab-compare': 'active-compare'
+};
+const panelMap = {
+  'tab-react':   'panel-react',
+  'tab-node':    'panel-node',
+  'tab-python':  'panel-python',
+  'tab-compare': 'panel-compare'
+};
+
+function switchTab(tabId) {
+  // deactivate all
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.className = 'tab-btn';
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.remove('active');
+  });
+  // activate
+  const btn = document.getElementById(tabId);
+  if (btn) btn.classList.add(tabColors[tabId] || '');
+  const panel = document.getElementById(panelMap[tabId]);
+  if (panel) panel.classList.add('active');
+}
+
+/* ── SIDEBAR GROUP TOGGLE ── */
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+/* ── JUMP TO SECTION ── */
+function jumpTo(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.style.transition = 'background 0.3s';
+    el.style.background = 'var(--line)';
+    setTimeout(() => el.style.background = '', 1200);
+  }
+}
+
+/* ── SIDEBAR SEARCH ── */
+function sidebarSearch() {
+  const q = document.getElementById('sb-search').value.toLowerCase();
+  document.querySelectorAll('.sb-item').forEach(item => {
+    const txt = item.textContent.toLowerCase() +
+                (item.getAttribute('data-ko') || '').toLowerCase() +
+                (item.getAttribute('data-en') || '').toLowerCase();
+    item.style.display = q && !txt.includes(q) ? 'none' : '';
+  });
+}
+
+/* ── HOOK CODE DISPLAY ── */
+const hookCodes = {
+  useState: {
+    lang: 'jsx',
+    code: `function Counter() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <p>Count: {count}</p>
+      <button onClick={() => setCount(count + 1)}>+1</button>
+    </div>
+  );
+}`
+  },
+  useEffect: {
+    lang: 'jsx',
+    code: `function StudentList() {
+  const [students, setStudents] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/students')
+      .then(r => r.json())
+      .then(data => setStudents(data));
+
+    return () => { /* cleanup */ };
+  }, []);  // [] = 최초 1회만
+
+  return <ul>{students.map(s => <li key={s.id}>{s.name}</li>)}</ul>;
+}`
+  },
+  useContext: {
+    lang: 'jsx',
+    code: `const ThemeContext = React.createContext('dark');
+
+// Provider
+<ThemeContext.Provider value="dark">
+  <App />
+</ThemeContext.Provider>
+
+// Consumer (어느 자식이든)
+function Button() {
+  const theme = useContext(ThemeContext);
+  return <button className={theme}>Click</button>;
+}
+// Kenny 매핑: ThemeContext = 전역 memory / @ref`
+  },
+  useReducer: {
+    lang: 'jsx',
+    code: `function reducer(state, action) {
+  switch (action.type) {
+    case 'increment': return { count: state.count + 1 };
+    case 'reset':     return { count: 0 };
+    default:          return state;
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, { count: 0 });
+  return (
+    <div>
+      <p>{state.count}</p>
+      <button onClick={() => dispatch({ type: 'increment' })}>+1</button>
+    </div>
+  );
+}`
+  },
+  useMemo: {
+    lang: 'jsx',
+    code: `// useMemo: 값 계산 캐싱
+const sortedStudents = useMemo(
+  () => students.sort((a, b) => a.name.localeCompare(b.name)),
+  [students]  // students 바뀔 때만 재계산
+);
+
+// useCallback: 함수 캐싱
+const handleClick = useCallback(() => {
+  console.log(student.id);
+}, [student.id]);`
+  },
+  useRef: {
+    lang: 'jsx',
+    code: `function InputFocus() {
+  const inputRef = useRef(null);
+
+  const focusInput = () => inputRef.current.focus();
+
+  return (
+    <div>
+      <input ref={inputRef} type="text" />
+      <button onClick={focusInput}>Focus</button>
+    </div>
+  );
+}`
+  }
+};
+
+function showHook(name) {
+  // update card active
+  document.querySelectorAll('.hook-card').forEach(c => {
+    c.classList.remove('active');
+    if (c.querySelector('.hook-name').textContent === name) c.classList.add('active');
+  });
+
+  const h = hookCodes[name];
+  const area = document.getElementById('hook-code-area');
+  area.innerHTML = `
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang ${h.lang}">${name} — ${h.lang.toUpperCase()}</span>
+        <button class="btn-copy" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre>${escapeHtml(h.code)}</pre>
+    </div>`;
+}
+
+// init
+showHook('useState');
+
+/* ── LIVE DEMO — lessons list ── */
+let lessons = [];
+
+function addLesson() {
+  const input = document.getElementById('lesson-input');
+  const val = input.value.trim();
+  if (!val) return;
+  lessons.push(val);
+  input.value = '';
+  renderLessons();
+}
+
+function clearLessons() {
+  lessons = [];
+  renderLessons();
+}
+
+function renderLessons() {
+  const el = document.getElementById('lesson-list-demo');
+  const cnt = document.getElementById('lesson-count');
+  if (lessons.length === 0) {
+    el.textContent = lang === 'ko' ? '(빈 상태)' : '(empty state)';
+    cnt.textContent = '0 items';
+    return;
+  }
+  el.innerHTML = lessons.map((l, i) =>
+    `<div style="padding:0.15rem 0;border-bottom:1px solid var(--line)">
+      <span style="color:var(--react-color);margin-right:0.5rem">${i}</span>${l}
+    </div>`
+  ).join('');
+  cnt.textContent = `${lessons.length} item${lessons.length > 1 ? 's' : ''}`;
+}
+
+document.getElementById('lesson-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addLesson();
+});
+
+/* ── COUNTER DEMO ── */
+let counterVal = 0;
+let counterLog = [];
+
+function counterAct(delta) {
+  if (delta === 0) {
+    counterLog.push(`reset (${counterVal} → 0)`);
+    counterVal = 0;
+  } else {
+    const prev = counterVal;
+    counterVal += delta;
+    counterLog.push(`setCount(${prev} ${delta > 0 ? '+' : ''}${delta}) → ${counterVal}`);
+  }
+  if (counterLog.length > 4) counterLog.shift();
+  document.getElementById('counter-val').textContent = counterVal;
+  document.getElementById('counter-log').innerHTML =
+    counterLog.map(l => `<div style="color:var(--react-color)">// ${l}</div>`).join('');
+}
+
+/* ── LANG TOGGLE (node / python / java) ── */
+let currentLang = 'node';
+
+function setLang(l) {
+  currentLang = l;
+  ['node', 'python', 'java'].forEach(lang => {
+    const btn = document.getElementById('lb-' + lang);
+    if (btn) {
+      btn.className = 'lang-btn' + (lang === l ? ` active-${lang}` : '');
+    }
+    // show/hide code variants
+    document.querySelectorAll('.code-variant').forEach(cv => {
+      const id = cv.id;
+      if (id.startsWith('cv-' + lang + '-')) {
+        cv.classList.toggle('visible', lang === l);
+      } else if (id.startsWith('cv-')) {
+        // check if not matching current lang
+        const parts = id.split('-');
+        if (parts[1] !== l) cv.classList.remove('visible');
+      }
+    });
+  });
+}
+
+/* ── COPY CODE ── */
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  const text = pre.textContent;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+    });
+  }
+}
+
+/* ── ESCAPE HTML ── */
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
