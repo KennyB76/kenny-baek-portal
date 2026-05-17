@@ -828,7 +828,7 @@
   }
 
   /* ── LANGUAGE ── */
-  let lang = localStorage.getItem('kenny-lang') || 'ko';
+  var lang = localStorage.getItem('kenny-lang') || 'ko';
 
   function applyLang() {
     document.querySelectorAll('[data-ko]').forEach(el => {
