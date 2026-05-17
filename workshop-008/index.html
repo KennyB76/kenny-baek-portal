@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<!--
+  Workshop 008 -- Tech Stack Landscape 2026
+  Root Index (one-pager)
+  Newton School / Student #0 -- Kenny portal
+  Style: indigo / Playfair + Inter (portal-consistent)
+  v1: 2026-05-17
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop 008 -- Tech Stack Landscape 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* -- TOKENS (portal-consistent) -- */
+  :root {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+    --max-w: 780px;
+  }
+  [data-theme="dark"] {
+    --student:      #6366f1;
+    --student-soft: #1e1e38;
+    --student-deep: #a5b4fc;
+    --student-glow: rgba(99,102,241,0.18);
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  /* -- NAV -- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.75rem;
+    height: 52px;
+    gap: 1rem;
+  }
+  .nav-brand {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--student);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-links {
+    display: flex;
+    gap: 1.2rem;
+    list-style: none;
+    flex: 1;
+    justify-content: center;
+  }
+  .nav-links a {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover { color: var(--student); }
+  @media (max-width: 640px) { .nav-links { display: none; } }
+  .nav-actions { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+  .btn-sm {
+    background: var(--student-soft);
+    border: 1px solid var(--line);
+    color: var(--student);
+    border-radius: 6px;
+    padding: 0.28rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+
+  /* -- WRAP -- */
+  .wrap {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    background: var(--paper);
+    box-shadow: 0 2px 24px rgba(0,0,0,0.12);
+  }
+
+  /* -- MASTHEAD -- */
+  .masthead {
+    text-align: center;
+    padding: 52px 32px 28px;
+    border-bottom: 3px double var(--student);
+    position: relative;
+  }
+  .masthead .school {
+    font-size: 10px;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: var(--student);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .masthead h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.12;
+    margin-bottom: 6px;
+  }
+  .masthead .sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .masthead .info {
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+  }
+  .masthead .info span { margin: 0 7px; }
+  .ws-badge {
+    display: inline-block;
+    background: var(--student-soft);
+    color: var(--student-deep);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-bottom: 12px;
+    border: 1px solid var(--line);
+  }
+
+  /* -- SECTION -- */
+  section.s {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .s-label {
+    font-size: 10px;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--student);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .s-title {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    line-height: 1.25;
+  }
+  .s-desc { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.7; }
+
+  /* -- ASCII FLOW -- */
+  .ascii-block {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--student);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .ascii-block .hi { color: var(--student); font-weight: 700; }
+  .ascii-block .done { color: #22c55e; font-weight: 700; }
+  .ascii-block .pend { color: var(--ink-soft); }
+
+  /* -- CHAPTER CARD GRID (2 col) -- */
+  .ch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+  }
+  @media (max-width: 560px) { .ch-grid { grid-template-columns: 1fr; } }
+
+  .ch-card {
+    display: block;
+    background: var(--student-soft);
+    border: 1px solid transparent;
+    border-left: 3px solid var(--student);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    text-decoration: none;
+    color: var(--ink);
+    transition: all 0.15s;
+    cursor: pointer;
+    position: relative;
+  }
+  .ch-card:hover {
+    background: var(--paper);
+    border-color: var(--student);
+    box-shadow: 0 4px 16px var(--student-glow);
+    transform: translateY(-2px);
+  }
+  .ch-card.pending {
+    opacity: 0.55;
+    cursor: default;
+    pointer-events: none;
+  }
+  .ch-card.pending:hover { transform: none; box-shadow: none; }
+  .ch-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--student);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .ch-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--student-deep);
+    margin-bottom: 5px;
+    line-height: 1.3;
+  }
+  [data-theme="dark"] .ch-title { color: var(--student-deep); }
+  .ch-videos {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 6px;
+  }
+  .ch-status {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    padding: 1px 6px;
+  }
+  .ch-status.live { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  [data-theme="dark"] .ch-status.live { background: #052e16; color: #4ade80; border-color: #166534; }
+  .ch-status.soon { background: var(--card-bg); color: var(--ink-soft); border: 1px solid var(--line); }
+  .ch-arrow {
+    position: absolute;
+    top: 16px; right: 14px;
+    color: var(--student);
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 0.15s;
+  }
+  .ch-card:hover .ch-arrow { transform: translateX(3px); }
+
+  /* -- VIDEO MATRIX TABLE -- */
+  .vt-wrap { overflow-x: auto; margin-top: 4px; }
+  table.vt {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  table.vt th {
+    background: var(--student-soft);
+    color: var(--student-deep);
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 2px solid var(--student);
+  }
+  table.vt td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  table.vt tr:last-child td { border-bottom: none; }
+  table.vt tr:hover td { background: var(--student-soft); }
+  .vt-ch {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--student-soft);
+    color: var(--student-deep);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1px 5px;
+    white-space: nowrap;
+  }
+  .vt-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .vt-type.main { color: var(--student); }
+  .vt-link {
+    color: var(--student);
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.12s;
+  }
+  .vt-link:hover { border-bottom-color: var(--student); }
+
+  /* -- ANCHOR BLOCK -- */
+  .anchor-block {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--student);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .anchor-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--student), transparent);
+  }
+  .anchor-row {
+    display: grid;
+    grid-template-columns: 1fr 0.3fr 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.88rem;
+  }
+  .anchor-row:last-child { margin-bottom: 0; }
+  .anchor-left {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--ink);
+    text-align: right;
+    background: var(--student-soft);
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+  }
+  .anchor-arrow { text-align: center; color: var(--student); font-weight: 700; font-size: 1rem; }
+  .anchor-right {
+    font-family: var(--mono);
+    font-weight: 600;
+    color: var(--student-deep);
+    text-align: left;
+    padding: 0.35rem 0;
+  }
+  [data-theme="dark"] .anchor-right { color: var(--student); }
+  .anchor-note { font-size: 0.8rem; color: var(--ink-soft); line-height: 1.7; margin-top: 1rem; border-top: 1px solid var(--line); padding-top: 0.85rem; }
+
+  /* -- FOOTER -- */
+  footer {
+    text-align: center;
+    padding: 28px 32px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--student); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .cr { margin-top: 6px; font-style: italic; }
+
+  /* -- BACK TO TOP -- */
+  #btt {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--student);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 150;
+    box-shadow: 0 4px 14px var(--student-glow);
+    transition: opacity 0.2s;
+  }
+  #btt.show { display: flex; }
+  #btt:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Workshop 008 <span>/ Tech Stack</span></div>
+  <ul class="nav-links">
+    <li><a href="#flow">전체 흐름</a></li>
+    <li><a href="#chapters">Chapter</a></li>
+    <li><a href="#matrix">22 영상</a></li>
+    <li><a href="#anchor">Kenny Anchor</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="../index.html">포탈 &larr;</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="ws-badge" data-ko="Workshop 008" data-en="Workshop 008">Workshop 008</div>
+    <div class="school" data-ko="Newton School · 학생 0호 포탈" data-en="Newton School · Student #0 Portal">Newton School · 학생 0호 포탈</div>
+    <h1 data-ko="Tech Stack Landscape 2026" data-en="Tech Stack Landscape 2026">Tech Stack Landscape 2026</h1>
+    <div class="sub" data-ko="개발자가 보는 세계 — 8 chapter 전체 지도" data-en="The world as developers see it -- 8 chapter map">개발자가 보는 세계 &mdash; 8 chapter 전체 지도</div>
+    <div class="info">
+      <span data-ko="22 영상" data-en="22 videos">22 영상</span>
+      <span>&middot;</span>
+      <span data-ko="Prologue + 8 Chapter + Epilogue" data-en="Prologue + 8 Chapters + Epilogue">Prologue + 8 Chapter + Epilogue</span>
+      <span>&middot;</span>
+      <span data-ko="2026 봄" data-en="Spring 2026">2026 봄</span>
+    </div>
+  </header>
+
+  <!-- SECTION 1: 전체 흐름 (ASCII) -->
+  <section class="s" id="flow">
+    <div class="s-label" data-ko="전체 흐름" data-en="Full Flow">전체 흐름</div>
+    <div class="s-title" data-ko="8 Chapter Cascade" data-en="8 Chapter Cascade">8 Chapter Cascade</div>
+    <p class="s-desc" data-ko="Prologue 에서 Epilogue 까지 — AI 시대 개발자 지식의 전체 지도. 화살표 방향이 Kenny 의 학습 흐름입니다." data-en="From Prologue to Epilogue -- the full map of developer knowledge in the AI era.">
+      Prologue 에서 Epilogue 까지 &mdash; AI 시대 개발자 지식의 전체 지도. 화살표 방향이 Kenny 의 학습 흐름입니다.
+    </p>
+    <div class="ascii-block"><span class="hi">  [PROLOGUE]</span>  AI 시대 입문 -- 코딩 몰라도 서비스 개발 / 4050 바이브 코딩
+       |
+       v
+<span class="hi">  [CH 0 ]</span>  IT 기술 전체 지도 (20분)         -- 보조: 전체지도
+       |
+       v
+<span class="done">  [CH 1 ]</span>  개발자 기본 지식 -- React / Node / Python  <span class="done">[LIVE]</span>
+       |
+       v
+<span class="pend">  [CH 1.5]</span>  App vs Web vs Java vs Python
+       |
+       v
+<span class="pend">  [CH 2 ]</span>  API / 동기-비동기 / JSON
+       |
+       v
+<span class="pend">  [CH 3 ]</span>  소프트웨어 공학 / DevOps / Agile
+       |
+       v
+<span class="pend">  [CH 4 ]</span>  컴퓨터 구조 / OS
+       |
+       v
+<span class="pend">  [CH 5 ]</span>  네트워크
+       |
+       v
+<span class="pend">  [CH 6 ]</span>  데이터베이스
+       |
+       v
+<span class="pend">  [CH 7 ]</span>  IT 인프라 / 아키텍처
+       |
+       v
+<span class="pend">  [CH 8 ]</span>  클라우드 IaaS / PaaS / SaaS
+       |
+       v
+<span class="hi">  [EPILOGUE]</span>  AI 시대 부록 -- AI 코드 보안 / 30년 개발자 생존 스킬</div>
+  </section>
+
+  <!-- SECTION 2: Chapter Card Grid -->
+  <section class="s" id="chapters">
+    <div class="s-label" data-ko="Chapter 목록" data-en="Chapters">Chapter 목록</div>
+    <div class="s-title" data-ko="각 Chapter 보기" data-en="Browse Chapters">각 Chapter 보기</div>
+    <p class="s-desc" data-ko="Chapter 1 은 지금 바로 열립니다. 나머지는 옛 sub (ab336) 진행 중 -- 곧 자리." data-en="Chapter 1 is live now. Others are in progress.">
+      Chapter 1 은 지금 바로 열립니다. 나머지는 진행 중 &mdash; 곧 자리.
+    </p>
+    <div class="ch-grid">
+
+      <!-- PROLOGUE -->
+      <div class="ch-card pending">
+        <div class="ch-num">Prologue</div>
+        <div class="ch-title" data-ko="AI 시대 입문" data-en="AI Era Intro">AI 시대 입문</div>
+        <div class="ch-videos" data-ko="코딩 몰라도 서비스 개발 / 4050 바이브 코딩 이유" data-en="No-code service dev / Why 40s-50s vibe-code">코딩 몰라도 서비스 개발 / 4050 바이브 코딩 이유</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 0 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 0</div>
+        <div class="ch-title" data-ko="IT 기술 전체 지도" data-en="IT Knowledge Map">IT 기술 전체 지도</div>
+        <div class="ch-videos" data-ko="20분 전체지도 (보조)" data-en="20-min full map (supplement)">20분 전체지도 (보조)</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 1 (LIVE) -->
+      <a class="ch-card" href="chapter-1/index.html">
+        <div class="ch-num">Chapter 1</div>
+        <div class="ch-title" data-ko="개발자 기본 지식" data-en="Developer Fundamentals">개발자 기본 지식</div>
+        <div class="ch-videos" data-ko="React + Node.js + Python + 언어 비교" data-en="React + Node.js + Python + Language Compare">React + Node.js + Python + 언어 비교</div>
+        <span class="ch-status live" data-ko="LIVE" data-en="LIVE">LIVE</span>
+        <div class="ch-arrow">&rarr;</div>
+      </a>
+
+      <!-- CH 1.5 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 1.5</div>
+        <div class="ch-title" data-ko="App vs Web vs Java vs Python" data-en="App vs Web vs Java vs Python">App vs Web vs Java vs Python</div>
+        <div class="ch-videos" data-ko="Part1 영상 기반" data-en="Based on Part1 video">Part1 영상 기반</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 2 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 2</div>
+        <div class="ch-title" data-ko="API / 동기-비동기 / JSON" data-en="API / Sync-Async / JSON">API / 동기-비동기 / JSON</div>
+        <div class="ch-videos" data-ko="Part2 영상 기반" data-en="Based on Part2 video">Part2 영상 기반</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 3 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 3</div>
+        <div class="ch-title" data-ko="소프트웨어 공학 / DevOps / Agile" data-en="Software Eng / DevOps / Agile">소프트웨어 공학 / DevOps / Agile</div>
+        <div class="ch-videos" data-ko="Part3 + 보조: 서비스 실패 예방" data-en="Part3 + service failure prevention">Part3 + 보조: 서비스 실패 예방</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 4 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 4</div>
+        <div class="ch-title" data-ko="컴퓨터 구조 / OS" data-en="Computer Architecture / OS">컴퓨터 구조 / OS</div>
+        <div class="ch-videos" data-ko="Part4 영상 기반" data-en="Based on Part4 video">Part4 영상 기반</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 5 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 5</div>
+        <div class="ch-title" data-ko="네트워크" data-en="Networking">네트워크</div>
+        <div class="ch-videos" data-ko="Part5 + 보조: URL / localhost" data-en="Part5 + URL / localhost supplement">Part5 + 보조: URL / localhost</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 6 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 6</div>
+        <div class="ch-title" data-ko="데이터베이스" data-en="Database">데이터베이스</div>
+        <div class="ch-videos" data-ko="Part6 영상 기반" data-en="Based on Part6 video">Part6 영상 기반</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 7 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 7</div>
+        <div class="ch-title" data-ko="IT 인프라 / 아키텍처" data-en="IT Infra / Architecture">IT 인프라 / 아키텍처</div>
+        <div class="ch-videos" data-ko="Part7 + 보조: 로그인·JWT / 20년 변천" data-en="Part7 + login/JWT + 20yr evolution">Part7 + 보조: 로그인·JWT / 20년 변천</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- CH 8 -->
+      <div class="ch-card pending">
+        <div class="ch-num">Chapter 8</div>
+        <div class="ch-title" data-ko="클라우드 IaaS / PaaS / SaaS" data-en="Cloud IaaS / PaaS / SaaS">클라우드 IaaS / PaaS / SaaS</div>
+        <div class="ch-videos" data-ko="Part8 영상 기반" data-en="Based on Part8 video">Part8 영상 기반</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+      <!-- EPILOGUE -->
+      <div class="ch-card pending">
+        <div class="ch-num">Epilogue</div>
+        <div class="ch-title" data-ko="AI 시대 부록" data-en="AI Era Appendix">AI 시대 부록</div>
+        <div class="ch-videos" data-ko="AI 코드 보안 / 30년 개발자 생존 스킬" data-en="AI code security / 30yr dev survival">AI 코드 보안 / 30년 개발자 생존 스킬</div>
+        <span class="ch-status soon" data-ko="곧" data-en="Soon">곧</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- SECTION 3: 22 영상 매트릭스 -->
+  <section class="s" id="matrix">
+    <div class="s-label" data-ko="영상 매트릭스" data-en="Video Matrix">영상 매트릭스</div>
+    <div class="s-title" data-ko="22 영상 전체 목록" data-en="All 22 Videos">22 영상 전체 목록</div>
+    <p class="s-desc" data-ko="MAIN 8 영상 + 보조 14 영상. Chapter 매핑 정합." data-en="8 main + 14 supplementary videos. Chapter mapping aligned.">
+      MAIN 8 영상 + 보조 14 영상. Chapter 매핑 정합.
+    </p>
+    <div class="vt-wrap">
+      <table class="vt">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th data-ko="영상" data-en="Video">영상</th>
+            <th data-ko="구분" data-en="Type">구분</th>
+            <th data-ko="Chapter" data-en="Chapter">Chapter</th>
+            <th data-ko="자막" data-en="Transcript">자막</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- MAIN -->
+          <tr>
+            <td>1</td>
+            <td>Part1_App_vs_Web_Java_vs_Python</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 1.5</span></td>
+            <td><a class="vt-link" href="transcripts/Part1_App_vs_Web_Java_vs_Python.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Part2_API_동기비동기_JSON</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 2</span></td>
+            <td><a class="vt-link" href="transcripts/Part2_API_동기비동기_JSON.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Part3_소프트웨어공학_DevOps_Agile</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 3</span></td>
+            <td><a class="vt-link" href="transcripts/Part3_소프트웨어공학_DevOps_Agile.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Part4_컴퓨터구조_OS</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 4</span></td>
+            <td><a class="vt-link" href="transcripts/Part4_컴퓨터구조_OS.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Part5_네트워크</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 5</span></td>
+            <td><a class="vt-link" href="transcripts/Part5_네트워크.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Part6_데이터베이스</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 6</span></td>
+            <td><a class="vt-link" href="transcripts/Part6_데이터베이스.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Part7_IT인프라_아키텍처</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 7</span></td>
+            <td><a class="vt-link" href="transcripts/Part7_IT인프라_아키텍처.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Part8_클라우드_IaaS_PaaS_SaaS</td>
+            <td><span class="vt-type main">MAIN</span></td>
+            <td><span class="vt-ch">CH 8</span></td>
+            <td><a class="vt-link" href="transcripts/Part8_클라우드_IaaS_PaaS_SaaS.srt">SRT</a></td>
+          </tr>
+          <!-- SUPPLEMENT -->
+          <tr>
+            <td>9</td>
+            <td>보조_코딩몰라도_AI로_서비스개발</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">PROLOGUE</span></td>
+            <td><a class="vt-link" href="transcripts/보조_코딩몰라도_AI로_서비스개발.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>보조_4050대_바이브코딩_이유</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">PROLOGUE</span></td>
+            <td><a class="vt-link" href="transcripts/보조_4050대_바이브코딩_이유.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>보조_IT기술지식_20분_전체지도</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 0</span></td>
+            <td><a class="vt-link" href="transcripts/보조_IT기술지식_20분_전체지도.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>12</td>
+            <td>보조_Web_WebApp_Hybrid_Native</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 1+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_Web_WebApp_Hybrid_Native.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>13</td>
+            <td>보조_프론트_백_DB_20분</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 1+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_프론트_백_DB_20분.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>14</td>
+            <td>보조_서비스_실패_예방</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 3+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_서비스_실패_예방.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>15</td>
+            <td>보조_URL입력시_브라우저_일</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 5+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_URL입력시_브라우저_일.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>16</td>
+            <td>보조_localhost_서버_클라이언트</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 5/7+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_localhost_서버_클라이언트.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>17</td>
+            <td>보조_로그인_쿠키_세션_JWT</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 7+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_로그인_쿠키_세션_JWT.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>18</td>
+            <td>보조_20년_IT아키텍처_변천</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">CH 7+</span></td>
+            <td><a class="vt-link" href="transcripts/보조_20년_IT아키텍처_변천.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>19</td>
+            <td>보조_AI코드_보안_점검</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">EPILOGUE</span></td>
+            <td><a class="vt-link" href="transcripts/보조_AI코드_보안_점검.srt">SRT</a></td>
+          </tr>
+          <tr>
+            <td>20</td>
+            <td>보조_30년_AI시대_개발자_생존스킬</td>
+            <td><span class="vt-type">보조</span></td>
+            <td><span class="vt-ch">EPILOGUE</span></td>
+            <td><a class="vt-link" href="transcripts/보조_30년_AI시대_개발자_생존스킬.srt">SRT</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:0.75rem; font-size:11px; color:var(--ink-soft);" data-ko="자막 (.txt) 은 chapter 별 자리에서 함께 열립니다. 영상 본체는 C:\Kiwi_Down\ 로컬." data-en="Transcript .txt files open alongside each chapter. Videos are stored locally at C:\Kiwi_Down\.">자막 (.txt) 은 chapter 별 자리에서 함께 열립니다. 영상 본체는 C:\Kiwi_Down\ 로컬.</p>
+  </section>
+
+  <!-- SECTION 4: Kenny Anchor -->
+  <section class="s" id="anchor">
+    <div class="s-label" data-ko="Kenny Anchor" data-en="Kenny Anchor">Kenny Anchor</div>
+    <div class="s-title" data-ko="OOP &rarr; NewtonHQ" data-en="OOP &rarr; NewtonHQ">OOP &rarr; NewtonHQ</div>
+    <p class="s-desc" data-ko="개발자 개념을 Kenny 의 세계로 직접 번역. 추상이 아니라 내 시스템." data-en="Direct translation of developer concepts into Kenny's world. Not abstraction -- my system.">
+      개발자 개념을 Kenny 의 세계로 직접 번역. 추상이 아니라 내 시스템.
+    </p>
+    <div class="anchor-block">
+      <div class="anchor-row">
+        <div class="anchor-left">Class</div>
+        <div class="anchor-arrow">&rarr;</div>
+        <div class="anchor-right">Skill (재사용 틀)</div>
+      </div>
+      <div class="anchor-row">
+        <div class="anchor-left">Object (instance)</div>
+        <div class="anchor-arrow">&rarr;</div>
+        <div class="anchor-right">jarvis 호출 1회</div>
+      </div>
+      <div class="anchor-row">
+        <div class="anchor-left">Inheritance</div>
+        <div class="anchor-arrow">&rarr;</div>
+        <div class="anchor-right">@ref cascade</div>
+      </div>
+      <div class="anchor-row">
+        <div class="anchor-left">Encapsulation</div>
+        <div class="anchor-arrow">&rarr;</div>
+        <div class="anchor-right">mind/ 내부 (Kenny 만)</div>
+      </div>
+      <div class="anchor-row">
+        <div class="anchor-left">Polymorphism</div>
+        <div class="anchor-arrow">&rarr;</div>
+        <div class="anchor-right">sub-agent 병렬 위임</div>
+      </div>
+      <div class="anchor-note" data-ko="Chapter 1 PDF (Kenny OneNote scan) 에서 추출한 OOP 개념을 NewtonHQ 시스템 용어로 직접 매핑. 이 anchor 가 Workshop 008 의 Kenny 학습 core." data-en="OOP concepts extracted from Chapter 1 PDF (Kenny OneNote scan) mapped directly to NewtonHQ system terminology. This anchor is the Kenny learning core of Workshop 008.">
+        Chapter 1 PDF (Kenny OneNote scan) 에서 추출한 OOP 개념을 NewtonHQ 시스템 용어로 직접 매핑. 이 anchor 가 Workshop 008 의 Kenny 학습 core.
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <a href="../index.html" data-ko="Kenny Baek 포탈" data-en="Kenny Baek Portal">Kenny Baek 포탈</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="chapter-1/index.html" data-ko="Chapter 1 LIVE" data-en="Chapter 1 LIVE">Chapter 1 LIVE</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="transcripts/index.md" data-ko="자막 인덱스" data-en="Transcript Index">자막 인덱스</a>
+    </div>
+    <div class="cr" data-ko="Workshop 008 · Newton School · Kenny Baek · 2026" data-en="Workshop 008 · Newton School · Kenny Baek · 2026">Workshop 008 · Newton School · Kenny Baek · 2026</div>
+  </footer>
+
+</div><!-- /.wrap -->
+
+<!-- BACK TO TOP -->
+<button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8593;</button>
+
+<script>
+  /* -- THEME -- */
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+
+  /* -- LANGUAGE -- */
+  let lang = localStorage.getItem('kenny-lang') || 'ko';
+
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.textContent = el.getAttribute('data-' + lang);
+    });
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('kenny-lang', lang);
+    applyLang();
+  }
+
+  if (lang === 'en') applyLang();
+
+  /* -- BACK TO TOP -- */
+  const btt = document.getElementById('btt');
+  window.addEventListener('scroll', () => {
+    btt.classList.toggle('show', window.scrollY > 300);
+  });
+</script>
+</body>
+</html>
