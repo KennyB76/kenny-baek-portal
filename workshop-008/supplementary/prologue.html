@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<!--
+  Workshop 008 — Prologue (AI 시대 입문)
+  보조 영상 2 개: 코딩 몰라도 AI 로 서비스 개발 / 4050 바이브 코딩 이유
+  Style: indigo / Playfair + Inter (hub-consistent)
+  v1: 2026-05-18
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prologue — AI 시대 입문 · Workshop 008</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+    --vibe:         #7c3aed;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+    --max-w: 820px;
+  }
+  [data-theme="dark"] {
+    --student:      #6366f1;
+    --student-soft: #1e1e38;
+    --student-deep: #a5b4fc;
+    --student-glow: rgba(99,102,241,0.18);
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+    --vibe:         #a78bfa;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.7; min-height: 100vh; }
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.75rem; height: 52px; gap: 1rem;
+  }
+  .nav-brand { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; color: var(--student); text-transform: uppercase; }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-actions { display: flex; gap: 0.5rem; }
+  .btn-sm {
+    background: var(--student-soft); border: 1px solid var(--line); color: var(--student);
+    border-radius: 6px; padding: 0.28rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; transition: all 0.15s;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+  .wrap { max-width: var(--max-w); margin: 0 auto; background: var(--paper); box-shadow: 0 2px 24px rgba(0,0,0,0.12); }
+  .masthead { text-align: center; padding: 48px 32px 28px; border-bottom: 3px double var(--vibe); }
+  .ws-badge {
+    display: inline-block; background: var(--student-soft); color: var(--vibe);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 8px; margin-bottom: 12px; border: 1px solid var(--line);
+  }
+  .school { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--vibe); font-weight: 700; margin-bottom: 12px; }
+  .masthead h1 { font-family: var(--serif); font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 700; line-height: 1.15; margin-bottom: 6px; }
+  .masthead .sub { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--ink-soft); }
+  .masthead .info { margin-top: 14px; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.05em; }
+  .masthead .info span { margin: 0 7px; }
+  section.s { padding: 32px 32px; border-bottom: 1px solid var(--line); }
+  .s-label { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--vibe); font-weight: 700; margin-bottom: 8px; }
+  .s-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; line-height: 1.25; }
+  .video-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--vibe);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+  }
+  .vc-num {
+    display: inline-block;
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; color: var(--vibe);
+    background: var(--student-soft);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: 1px 6px; margin-bottom: 8px;
+  }
+  .vc-title {
+    font-family: var(--serif); font-size: 1.3rem; font-weight: 700;
+    color: var(--student-deep); margin-bottom: 10px;
+  }
+  [data-theme="dark"] .vc-title { color: var(--student-deep); }
+  .vc-hi {
+    background: var(--student-soft);
+    border-left: 3px solid var(--vibe);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--student-deep);
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+  }
+  [data-theme="dark"] .vc-hi { color: var(--student-deep); }
+  ol.three { list-style: none; counter-reset: t; padding: 0; }
+  ol.three li {
+    counter-increment: t;
+    padding: 10px 0 10px 36px;
+    position: relative;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    border-bottom: 1px dashed var(--line);
+  }
+  ol.three li:last-child { border-bottom: none; }
+  ol.three li::before {
+    content: counter(t);
+    position: absolute; left: 0; top: 12px;
+    font-family: var(--mono);
+    background: var(--vibe); color: #fff;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  table.tt { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 14px; }
+  table.tt th {
+    background: var(--student-soft); color: var(--vibe);
+    font-weight: 700; font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 9px 12px; text-align: left;
+    border-bottom: 2px solid var(--vibe);
+  }
+  table.tt td {
+    padding: 9px 12px; border-bottom: 1px solid var(--line);
+    color: var(--ink); vertical-align: top; line-height: 1.55;
+  }
+  table.tt td:first-child { font-family: var(--mono); font-weight: 600; color: var(--vibe); white-space: nowrap; }
+  table.tt tr:last-child td { border-bottom: none; }
+  .vc-meta { margin-top: 12px; font-size: 11px; color: var(--ink-soft); }
+  .vc-meta a { color: var(--vibe); text-decoration: none; font-weight: 600; }
+  .vc-meta a:hover { text-decoration: underline; }
+  footer {
+    text-align: center; padding: 28px 32px;
+    font-size: 11px; color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--student); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .cr { margin-top: 6px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Prologue <span>/ AI 시대 입문</span></div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="../index.html">Hub &larr;</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="ws-badge" data-ko="Prologue" data-en="Prologue">Prologue</div>
+    <div class="school" data-ko="Newton School · 학생 0호 포탈" data-en="Newton School · Student #0 Portal">Newton School · 학생 0호 포탈</div>
+    <h1 data-ko="AI 시대 입문" data-en="Welcome to the AI Era">AI 시대 입문</h1>
+    <div class="sub" data-ko="코딩 몰라도 서비스 / 4050 바이브 코딩 이유" data-en="No-code services / Why 40s-50s vibe-code">코딩 몰라도 서비스 / 4050 바이브 코딩 이유</div>
+    <div class="info">
+      <span data-ko="보조 영상 2 개" data-en="2 supplementary videos">보조 영상 2 개</span>
+      <span>&middot;</span>
+      <span data-ko="~30분" data-en="~30 min">~30분</span>
+    </div>
+  </header>
+
+  <section class="s">
+    <div class="video-card">
+      <div class="vc-num">Video 09 · 보조</div>
+      <div class="vc-title" data-ko="코딩 몰라도 AI 로 서비스 개발" data-en="No-Code Service Dev with AI">코딩 몰라도 AI 로 서비스 개발</div>
+      <div class="vc-hi" data-ko="비전공 완전 초보도 소규모 서비스 개발 가능. 단 대규모 서비스는 어려움. 경력자의 업 지식 + AI 조합이 최강." data-en="Total beginners can build small-scale services. Large-scale is still hard. Domain expertise + AI = strongest combo.">
+        비전공 완전 초보도 소규모 서비스 개발 가능. 단 대규모 서비스는 어려움. 경력자의 업 지식 + AI 조합이 최강.
+      </div>
+      <ol class="three">
+        <li data-ko="<b>가능 / 불가능 논쟁</b> — 대규모 서비스 = 어려움. 개인 도구 / 소규모 서비스 = 충분히 가능. 이미 비전공자가 하고 있음." data-en="<b>Feasibility debate</b> — Large-scale = hard. Personal tools / small services = entirely feasible. Non-CS folks are already doing it."><b>가능 / 불가능 논쟁</b> &mdash; 대규모 서비스 = 어려움. 개인 도구 / 소규모 서비스 = 충분히 가능. 이미 비전공자가 하고 있음.</li>
+        <li data-ko="<b>경력자 + AI 조합</b> — 현장에서 일해본 사람만 아는 틈새 = 경쟁력. AI 가 코드 생성 / 사람이 아이디어 + 검수." data-en="<b>Veteran + AI combo</b> — Field-only niches = your moat. AI writes code / human steers ideas + review."><b>경력자 + AI 조합</b> &mdash; 현장에서 일해본 사람만 아는 틈새 = 경쟁력. AI 가 코드 생성 / 사람이 아이디어 + 검수.</li>
+        <li data-ko="<b>실습 도구</b> — Cursor AI (입문 추천). 자연어로 지시 → 코드 자동 생성. 설치 후 바로 시작 가능." data-en="<b>Practice tool</b> — Cursor AI (beginner pick). Talk in natural language → code auto-generated. Install and go."><b>실습 도구</b> &mdash; Cursor AI (입문 추천). 자연어로 지시 → 코드 자동 생성. 설치 후 바로 시작 가능.</li>
+      </ol>
+      <table class="tt">
+        <thead><tr><th data-ko="보조 개념" data-en="Concept">보조 개념</th><th data-ko="NewtonHQ 대응" data-en="NewtonHQ Mapping">NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td data-ko="코딩 몰라도 AI 로" data-en="No-code via AI">코딩 몰라도 AI 로</td><td data-ko="Kenny + jarvis 조합 = 비전공자 최강 조합" data-en="Kenny + jarvis = strongest non-CS combo">Kenny + jarvis 조합 = 비전공자 최강 조합</td></tr>
+          <tr><td data-ko="경력자 틈새" data-en="Veteran niche">경력자 틈새</td><td data-ko="Kenny 25년 수학 / 물리 + 부동산 = 업 지식" data-en="Kenny's 25 yrs math / physics + real estate = domain edge">Kenny 25년 수학 / 물리 + 부동산 = 업 지식</td></tr>
+          <tr><td>Cursor AI</td><td data-ko="Claude Code (Kenny 현재 사용 중)" data-en="Claude Code (Kenny's current stack)">Claude Code (Kenny 현재 사용 중)</td></tr>
+          <tr><td data-ko="소규모 서비스" data-en="Small-scale service">소규모 서비스</td><td data-ko="kenny-baek-portal / workshop-008 자체" data-en="kenny-baek-portal / workshop-008 itself">kenny-baek-portal / workshop-008 자체</td></tr>
+        </tbody>
+      </table>
+      <div class="vc-meta">
+        <span data-ko="원본 자막" data-en="Source transcript">원본 자막</span> &middot;
+        <a href="../transcripts/보조_코딩몰라도_AI로_서비스개발.srt">SRT</a> &middot;
+        <a href="../transcripts/보조_코딩몰라도_AI로_서비스개발.txt">TXT</a> &middot;
+        <a href="../transcripts/보조_코딩몰라도_AI로_서비스개발.summary.md">Summary</a>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="vc-num">Video 10 · 보조</div>
+      <div class="vc-title" data-ko="4050대가 바이브 코딩해야 하는 이유 3 가지" data-en="3 Reasons 40s-50s Must Vibe-Code">4050대가 바이브 코딩해야 하는 이유 3 가지</div>
+      <div class="vc-hi" data-ko="한국 평균 은퇴 나이 49세. 살아남는 방법 = 경력 + AI 도구. 바이브 코딩은 배우는 게 아니라 그냥 하는 것." data-en="Average Korean retirement age: 49. Survival = career + AI tools. Vibe-coding isn't studied — it's just done.">
+        한국 평균 은퇴 나이 49세. 살아남는 방법 = 경력 + AI 도구. 바이브 코딩은 배우는 게 아니라 그냥 하는 것.
+      </div>
+      <ol class="three">
+        <li data-ko="<b>생존 문제</b> — AI 도입 → 신입 / 보조 채용 감소. 업무 자동화하는 직원이 살아남음. 바이브 코딩이 그 도구." data-en="<b>Survival</b> — AI adoption → fewer junior hires. Those who automate survive. Vibe-coding is that lever."><b>생존 문제</b> &mdash; AI 도입 → 신입 / 보조 채용 감소. 업무 자동화하는 직원이 살아남음. 바이브 코딩이 그 도구.</li>
+        <li data-ko="<b>빠른 은퇴 현실</b> — 원치 않는 은퇴 위기 + 자영업 / 사업도 쉽지 않음. 경력 기반 나만의 서비스가 대안." data-en="<b>Early-exit reality</b> — Forced early retirement + self-employment is brutal. A career-grounded personal service is the alt."><b>빠른 은퇴 현실</b> &mdash; 원치 않는 은퇴 위기 + 자영업 / 사업도 쉽지 않음. 경력 기반 나만의 서비스가 대안.</li>
+        <li data-ko="<b>진입 장벽 없음</b> — 비전공자도 강의하는 시대. &quot;배울 게 없다 = 그냥 하면 된다.&quot; Cursor AI 10분 실습." data-en="<b>No barrier</b> — Non-CS folks teach this now. &quot;Nothing to study = just do.&quot; Cursor AI in 10 minutes."><b>진입 장벽 없음</b> &mdash; 비전공자도 강의하는 시대. &quot;배울 게 없다 = 그냥 하면 된다.&quot; Cursor AI 10분 실습.</li>
+      </ol>
+      <table class="tt">
+        <thead><tr><th data-ko="보조 개념" data-en="Concept">보조 개념</th><th data-ko="NewtonHQ 대응" data-en="NewtonHQ Mapping">NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td data-ko="4050대 생존" data-en="40s-50s survival">4050대 생존</td><td data-ko="Kenny = 25년 경력 + AI = 최강 조합" data-en="Kenny = 25 yrs career + AI = strongest combo">Kenny = 25년 경력 + AI = 최강 조합</td></tr>
+          <tr><td data-ko="바이브 코딩 도구" data-en="Vibe-coding tool">바이브 코딩 도구</td><td data-ko="Claude Code (Cursor AI 상위 버전)" data-en="Claude Code (a level up from Cursor AI)">Claude Code (Cursor AI 상위 버전)</td></tr>
+          <tr><td data-ko="경력 기반 서비스" data-en="Career-based service">경력 기반 서비스</td><td data-ko="Newton School / Realty 사업 AI 화" data-en="AI-fying Newton School / Realty operations">Newton School / Realty 사업 AI 화</td></tr>
+          <tr><td data-ko="10분 실습" data-en="10-min practice">10분 실습</td><td data-ko="/j 명령 한 줄 = jarvis 즉시 실행" data-en="One-line /j command = jarvis fires instantly">/j 명령 한 줄 = jarvis 즉시 실행</td></tr>
+        </tbody>
+      </table>
+      <div class="vc-meta">
+        <span data-ko="원본 자막" data-en="Source transcript">원본 자막</span> &middot;
+        <a href="../transcripts/보조_4050대_바이브코딩_이유.srt">SRT</a> &middot;
+        <a href="../transcripts/보조_4050대_바이브코딩_이유.txt">TXT</a> &middot;
+        <a href="../transcripts/보조_4050대_바이브코딩_이유.summary.md">Summary</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <a href="../index.html" data-ko="Workshop 008 허브" data-en="Workshop 008 Hub">Workshop 008 허브</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="index.html" data-ko="보조 영상 허브" data-en="Supplementary Hub">보조 영상 허브</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="ch0.html" data-ko="CH 0 — 20분 전체지도" data-en="CH 0 — 20-min Map">CH 0 &mdash; 20분 전체지도</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="epilogue.html" data-ko="Epilogue — AI 시대 부록" data-en="Epilogue — AI Era Appendix">Epilogue &mdash; AI 시대 부록</a>
+    </div>
+    <div class="cr" data-ko="Workshop 008 · Prologue · Kenny Baek · 2026" data-en="Workshop 008 · Prologue · Kenny Baek · 2026">Workshop 008 · Prologue · Kenny Baek · 2026</div>
+  </footer>
+
+</div>
+
+<script>
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+  let lang = localStorage.getItem('kenny-lang') || 'ko';
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang);
+    });
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('kenny-lang', lang);
+    applyLang();
+  }
+  if (lang === 'en') applyLang();
+</script>
+<script src="../../_assets/stealth-comment.js" defer></script>
+</body>
+</html>

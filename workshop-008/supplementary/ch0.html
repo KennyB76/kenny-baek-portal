@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  Workshop 008 — Chapter 0 (IT 기술 전체 지도 20분)
+  보조 영상: IT 기술 지식 20분 전체 지도
+  Style: indigo / Playfair + Inter (hub-consistent)
+  v1: 2026-05-18
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 0 — IT 기술 전체 지도 · Workshop 008</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+    --fund:         #0369a1;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+    --max-w: 820px;
+  }
+  [data-theme="dark"] {
+    --student:      #6366f1;
+    --student-soft: #1e1e38;
+    --student-deep: #a5b4fc;
+    --student-glow: rgba(99,102,241,0.18);
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+    --fund:         #38bdf8;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.7; min-height: 100vh; }
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.75rem; height: 52px; gap: 1rem;
+  }
+  .nav-brand { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; color: var(--student); text-transform: uppercase; }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-actions { display: flex; gap: 0.5rem; }
+  .btn-sm {
+    background: var(--student-soft); border: 1px solid var(--line); color: var(--student);
+    border-radius: 6px; padding: 0.28rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; transition: all 0.15s;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+  .wrap { max-width: var(--max-w); margin: 0 auto; background: var(--paper); box-shadow: 0 2px 24px rgba(0,0,0,0.12); }
+  .masthead { text-align: center; padding: 48px 32px 28px; border-bottom: 3px double var(--fund); }
+  .ws-badge {
+    display: inline-block; background: var(--student-soft); color: var(--fund);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 8px; margin-bottom: 12px; border: 1px solid var(--line);
+  }
+  .school { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--fund); font-weight: 700; margin-bottom: 12px; }
+  .masthead h1 { font-family: var(--serif); font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 700; line-height: 1.15; margin-bottom: 6px; }
+  .masthead .sub { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--ink-soft); }
+  .masthead .info { margin-top: 14px; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.05em; }
+  .masthead .info span { margin: 0 7px; }
+  section.s { padding: 32px 32px; border-bottom: 1px solid var(--line); }
+  .s-label { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--fund); font-weight: 700; margin-bottom: 8px; }
+  .s-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; line-height: 1.25; }
+  .hi-card {
+    background: var(--student-soft);
+    border-left: 3px solid var(--fund);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    color: var(--student-deep);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  [data-theme="dark"] .hi-card { color: var(--student-deep); }
+  ol.three { list-style: none; counter-reset: t; padding: 0; }
+  ol.three li {
+    counter-increment: t;
+    padding: 12px 0 12px 38px;
+    position: relative;
+    font-size: 0.94rem;
+    line-height: 1.65;
+    border-bottom: 1px dashed var(--line);
+  }
+  ol.three li:last-child { border-bottom: none; }
+  ol.three li::before {
+    content: counter(t);
+    position: absolute; left: 0; top: 14px;
+    font-family: var(--mono);
+    background: var(--fund); color: #fff;
+    width: 26px; height: 26px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .flow-block {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--fund);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.9;
+    color: var(--ink-soft);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .flow-block .hi { color: var(--fund); font-weight: 700; }
+  table.tt { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table.tt th {
+    background: var(--student-soft); color: var(--fund);
+    font-weight: 700; font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 10px 12px; text-align: left;
+    border-bottom: 2px solid var(--fund);
+  }
+  table.tt td {
+    padding: 10px 12px; border-bottom: 1px solid var(--line);
+    color: var(--ink); vertical-align: top; line-height: 1.6;
+  }
+  table.tt td:first-child { font-family: var(--mono); font-weight: 600; color: var(--fund); white-space: nowrap; }
+  table.tt tr:last-child td { border-bottom: none; }
+  .anchor-block {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--fund);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+  }
+  .vc-meta { margin-top: 12px; font-size: 11px; color: var(--ink-soft); }
+  .vc-meta a { color: var(--fund); text-decoration: none; font-weight: 600; }
+  .vc-meta a:hover { text-decoration: underline; }
+  footer {
+    text-align: center; padding: 28px 32px;
+    font-size: 11px; color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--student); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .cr { margin-top: 6px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Chapter 0 <span>/ IT 기술 전체 지도</span></div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="../index.html">Hub &larr;</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="ws-badge" data-ko="Chapter 0 · 보조" data-en="Chapter 0 · Supplement">Chapter 0 · 보조</div>
+    <div class="school" data-ko="Newton School · 학생 0호 포탈" data-en="Newton School · Student #0 Portal">Newton School · 학생 0호 포탈</div>
+    <h1 data-ko="IT 기술 전체 지도 (20분)" data-en="IT Knowledge Map in 20 Minutes">IT 기술 전체 지도 (20분)</h1>
+    <div class="sub" data-ko="비전공자가 컴퓨터 전공 수준의 큰 그림을 20분에" data-en="A CS-level overview in 20 minutes — no degree required">비전공자가 컴퓨터 전공 수준의 큰 그림을 20분에</div>
+    <div class="info">
+      <span data-ko="보조 영상 1 개" data-en="1 supplementary video">보조 영상 1 개</span>
+      <span>&middot;</span>
+      <span data-ko="~20분" data-en="~20 min">~20분</span>
+    </div>
+  </header>
+
+  <section class="s">
+    <div class="s-label" data-ko="1줄 핵심" data-en="One-liner">1줄 핵심</div>
+    <div class="hi-card" data-ko="비전공자가 컴퓨터 전공자 수준의 전체 그림을 20분에 잡는다. 탑다운 접근 = 숲 먼저 나무 나중." data-en="Non-CS learners get a CS-level overview in 20 minutes. Top-down = forest first, trees later.">
+      비전공자가 컴퓨터 전공자 수준의 전체 그림을 20분에 잡는다. 탑다운 접근 = 숲 먼저 나무 나중.
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="요약" data-en="Summary">요약</div>
+    <div class="s-title" data-ko="3 포인트" data-en="3 Key Points">3 포인트</div>
+    <ol class="three">
+      <li data-ko="<b>전공자 vs 비전공자 차이</b> — 전공자 = 소프트웨어 공학 + OS + 네트워크 + DB + 클라우드 체계적 학습. 비전공자 = 언어부터 시작 → 그림 없음." data-en="<b>CS vs non-CS gap</b> — CS = systematic learning of SE + OS + Network + DB + Cloud. Non-CS = start from a language → no big picture."><b>전공자 vs 비전공자 차이</b> &mdash; 전공자 = 소프트웨어 공학 + OS + 네트워크 + DB + 클라우드 체계적 학습. 비전공자 = 언어부터 시작 → 그림 없음.</li>
+      <li data-ko="<b>탑다운 학습법</b> — 웹 / 앱이 어떻게 만들어지는지 전체 그림 먼저 → 필요할 때 세부 공부. 기술로트 PDF 목차 = 이 순서." data-en="<b>Top-down learning</b> — Get the full picture of how web / apps are built first → study details when needed. The tech-stack PDF table-of-contents follows this order."><b>탑다운 학습법</b> &mdash; 웹 / 앱이 어떻게 만들어지는지 전체 그림 먼저 → 필요할 때 세부 공부. 기술로트 PDF 목차 = 이 순서.</li>
+      <li data-ko="<b>전체 지도 흐름</b> — FE (HTML / CSS / JS) → BE (Node / Python) → DB (MySQL) → 인프라 (서버) → 클라우드 (AWS). 순서 중요." data-en="<b>Full-map flow</b> — FE (HTML / CSS / JS) → BE (Node / Python) → DB (MySQL) → Infra (server) → Cloud (AWS). Order matters."><b>전체 지도 흐름</b> &mdash; FE (HTML / CSS / JS) → BE (Node / Python) → DB (MySQL) → 인프라 (서버) → 클라우드 (AWS). 순서 중요.</li>
+    </ol>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="20분 흐름" data-en="20-min Flow">20분 흐름</div>
+    <div class="s-title" data-ko="ASCII 지도" data-en="ASCII Map">ASCII 지도</div>
+    <div class="flow-block"><span class="hi">  [FE]</span>  HTML / CSS / JS  (사용자가 보는 화면)
+     |
+     v
+<span class="hi">  [BE]</span>  Node.js / Python  (서버 로직)
+     |
+     v
+<span class="hi">  [DB]</span>  MySQL / PostgreSQL  (데이터 저장)
+     |
+     v
+<span class="hi">  [INFRA]</span>  Server / OS / Network  (어디서 돌리나)
+     |
+     v
+<span class="hi">  [CLOUD]</span>  AWS / GCP / Azure  (누가 운영하나)</div>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="Kenny Anchor" data-en="Kenny Anchor">Kenny Anchor</div>
+    <div class="s-title" data-ko="탑다운 &rarr; NewtonHQ" data-en="Top-down &rarr; NewtonHQ">탑다운 &rarr; NewtonHQ</div>
+    <div class="anchor-block">
+      <table class="tt">
+        <thead><tr><th data-ko="보조 개념" data-en="Concept">보조 개념</th><th data-ko="NewtonHQ 대응" data-en="NewtonHQ Mapping">NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td data-ko="탑다운 학습" data-en="Top-down learning">탑다운 학습</td><td data-ko="Kenny 학습 철학 — 전체 지도 먼저" data-en="Kenny's learning philosophy — full map first">Kenny 학습 철학 &mdash; 전체 지도 먼저</td></tr>
+          <tr><td data-ko="전체 지도" data-en="Full map">전체 지도</td><td data-ko="workshop-008 전체 = 이 영상의 확장" data-en="All of workshop-008 = this video, expanded">workshop-008 전체 = 이 영상의 확장</td></tr>
+          <tr><td data-ko="FE → BE → DB 흐름" data-en="FE → BE → DB flow">FE → BE → DB 흐름</td><td data-ko="Part1 → Part2 → Part6 매핑" data-en="Maps to Part1 → Part2 → Part6">Part1 → Part2 → Part6 매핑</td></tr>
+          <tr><td data-ko="20분 = 압축" data-en="20-min = compression">20분 = 압축</td><td data-ko="Kenny anchor 5 손가락 요약 패턴" data-en="Kenny anchor 5-finger summary pattern">Kenny anchor 5 손가락 요약 패턴</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="vc-meta">
+      <span data-ko="원본 자막" data-en="Source transcript">원본 자막</span> &middot;
+      <a href="../transcripts/보조_IT기술지식_20분_전체지도.srt">SRT</a> &middot;
+      <a href="../transcripts/보조_IT기술지식_20분_전체지도.txt">TXT</a> &middot;
+      <a href="../transcripts/보조_IT기술지식_20분_전체지도.summary.md">Summary</a>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <a href="../index.html" data-ko="Workshop 008 허브" data-en="Workshop 008 Hub">Workshop 008 허브</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="prologue.html" data-ko="Prologue" data-en="Prologue">Prologue</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="../chapter-1/index.html" data-ko="Chapter 1" data-en="Chapter 1">Chapter 1</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="epilogue.html" data-ko="Epilogue" data-en="Epilogue">Epilogue</a>
+    </div>
+    <div class="cr" data-ko="Workshop 008 · Chapter 0 · Kenny Baek · 2026" data-en="Workshop 008 · Chapter 0 · Kenny Baek · 2026">Workshop 008 · Chapter 0 · Kenny Baek · 2026</div>
+  </footer>
+
+</div>
+
+<script>
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+  let lang = localStorage.getItem('kenny-lang') || 'ko';
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang);
+    });
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('kenny-lang', lang);
+    applyLang();
+  }
+  if (lang === 'en') applyLang();
+</script>
+<script src="../../_assets/stealth-comment.js" defer></script>
+</body>
+</html>

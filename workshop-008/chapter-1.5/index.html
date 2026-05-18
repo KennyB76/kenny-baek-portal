@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<!--
+  Chapter 1.5 — App vs Web vs Java vs Python (OOP)
+  Workshop 008 / Newton School · Student #0 Portal
+  Style: indigo / Playfair + Inter (hub-consistent)
+  Source: transcripts/Part1_App_vs_Web_Java_vs_Python.summary.md
+  v1: 2026-05-18
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 1.5 — App vs Web vs Java vs Python</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+    --max-w: 820px;
+  }
+  [data-theme="dark"] {
+    --student:      #6366f1;
+    --student-soft: #1e1e38;
+    --student-deep: #a5b4fc;
+    --student-glow: rgba(99,102,241,0.18);
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.75rem; height: 52px; gap: 1rem;
+  }
+  .nav-brand { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; color: var(--student); text-transform: uppercase; }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-actions { display: flex; gap: 0.5rem; align-items: center; }
+  .btn-sm {
+    background: var(--student-soft); border: 1px solid var(--line); color: var(--student);
+    border-radius: 6px; padding: 0.28rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; transition: all 0.15s; white-space: nowrap;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+  .wrap { max-width: var(--max-w); margin: 0 auto; background: var(--paper); box-shadow: 0 2px 24px rgba(0,0,0,0.12); }
+  .masthead {
+    text-align: center; padding: 48px 32px 28px;
+    border-bottom: 3px double var(--student); position: relative;
+  }
+  .ws-badge {
+    display: inline-block; background: var(--student-soft); color: var(--student-deep);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 8px; margin-bottom: 12px; border: 1px solid var(--line);
+  }
+  .school { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--student); font-weight: 700; margin-bottom: 12px; }
+  .masthead h1 { font-family: var(--serif); font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 700; line-height: 1.15; margin-bottom: 6px; }
+  .masthead .sub { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--ink-soft); }
+  .masthead .info { margin-top: 14px; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.05em; }
+  .masthead .info span { margin: 0 7px; }
+  section.s {
+    padding: 32px 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .s-label { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--student); font-weight: 700; margin-bottom: 8px; }
+  .s-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; line-height: 1.25; }
+  .s-desc { font-size: 0.92rem; color: var(--ink-soft); margin-bottom: 16px; line-height: 1.75; }
+  .hi-card {
+    background: var(--student-soft);
+    border-left: 3px solid var(--student);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    font-size: 1rem;
+    color: var(--student-deep);
+    line-height: 1.7;
+  }
+  [data-theme="dark"] .hi-card { color: var(--student-deep); }
+  ol.five {
+    list-style: none; counter-reset: f; padding: 0;
+  }
+  ol.five li {
+    counter-increment: f;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--student);
+    border-radius: var(--radius);
+    padding: 14px 18px 14px 56px;
+    margin-bottom: 10px;
+    position: relative;
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+  ol.five li::before {
+    content: counter(f);
+    position: absolute; left: 14px; top: 12px;
+    font-family: var(--mono);
+    background: var(--student); color: #fff;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  table.tt {
+    width: 100%; border-collapse: collapse; font-size: 0.88rem;
+  }
+  table.tt th {
+    background: var(--student-soft); color: var(--student-deep);
+    font-weight: 700; font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 10px 12px; text-align: left;
+    border-bottom: 2px solid var(--student);
+  }
+  table.tt td {
+    padding: 10px 12px; border-bottom: 1px solid var(--line);
+    color: var(--ink); vertical-align: top; line-height: 1.6;
+  }
+  table.tt td:first-child { font-family: var(--mono); font-weight: 600; color: var(--student-deep); white-space: nowrap; }
+  [data-theme="dark"] table.tt td:first-child { color: var(--student); }
+  table.tt tr:last-child td { border-bottom: none; }
+  table.tt tr:hover td { background: var(--student-soft); }
+  .anchor-block {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--student);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    overflow-x: auto;
+  }
+  .quiz-list {
+    list-style: none; padding: 0; counter-reset: q;
+  }
+  .quiz-list li {
+    counter-increment: q;
+    padding: 12px 0 12px 38px;
+    position: relative;
+    border-bottom: 1px dashed var(--line);
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+  .quiz-list li:last-child { border-bottom: none; }
+  .quiz-list li::before {
+    content: "Q" counter(q);
+    position: absolute; left: 0; top: 12px;
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    color: var(--student);
+    background: var(--student-soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+  footer {
+    text-align: center; padding: 28px 32px;
+    font-size: 11px; color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--student); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .cr { margin-top: 6px; font-style: italic; }
+  #btt {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: var(--student); color: #fff;
+    border: none; border-radius: 50%;
+    width: 40px; height: 40px; font-size: 18px;
+    cursor: pointer; display: none;
+    align-items: center; justify-content: center; z-index: 150;
+    box-shadow: 0 4px 14px var(--student-glow);
+  }
+  #btt.show { display: flex; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Chapter 1.5 <span>/ App vs Web vs Java vs Python</span></div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="../index.html">Hub &larr;</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="ws-badge" data-ko="Chapter 1.5" data-en="Chapter 1.5">Chapter 1.5</div>
+    <div class="school" data-ko="Newton School · 학생 0호 포탈" data-en="Newton School · Student #0 Portal">Newton School · 학생 0호 포탈</div>
+    <h1 data-ko="App vs Web vs Java vs Python" data-en="App vs Web vs Java vs Python">App vs Web vs Java vs Python</h1>
+    <div class="sub" data-ko="OOP 와 언어 진화 — 비전공자 탑다운 접근" data-en="OOP &amp; Language Evolution — Top-down for Non-CS">OOP 와 언어 진화 &mdash; 비전공자 탑다운 접근</div>
+    <div class="info">
+      <span data-ko="Part1 영상 기반" data-en="Based on Part1 video">Part1 영상 기반</span>
+      <span>&middot;</span>
+      <span data-ko="~30분" data-en="~30 min">~30분</span>
+      <span>&middot;</span>
+      <span data-ko="2026 봄" data-en="Spring 2026">2026 봄</span>
+    </div>
+  </header>
+
+  <section class="s">
+    <div class="s-label" data-ko="1줄 핵심" data-en="One-liner">1줄 핵심</div>
+    <div class="hi-card" data-ko="탑다운 학습법으로 OOP 와 언어 진화 계보를 한 번에. Java/Python 선택 기준 + Frontend 3 역할 + React 컴포넌트 재사용까지 — 비전공자도 30분에 큰 그림." data-en="Top-down: OOP and language evolution in one pass. Java/Python selection + Frontend 3 roles + React component reuse — 30 minutes to the big picture, no CS degree required.">
+      탑다운 학습법으로 OOP 와 언어 진화 계보를 한 번에. Java/Python 선택 기준 + Frontend 3 역할 + React 컴포넌트 재사용까지 &mdash; 비전공자도 30분에 큰 그림.
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="5 손가락 요약" data-en="5-Finger Summary">5 손가락 요약</div>
+    <div class="s-title" data-ko="핵심 다섯 줄" data-en="Five Lines">핵심 다섯 줄</div>
+    <ol class="five">
+      <li data-ko="<b>탑다운 학습법</b> — 전체 지도 먼저, 세부 나중. 언어보다 개념 우선." data-en="<b>Top-down learning</b> — full map first, details later. Concepts over languages."><b>탑다운 학습법</b> &mdash; 전체 지도 먼저, 세부 나중. 언어보다 개념 우선.</li>
+      <li data-ko="<b>언어 진화 계보</b> — C &rarr; C++ &rarr; Java &rarr; Python / Node.js. OOP 계승 흐름." data-en="<b>Language evolution</b> — C &rarr; C++ &rarr; Java &rarr; Python / Node.js. OOP lineage."><b>언어 진화 계보</b> &mdash; C &rarr; C++ &rarr; Java &rarr; Python / Node.js. OOP 계승 흐름.</li>
+      <li data-ko="<b>OOP 핵심 3개</b> — Class (설계도), Object (실체), Inheritance (물려받기)." data-en="<b>OOP triad</b> — Class (blueprint), Object (instance), Inheritance (extends)."><b>OOP 핵심 3개</b> &mdash; Class (설계도), Object (실체), Inheritance (물려받기).</li>
+      <li data-ko="<b>Frontend 3 역할</b> — UI 구성 (HTML/CSS), 이벤트 처리 (JS), 서버 데이터 연결 (API call)." data-en="<b>Frontend 3 roles</b> — UI (HTML/CSS), events (JS), data link (API call)."><b>Frontend 3 역할</b> &mdash; UI 구성 (HTML/CSS), 이벤트 처리 (JS), 서버 데이터 연결 (API call).</li>
+      <li data-ko="<b>React / React Native</b> — 웹과 앱 동시 개발. 컴포넌트 재사용. 비전공자도 접근 가능." data-en="<b>React / React Native</b> — web + app from one codebase. Component reuse. Accessible to non-CS."><b>React / React Native</b> &mdash; 웹과 앱 동시 개발. 컴포넌트 재사용. 비전공자도 접근 가능.</li>
+    </ol>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="주요 용어" data-en="Key Terms">주요 용어</div>
+    <div class="s-title" data-ko="용어 + 정의" data-en="Terms &amp; Definitions">용어 + 정의</div>
+    <div class="anchor-block">
+      <table class="tt">
+        <thead>
+          <tr><th data-ko="용어" data-en="Term">용어</th><th data-ko="정의" data-en="Definition">정의</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>OOP</td><td data-ko="현실 사물을 Class / Object 로 모델링하는 프로그래밍 패러다임" data-en="Programming paradigm modeling real-world things as Class / Object">현실 사물을 Class / Object 로 모델링하는 프로그래밍 패러다임</td></tr>
+          <tr><td>Class</td><td data-ko="비행기 게임 설계도. 속성(속도/HP) + 메서드(이동/공격) 정의" data-en="Blueprint (e.g., airplane game): attributes (speed/HP) + methods (move/attack)">비행기 게임 설계도. 속성(속도/HP) + 메서드(이동/공격) 정의</td></tr>
+          <tr><td>Object</td><td data-ko="Class 를 실체화한 인스턴스. my_plane = Airplane()" data-en="Instance materialized from Class. my_plane = Airplane()">Class 를 실체화한 인스턴스. my_plane = Airplane()</td></tr>
+          <tr><td>Inheritance</td><td data-ko="자식 클래스가 부모 속성 / 메서드 그대로 물려받음" data-en="Child class inherits parent attributes / methods">자식 클래스가 부모 속성 / 메서드 그대로 물려받음</td></tr>
+          <tr><td>Frontend</td><td data-ko="브라우저 / 앱 화면 레이어. HTML (구조) + CSS (스타일) + JS (동작)" data-en="Browser / app surface layer. HTML (structure) + CSS (style) + JS (behavior)">브라우저 / 앱 화면 레이어. HTML (구조) + CSS (스타일) + JS (동작)</td></tr>
+          <tr><td>React</td><td data-ko="Facebook 개발 UI 라이브러리. 컴포넌트 단위 재사용" data-en="Facebook-built UI library. Component-level reuse">Facebook 개발 UI 라이브러리. 컴포넌트 단위 재사용</td></tr>
+          <tr><td>React Native</td><td data-ko="React 코드로 iOS / Android 앱 빌드. 한 코드베이스 양 플랫폼" data-en="Build iOS / Android apps from React code. One codebase, both platforms">React 코드로 iOS / Android 앱 빌드. 한 코드베이스 양 플랫폼</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="Kenny Anchor" data-en="Kenny Anchor">Kenny Anchor</div>
+    <div class="s-title" data-ko="OOP &rarr; NewtonHQ" data-en="OOP &rarr; NewtonHQ">OOP &rarr; NewtonHQ</div>
+    <p class="s-desc" data-ko="IT 개념을 Kenny 의 세계로 직접 번역. 추상이 아니라 내 시스템." data-en="Direct translation of IT concepts into Kenny's world. Not abstraction — my system.">
+      IT 개념을 Kenny 의 세계로 직접 번역. 추상이 아니라 내 시스템.
+    </p>
+    <div class="anchor-block">
+      <table class="tt">
+        <thead>
+          <tr><th data-ko="IT 개념" data-en="IT Concept">IT 개념</th><th data-ko="NewtonHQ 대응" data-en="NewtonHQ Mapping">NewtonHQ 대응</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Class</td><td data-ko="skill 정의 파일 (skill.md = 설계도)" data-en="skill definition file (skill.md = blueprint)">skill 정의 파일 (skill.md = 설계도)</td></tr>
+          <tr><td>Object</td><td data-ko="skill 인스턴스 실행 중 상태 (sub-agent running)" data-en="skill instance in execution (sub-agent running)">skill 인스턴스 실행 중 상태 (sub-agent running)</td></tr>
+          <tr><td>Inheritance</td><td data-ko="CLAUDE.md cascade (@ref 체인 — 부모 설정 자식 상속)" data-en="CLAUDE.md cascade (@ref chain — parent settings flow to child)">CLAUDE.md cascade (@ref 체인 &mdash; 부모 설정 자식 상속)</td></tr>
+          <tr><td>Frontend</td><td data-ko="visual.html / student portal (사용자가 보는 레이어)" data-en="visual.html / student portal (the user-facing layer)">visual.html / student portal (사용자가 보는 레이어)</td></tr>
+          <tr><td>React component</td><td data-ko="workshop 단위 재사용 모듈" data-en="workshop-scale reusable module">workshop 단위 재사용 모듈</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label" data-ko="자가 점검" data-en="Self-check">자가 점검</div>
+    <div class="s-title" data-ko="Quiz — Kenny 자가 check" data-en="Quiz — Kenny Self-check">Quiz &mdash; Kenny 자가 check</div>
+    <ol class="quiz-list">
+      <li data-ko="OOP 에서 Class 와 Object 의 차이를 비행기 게임 비유로 설명하라." data-en="Explain Class vs Object using the airplane game analogy.">OOP 에서 Class 와 Object 의 차이를 비행기 게임 비유로 설명하라.</li>
+      <li data-ko="Java 와 Python 선택 기준은 무엇인가? (성능 vs 생산성)" data-en="What's the selection criterion between Java and Python? (Performance vs productivity)">Java 와 Python 선택 기준은 무엇인가? (성능 vs 생산성)</li>
+      <li data-ko="Frontend 3 역할 각각 담당 기술은?" data-en="What tech handles each of the 3 frontend roles?">Frontend 3 역할 각각 담당 기술은?</li>
+      <li data-ko="React Native 가 가능한 이유는? (코드 재사용 메커니즘)" data-en="Why is React Native possible? (Code-reuse mechanism)">React Native 가 가능한 이유는? (코드 재사용 메커니즘)</li>
+      <li data-ko="탑다운 학습법이 비전공자에게 유리한 이유?" data-en="Why is top-down learning advantageous for non-CS learners?">탑다운 학습법이 비전공자에게 유리한 이유?</li>
+    </ol>
+  </section>
+
+  <footer>
+    <div>
+      <a href="../index.html" data-ko="Workshop 008 허브" data-en="Workshop 008 Hub">Workshop 008 허브</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="../chapter-1/index.html" data-ko="Chapter 1" data-en="Chapter 1">Chapter 1</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="../chapter-2/index.html" data-ko="Chapter 2" data-en="Chapter 2">Chapter 2</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="../transcripts/Part1_App_vs_Web_Java_vs_Python.srt" data-ko="자막 SRT" data-en="Transcript SRT">자막 SRT</a>
+    </div>
+    <div class="cr" data-ko="Workshop 008 · Chapter 1.5 · Kenny Baek · 2026" data-en="Workshop 008 · Chapter 1.5 · Kenny Baek · 2026">Workshop 008 · Chapter 1.5 · Kenny Baek · 2026</div>
+  </footer>
+
+</div>
+
+<button id="btt" onclick="scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8593;</button>
+
+<script>
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+  let lang = localStorage.getItem('kenny-lang') || 'ko';
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang);
+    });
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('kenny-lang', lang);
+    applyLang();
+  }
+  if (lang === 'en') applyLang();
+  const btt = document.getElementById('btt');
+  window.addEventListener('scroll', () => {
+    btt.classList.toggle('show', window.scrollY > 300);
+  });
+</script>
+<script src="../../_assets/stealth-comment.js" defer></script>
+</body>
+</html>

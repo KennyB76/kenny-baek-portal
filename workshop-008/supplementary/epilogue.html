@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<!--
+  Workshop 008 — Epilogue (AI 시대 부록)
+  보조 영상 2 개: AI 코드 보안 점검 / 30년 AI 시대 개발자 생존 스킬
+  Style: indigo / Playfair + Inter (hub-consistent)
+  v1: 2026-05-18
+-->
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Epilogue — AI 시대 부록 · Workshop 008</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Serif+KR:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --student:      #4f46e5;
+    --student-soft: #eef2ff;
+    --student-deep: #3730a3;
+    --student-glow: rgba(79,70,229,0.12);
+    --ink:          #1e1b4b;
+    --ink-soft:     #6b7280;
+    --paper:        #ffffff;
+    --bg:           #f8f9ff;
+    --line:         #dde1f7;
+    --card-bg:      #ffffff;
+    --career:       #be185d;
+    --serif: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    --sans:  'Inter', system-ui, sans-serif;
+    --mono:  'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+    --radius: 10px;
+    --max-w: 820px;
+  }
+  [data-theme="dark"] {
+    --student:      #6366f1;
+    --student-soft: #1e1e38;
+    --student-deep: #a5b4fc;
+    --student-glow: rgba(99,102,241,0.18);
+    --ink:          #e2e8f0;
+    --ink-soft:     #94a3b8;
+    --paper:        #12121e;
+    --bg:           #0a0a14;
+    --line:         #1e1e38;
+    --card-bg:      #15152a;
+    --career:       #f472b6;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); line-height: 1.7; min-height: 100vh; }
+  nav {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.75rem; height: 52px; gap: 1rem;
+  }
+  .nav-brand { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; color: var(--student); text-transform: uppercase; }
+  .nav-brand span { color: var(--ink-soft); font-weight: 400; }
+  .nav-actions { display: flex; gap: 0.5rem; }
+  .btn-sm {
+    background: var(--student-soft); border: 1px solid var(--line); color: var(--student);
+    border-radius: 6px; padding: 0.28rem 0.6rem; font-size: 0.72rem; font-weight: 600;
+    cursor: pointer; text-decoration: none; transition: all 0.15s;
+  }
+  .btn-sm:hover { background: var(--student-glow); border-color: var(--student); }
+  .wrap { max-width: var(--max-w); margin: 0 auto; background: var(--paper); box-shadow: 0 2px 24px rgba(0,0,0,0.12); }
+  .masthead { text-align: center; padding: 48px 32px 28px; border-bottom: 3px double var(--career); }
+  .ws-badge {
+    display: inline-block; background: var(--student-soft); color: var(--career);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 4px; padding: 2px 8px; margin-bottom: 12px; border: 1px solid var(--line);
+  }
+  .school { font-size: 10px; letter-spacing: 0.45em; text-transform: uppercase; color: var(--career); font-weight: 700; margin-bottom: 12px; }
+  .masthead h1 { font-family: var(--serif); font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 700; line-height: 1.15; margin-bottom: 6px; }
+  .masthead .sub { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--ink-soft); }
+  .masthead .info { margin-top: 14px; font-size: 11px; color: var(--ink-soft); letter-spacing: 0.05em; }
+  .masthead .info span { margin: 0 7px; }
+  section.s { padding: 32px 32px; border-bottom: 1px solid var(--line); }
+  .s-label { font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase; color: var(--career); font-weight: 700; margin-bottom: 8px; }
+  .s-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; margin-bottom: 16px; line-height: 1.25; }
+  .video-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--career);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 22px;
+  }
+  .vc-num {
+    display: inline-block;
+    font-family: var(--mono); font-size: 10px; font-weight: 700;
+    letter-spacing: 0.08em; color: var(--career);
+    background: var(--student-soft);
+    border: 1px solid var(--line); border-radius: 3px;
+    padding: 1px 6px; margin-bottom: 8px;
+  }
+  .vc-title {
+    font-family: var(--serif); font-size: 1.3rem; font-weight: 700;
+    color: var(--student-deep); margin-bottom: 10px;
+  }
+  [data-theme="dark"] .vc-title { color: var(--student-deep); }
+  .vc-hi {
+    background: var(--student-soft);
+    border-left: 3px solid var(--career);
+    border-radius: 6px;
+    padding: 12px 16px;
+    color: var(--student-deep);
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+  }
+  [data-theme="dark"] .vc-hi { color: var(--student-deep); }
+  ol.three { list-style: none; counter-reset: t; padding: 0; }
+  ol.three li {
+    counter-increment: t;
+    padding: 10px 0 10px 36px;
+    position: relative;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    border-bottom: 1px dashed var(--line);
+  }
+  ol.three li:last-child { border-bottom: none; }
+  ol.three li::before {
+    content: counter(t);
+    position: absolute; left: 0; top: 12px;
+    font-family: var(--mono);
+    background: var(--career); color: #fff;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  table.tt { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin-top: 14px; }
+  table.tt th {
+    background: var(--student-soft); color: var(--career);
+    font-weight: 700; font-size: 10px; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 9px 12px; text-align: left;
+    border-bottom: 2px solid var(--career);
+  }
+  table.tt td {
+    padding: 9px 12px; border-bottom: 1px solid var(--line);
+    color: var(--ink); vertical-align: top; line-height: 1.55;
+  }
+  table.tt td:first-child { font-family: var(--mono); font-weight: 600; color: var(--career); white-space: nowrap; }
+  table.tt tr:last-child td { border-bottom: none; }
+  .vc-meta { margin-top: 12px; font-size: 11px; color: var(--ink-soft); }
+  .vc-meta a { color: var(--career); text-decoration: none; font-weight: 600; }
+  .vc-meta a:hover { text-decoration: underline; }
+  footer {
+    text-align: center; padding: 28px 32px;
+    font-size: 11px; color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--student); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  footer .cr { margin-top: 6px; font-style: italic; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">Epilogue <span>/ AI 시대 부록</span></div>
+  <div class="nav-actions">
+    <button class="btn-sm" id="lang-toggle" onclick="toggleLang()">EN</button>
+    <button class="btn-sm" id="theme-toggle" onclick="toggleTheme()">Dark</button>
+    <a class="btn-sm" href="../index.html">Hub &larr;</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="ws-badge" data-ko="Epilogue" data-en="Epilogue">Epilogue</div>
+    <div class="school" data-ko="Newton School · 학생 0호 포탈" data-en="Newton School · Student #0 Portal">Newton School · 학생 0호 포탈</div>
+    <h1 data-ko="AI 시대 부록" data-en="AI Era Appendix">AI 시대 부록</h1>
+    <div class="sub" data-ko="AI 코드 보안 점검 / 30년 개발자 생존 스킬" data-en="AI code security audit / 30-yr developer survival skills">AI 코드 보안 점검 / 30년 개발자 생존 스킬</div>
+    <div class="info">
+      <span data-ko="보조 영상 2 개" data-en="2 supplementary videos">보조 영상 2 개</span>
+      <span>&middot;</span>
+      <span data-ko="~30분" data-en="~30 min">~30분</span>
+    </div>
+  </header>
+
+  <section class="s">
+    <div class="video-card">
+      <div class="vc-num">Video 19 · 보조</div>
+      <div class="vc-title" data-ko="AI 코드 보안 점검" data-en="AI Code Security Audit">AI 코드 보안 점검</div>
+      <div class="vc-hi" data-ko="AI 가 만든 코드 = 기능은 작동. 보안은 검수 필요. SQL Injection / XSS / 인증 누락 = 단골 취약점." data-en="AI-written code runs. Security must be reviewed. SQL Injection / XSS / missing auth = the usual suspects.">
+        AI 가 만든 코드 = 기능은 작동. 보안은 검수 필요. SQL Injection / XSS / 인증 누락 = 단골 취약점.
+      </div>
+      <ol class="three">
+        <li data-ko="<b>AI 코드 취약점</b> — SQL Injection (입력값 그대로 쿼리), XSS (스크립트 삽입), 인증 없는 API 엔드포인트." data-en="<b>AI-code vulns</b> — SQL Injection (raw input into queries), XSS (script injection), unauthenticated API endpoints."><b>AI 코드 취약점</b> &mdash; SQL Injection (입력값 그대로 쿼리), XSS (스크립트 삽입), 인증 없는 API 엔드포인트.</li>
+        <li data-ko="<b>보안 점검 체크리스트</b> — 입력값 검증 / 환경변수 분리 (.env) / HTTPS 강제 / API 키 하드코딩 X." data-en="<b>Security checklist</b> — input validation / env var separation (.env) / enforce HTTPS / no API-key hardcoding."><b>보안 점검 체크리스트</b> &mdash; 입력값 검증 / 환경변수 분리 (.env) / HTTPS 강제 / API 키 하드코딩 X.</li>
+        <li data-ko="<b>실무 도구</b> — OWASP Top 10 기준 점검. GitHub Dependabot (취약 패키지 알림). Snyk." data-en="<b>Practical tools</b> — OWASP Top 10 baseline. GitHub Dependabot (vuln-package alerts). Snyk."><b>실무 도구</b> &mdash; OWASP Top 10 기준 점검. GitHub Dependabot (취약 패키지 알림). Snyk.</li>
+      </ol>
+      <table class="tt">
+        <thead><tr><th data-ko="보안 개념" data-en="Security Concept">보안 개념</th><th data-ko="NewtonHQ 대응" data-en="NewtonHQ Mapping">NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td data-ko="API 키 하드코딩 X" data-en="No hardcoded API keys">API 키 하드코딩 X</td><td data-ko="8_api.md 별도 저장 (평문 X)" data-en="8_api.md kept separate (not plaintext)">8_api.md 별도 저장 (평문 X)</td></tr>
+          <tr><td data-ko="입력값 검증" data-en="Input validation">입력값 검증</td><td data-ko="Kenny 결재 (위험 작업 한 줄 답)" data-en="Kenny approval (one-line answer for risky ops)">Kenny 결재 (위험 작업 한 줄 답)</td></tr>
+          <tr><td data-ko=".env 분리" data-en=".env separation">.env 분리</td><td data-ko="vault 패턴 (credential 별도)" data-en="vault pattern (credentials kept apart)">vault 패턴 (credential 별도)</td></tr>
+          <tr><td>HTTPS</td><td data-ko="API key 인증 (Claude / Wave 토큰)" data-en="API-key auth (Claude / Wave tokens)">API key 인증 (Claude / Wave 토큰)</td></tr>
+        </tbody>
+      </table>
+      <div class="vc-meta">
+        <span data-ko="원본 자막" data-en="Source transcript">원본 자막</span> &middot;
+        <a href="../transcripts/보조_AI코드_보안_점검.srt">SRT</a> &middot;
+        <a href="../transcripts/보조_AI코드_보안_점검.txt">TXT</a> &middot;
+        <a href="../transcripts/보조_AI코드_보안_점검.summary.md">Summary</a>
+      </div>
+    </div>
+
+    <div class="video-card">
+      <div class="vc-num">Video 20 · 보조</div>
+      <div class="vc-title" data-ko="30년 AI 시대 개발자 생존 스킬" data-en="30-Year Developer Survival in the AI Era">30년 AI 시대 개발자 생존 스킬</div>
+      <div class="vc-hi" data-ko="25년 개발 경력자 관점 = AI 시대 살아남는 개발자 = 아키텍처 설계 + 비즈니스 이해 + AI 협업 능력." data-en="From 25 years in the trenches: surviving devs in the AI era = architecture + business sense + AI collaboration.">
+        25년 개발 경력자 관점 = AI 시대 살아남는 개발자 = 아키텍처 설계 + 비즈니스 이해 + AI 협업 능력.
+      </div>
+      <ol class="three">
+        <li data-ko="<b>코딩 능력 가치 하락</b> — AI 가 코드 생성. 순수 코딩 = 상품화. 차별점 = 설계 + 판단 + 오너십." data-en="<b>Coding-skill commodification</b> — AI writes code. Pure coding = commodity. Differentiation = design + judgment + ownership."><b>코딩 능력 가치 하락</b> &mdash; AI 가 코드 생성. 순수 코딩 = 상품화. 차별점 = 설계 + 판단 + 오너십.</li>
+        <li data-ko="<b>아키텍처 설계 가치 상승</b> — 시니어 = 아키텍트 역할. 어떤 기술 선택 / 어떻게 연결 / 어떻게 확장. AI 가 못 대체." data-en="<b>Architecture rises</b> — Senior = architect. Pick tech / wire it together / scale it. AI can't replace this yet."><b>아키텍처 설계 가치 상승</b> &mdash; 시니어 = 아키텍트 역할. 어떤 기술 선택 / 어떻게 연결 / 어떻게 확장. AI 가 못 대체.</li>
+        <li data-ko="<b>비전공자 기회</b> — 업 전문성 + AI 도구 조합 = 새로운 경쟁력. 경력자 틈새 서비스 = 블루오션." data-en="<b>Non-CS opportunity</b> — Domain expertise + AI tools = new competitive edge. Veteran-niche services = blue ocean."><b>비전공자 기회</b> &mdash; 업 전문성 + AI 도구 조합 = 새로운 경쟁력. 경력자 틈새 서비스 = 블루오션.</li>
+      </ol>
+      <table class="tt">
+        <thead><tr><th data-ko="생존 스킬" data-en="Survival Skill">생존 스킬</th><th data-ko="NewtonHQ 대응" data-en="NewtonHQ Mapping">NewtonHQ 대응</th></tr></thead>
+        <tbody>
+          <tr><td data-ko="아키텍처 설계" data-en="Architecture design">아키텍처 설계</td><td data-ko="Kenny = 설계자 / jarvis = 구현자" data-en="Kenny = architect / jarvis = implementer">Kenny = 설계자 / jarvis = 구현자</td></tr>
+          <tr><td data-ko="비즈니스 이해" data-en="Business understanding">비즈니스 이해</td><td data-ko="학원 + Realty 경력 = 틈새 지식" data-en="School + Realty experience = niche domain">학원 + Realty 경력 = 틈새 지식</td></tr>
+          <tr><td data-ko="AI 협업" data-en="AI collaboration">AI 협업</td><td data-ko="Claude Code + jarvis 시스템" data-en="Claude Code + jarvis system">Claude Code + jarvis 시스템</td></tr>
+          <tr><td data-ko="30년 생존" data-en="30-yr survival">30년 생존</td><td data-ko="Trinity 비전 (Kenny + jarvis 항구적)" data-en="Trinity vision (Kenny + jarvis, durable)">Trinity 비전 (Kenny + jarvis 항구적)</td></tr>
+        </tbody>
+      </table>
+      <div class="vc-meta">
+        <span data-ko="원본 자막" data-en="Source transcript">원본 자막</span> &middot;
+        <a href="../transcripts/보조_30년_AI시대_개발자_생존스킬.srt">SRT</a> &middot;
+        <a href="../transcripts/보조_30년_AI시대_개발자_생존스킬.txt">TXT</a> &middot;
+        <a href="../transcripts/보조_30년_AI시대_개발자_생존스킬.summary.md">Summary</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>
+      <a href="../index.html" data-ko="Workshop 008 허브" data-en="Workshop 008 Hub">Workshop 008 허브</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="prologue.html" data-ko="Prologue" data-en="Prologue">Prologue</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="ch0.html" data-ko="CH 0" data-en="CH 0">CH 0</a>
+      <span style="margin:0 8px; color:var(--line);">|</span>
+      <a href="index.html" data-ko="보조 영상 허브" data-en="Supplementary Hub">보조 영상 허브</a>
+    </div>
+    <div class="cr" data-ko="Workshop 008 · Epilogue · Kenny Baek · 2026" data-en="Workshop 008 · Epilogue · Kenny Baek · 2026">Workshop 008 · Epilogue · Kenny Baek · 2026</div>
+  </footer>
+
+</div>
+
+<script>
+  (function() {
+    const saved = localStorage.getItem('kenny-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('theme-toggle').textContent = saved === 'dark' ? 'Light' : 'Dark';
+  })();
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-toggle').textContent = isDark ? 'Dark' : 'Light';
+    localStorage.setItem('kenny-theme', next);
+  }
+  let lang = localStorage.getItem('kenny-lang') || 'ko';
+  function applyLang() {
+    document.querySelectorAll('[data-ko]').forEach(el => {
+      el.innerHTML = el.getAttribute('data-' + lang);
+    });
+    document.getElementById('lang-toggle').textContent = lang === 'ko' ? 'EN' : 'KO';
+  }
+  function toggleLang() {
+    lang = lang === 'ko' ? 'en' : 'ko';
+    localStorage.setItem('kenny-lang', lang);
+    applyLang();
+  }
+  if (lang === 'en') applyLang();
+</script>
+<script src="../../_assets/stealth-comment.js" defer></script>
+</body>
+</html>
