@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kenny Baek — Meta Glasses Gallery</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --accent: #a78bfa;
+    --text: #e2e2f0;
+    --muted: #6b6b8a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; min-height: 100vh; }
+  header { padding: 2rem 2rem 1rem; border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 1.25rem; font-weight: 600; color: var(--accent); }
+  header p  { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+  #stats    { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+
+  .day-group { margin: 1.5rem 2rem; }
+  .day-label { font-size: 0.75rem; font-weight: 600; color: var(--muted);
+               letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
+  .thumb { position: relative; aspect-ratio: 1; border-radius: 6px; overflow: hidden;
+           border: 1px solid var(--border); cursor: pointer; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+  .thumb:hover img { transform: scale(1.04); }
+  .thumb .fname { position: absolute; bottom: 0; left: 0; right: 0;
+                  background: rgba(0,0,0,0.65); font-size: 0.65rem; color: var(--muted);
+                  padding: 3px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Lightbox */
+  #lb { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+        align-items: center; justify-content: center; z-index: 100; }
+  #lb.open { display: flex; }
+  #lb img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+  #lb-close { position: absolute; top: 1rem; right: 1.5rem; font-size: 2rem;
+               color: var(--muted); cursor: pointer; line-height: 1; }
+
+  #empty { text-align: center; padding: 4rem 2rem; color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Meta Glasses Gallery</h1>
+  <p>Kenny Baek — auto-sync via daemon</p>
+  <div id="stats">Loading...</div>
+</header>
+<main id="main"><div id="empty">No photos yet — daemon will populate this gallery.</div></main>
+
+<div id="lb" role="dialog" aria-modal="true">
+  <span id="lb-close" aria-label="Close">&times;</span>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<script>
+(async () => {
+  const BASE = location.pathname.replace(/\/gallery\/.*/, '') || '';
+  let data;
+  try {
+    const r = await fetch('index.json?_=' + Date.now());
+    data = await r.json();
+  } catch(e) {
+    document.getElementById('empty').textContent = 'Could not load index.json';
+    return;
+  }
+
+  const photos = data.photos || [];
+  document.getElementById('stats').textContent =
+    `${photos.length} photo${photos.length !== 1 ? 's' : ''}`;
+
+  if (!photos.length) return;
+
+  // Group by date
+  const groups = {};
+  photos.forEach(p => {
+    const d = p.date || 'unknown';
+    (groups[d] = groups[d] || []).push(p);
+  });
+
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+
+  Object.keys(groups).sort().reverse().forEach(date => {
+    const section = document.createElement('div');
+    section.className = 'day-group';
+    const label = document.createElement('div');
+    label.className = 'day-label';
+    label.textContent = date;
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+    groups[date].forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'thumb';
+      const img = document.createElement('img');
+      img.src = '../' + p.path;
+      img.alt = p.file;
+      img.loading = 'lazy';
+      const fn = document.createElement('div');
+      fn.className = 'fname';
+      fn.textContent = p.file;
+      card.append(img, fn);
+      card.addEventListener('click', () => openLB('../' + p.path));
+      grid.append(card);
+    });
+    section.append(label, grid);
+    main.append(section);
+  });
+
+  // Lightbox
+  const lb = document.getElementById('lb');
+  const lbImg = document.getElementById('lb-img');
+  function openLB(src) { lbImg.src = src; lb.classList.add('open'); }
+  document.getElementById('lb-close').onclick = () => lb.classList.remove('open');
+  lb.addEventListener('click', e => { if (e.target === lb) lb.classList.remove('open'); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
+})();
+</script>
+</body>
+</html>
