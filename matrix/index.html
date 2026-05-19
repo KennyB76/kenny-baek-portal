@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATRIX — Visual Gallery · Kenny Baek</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --bg-soft: #050a05;
+    --ink: #00ff41;
+    --ink-dim: #00b020;
+    --ink-mute: #007a18;
+    --border: rgba(0,255,65,.22);
+    --border-hi: rgba(0,255,65,.5);
+    --amber: #ffb000;
+    --shadow: 0 0 24px rgba(0,255,65,.18);
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* falling rain canvas */
+  #rain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .crumb {
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .crumb a { color: var(--ink-dim); text-decoration: none; }
+  .crumb a:hover { color: var(--ink); }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-shadow: 0 0 12px rgba(0,255,65,.4);
+  }
+  h1 .blink {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0 0.3em;
+    margin-left: 0.4em;
+    animation: blink 1.1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .lede {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--ink-dim);
+    max-width: 60ch;
+    line-height: 1.7;
+  }
+  .meta {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+  }
+  .meta span { color: var(--amber); }
+
+  /* CARD GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+  .card {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ink);
+    border-radius: 4px;
+    padding: 1.4rem 1.4rem 1.2rem;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,255,65,.04) 100%);
+    pointer-events: none;
+  }
+  .card:hover {
+    border-color: var(--border-hi);
+    box-shadow: var(--shadow);
+    transform: translateY(-3px);
+  }
+  .card .tag {
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    color: var(--amber);
+    text-transform: uppercase;
+  }
+  .card h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .card p {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--ink-dim);
+    flex: 1;
+  }
+  .card .footer {
+    font-size: 0.7rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px dashed var(--border);
+    padding-top: 0.6rem;
+    margin-top: 0.3rem;
+  }
+  .card .arrow {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.8;
+  }
+  footer a { color: var(--ink-dim); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  footer .quote { font-style: italic; color: var(--amber); margin-top: 0.6rem; }
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+
+<div class="wrap">
+
+  <header>
+    <div class="crumb"><a href="../index.html">&larr; Kenny Baek Portal</a> &nbsp;/&nbsp; matrix</div>
+    <h1>MATRIX<span class="blink">_</span></h1>
+    <p class="lede">
+      네오, 진짜 세상에 온 걸 환영한다. 여기 등록된 자료들 — 모피어스의 빨간 알약을 삼킨 사람만 본다.
+      Architect scene · Operator dashboard · Taylor Hypothesis v2. 세 개의 단편, 한 가지 톤: phosphor green.
+    </p>
+    <div class="meta">
+      <span>STATUS:</span> ACTIVE &nbsp;·&nbsp;
+      <span>ENTRIES:</span> 3 &nbsp;·&nbsp;
+      <span>UPDATED:</span> 2026-05-19
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <a class="card" href="architect-scene/index.html">
+      <div class="tag">scene · v1</div>
+      <h2>The Architect Scene — Neo Meets His Maker</h2>
+      <p>
+        매트릭스 2 의 그 장면 자체 — Neo 가 Architect 와 마주 앉은 백색 방. CRT phosphor green 으로
+        재해석한 인터랙티브 monologue. 다중 화면 + 선택 분기 + amber CRT 강조.
+      </p>
+      <div class="footer">
+        <span>visual · interactive</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card" href="architect-scene-v2/index.html">
+      <div class="tag">hypothesis · v2</div>
+      <h2>Architect v2 — Kenny's Taylor Hypothesis</h2>
+      <p>
+        v1 의 압축본. Taylor 급수 비유로 Architect 의 "이전 Neo 다수" 발언을 수학으로 다시 짠다.
+        근사 차수 = 인류 반복 횟수. 코멘트 사이드 amber.
+      </p>
+      <div class="footer">
+        <span>hypothesis · annotated</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card" href="operator-dashboard/index.html">
+      <div class="tag">dashboard · plan</div>
+      <h2>Matrix Operator Dashboard — dash skill v2</h2>
+      <p>
+        Operator 의 모니터 자체. 살아있는 세션 · sub agent 상태 · 메시지 보드. dash skill v2 의
+        설계 plan 화면. zinc 다크 + green 액센트 hybrid.
+      </p>
+      <div class="footer">
+        <span>plan · dash</span>
+        <span class="arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>
+    <div>Kenny Baek &middot; NewtonHQ &middot; <a href="https://github.com/KennyB76/kenny-baek-portal">github</a></div>
+    <div class="quote">"There is no spoon." — bend the dashboard, not the data.</div>
+  </footer>
+
+</div>
+
+<script>
+  // Matrix digital rain
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let W, H, cols, drops;
+  const CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF';
+  const FONT_SIZE = 14;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cols = Math.floor(W / FONT_SIZE);
+    drops = Array(cols).fill(0).map(() => Math.random() * -H / FONT_SIZE);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = FONT_SIZE + 'px JetBrains Mono, monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const ch = CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+      ctx.fillText(ch, i * FONT_SIZE, drops[i] * FONT_SIZE);
+      if (drops[i] * FONT_SIZE > H && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 55);
+</script>
+
+</body>
+</html>

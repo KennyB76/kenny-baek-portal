@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="ko" style="scroll-behavior:smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>"The Architect Scene — Neo Meets His Maker"</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&family=Pretendard+Variable:wght@400;500;600&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0f0a;
+  --bg-tertiary: #0f170f;
+  --bg-card: #0a1108;
+  --border: rgba(0,255,102,.18);
+  --border-hover: rgba(0,255,102,.4);
+  --text-primary: #d4ffd4;
+  --text-secondary: #a7f3a7;
+  --text-muted: #5fa85f;
+  --text-dim: #3a6a3a;
+  --accent: #00ff66;             /* phosphor green */
+  --accent-hover: #33ff88;
+  --accent-glow: rgba(0,255,102,.12);
+  --amber: #ffaa00;               /* CRT amber */
+  --amber-glow: rgba(255,170,0,.12);
+  --cyan: #00d4ff;
+  --magenta: #ff00aa;
+  --red: #ff2244;
+  --code-bg: #020702;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --font-body: 'JetBrains Mono', 'Pretendard Variable', monospace;
+  --font-heading: 'JetBrains Mono', monospace;
+  --font-hangul: 'Pretendard Variable', sans-serif;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-lg: 4px;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 40px; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  line-height: 1.75; font-size: 14.5px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  text-shadow: 0 0 2px rgba(0,255,102,.3);
+}
+
+/* CRT scanlines overlay */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 1000;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.08),
+    rgba(0,0,0,.08) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: .6;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.5) 100%),
+    radial-gradient(ellipse 900px 500px at 10% 20%, rgba(0,255,102,.05), transparent 60%);
+  pointer-events: none;
+}
+
+/* Progress bar */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: var(--accent); z-index: 100; width: 0; transition: width .1s;
+  box-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+}
+
+/* Layout */
+.layout { display: block; max-width: 900px; margin: 0 auto; padding: 64px 32px 120px; }
+
+/* Terminal window chrome */
+.layout::before {
+  content: '';
+  display: block;
+  height: 32px;
+  margin: -32px -32px 24px;
+  background:
+    linear-gradient(180deg, #0c1a0c, #060c06);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+/* Floating TOC — 터미널 리스트 스타일 */
+.toc-sidebar {
+  position: fixed; top: 50%; left: 24px;
+  transform: translateY(-50%); z-index: 10;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-height: 72vh; overflow-y: auto;
+  min-width: 200px; max-width: 260px;
+  font-family: var(--font-mono);
+  box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px rgba(0,255,102,.03);
+}
+.toc-sidebar::before {
+  content: '$ ls -la sections/';
+  display: block; font-size: 10px; color: var(--amber);
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border);
+  letter-spacing: .05em;
+}
+.toc-sidebar h3 { display: none; }
+.toc-link {
+  display: block; padding: 3px 8px; color: var(--text-muted);
+  text-decoration: none; font-size: 11.5px; line-height: 1.6;
+  transition: all .1s; border-left: 2px solid transparent;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-link::before { content: '> '; color: var(--text-dim); }
+.toc-link:hover { color: var(--accent); background: var(--accent-glow); }
+.toc-link.active { color: var(--accent); background: var(--accent-glow); border-left-color: var(--accent); text-shadow: 0 0 8px var(--accent); }
+.toc-link.active::before { content: '▶ '; color: var(--accent); }
+.toc-link.toc-h3 { padding-left: 20px; font-size: 10.5px; opacity: .8; }
+.toc-link.toc-h3::before { content: '  > '; }
+@media (max-width: 1400px) { .toc-sidebar { display: none; } }
+
+/* Tools */
+.tools-sidebar { position: fixed; top: 24px; right: 24px; display: flex; flex-direction: column; gap: 6px; z-index: 10; }
+.tool-btn {
+  width: 36px; height: 36px; border-radius: var(--radius);
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.tool-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+@media (max-width: 900px) { .tools-sidebar { display: none; } }
+
+/* Mobile */
+.mobile-bar {
+  display: none; position: sticky; top: 0; z-index: 50;
+  background: var(--bg-secondary); border-bottom: 1px solid var(--border);
+  padding: 12px 16px; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); color: var(--accent);
+}
+.mobile-bar button { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; }
+.mobile-bar > div { display: flex; gap: 4px; }
+@media (max-width: 1400px) { .mobile-bar { display: flex; } }
+.drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); z-index: 99; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.drawer-overlay.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
+  background: var(--bg-secondary); border-right: 1px solid var(--border);
+  z-index: 100; padding: 32px 20px; overflow-y: auto;
+  transform: translateX(-100%); transition: transform .25s;
+  font-family: var(--font-mono);
+}
+.drawer.open { transform: translateX(0); }
+
+/* Metadata hero */
+.metadata-card, .hero-section {
+  margin-bottom: 40px;
+  padding: 24px 28px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  position: relative;
+}
+.metadata-card::before, .hero-section::before {
+  content: '[SYSTEM]';
+  position: absolute; top: -10px; left: 20px;
+  padding: 2px 10px; background: var(--bg-primary);
+  color: var(--amber); font-family: var(--font-mono);
+  font-size: 10px; font-weight: 700; letter-spacing: .15em;
+  border: 1px solid var(--border);
+}
+.metadata-card h1, .hero-section h1 {
+  font-family: var(--font-mono);
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 700; line-height: 1.3; letter-spacing: -.01em;
+  color: var(--accent); margin-bottom: 16px;
+  text-shadow: 0 0 20px var(--accent-glow), 0 0 6px var(--accent);
+}
+.metadata-card h1::before, .hero-section h1::before {
+  content: '> '; color: var(--amber);
+}
+.metadata-card h1::after, .hero-section h1::after {
+  content: '_';
+  color: var(--accent); animation: blink 1s infinite;
+  margin-left: 4px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.metadata-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; font-family: var(--font-mono); }
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: var(--radius);
+  font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--bg-primary); color: var(--accent);
+  border: 1px solid var(--accent);
+}
+.meta-date { font-family: var(--font-mono); font-size: 11px; color: var(--amber); }
+.meta-date::before { content: '['; } .meta-date::after { content: ']'; }
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: var(--radius);
+  font-size: 11px; color: var(--cyan); background: var(--bg-primary);
+  border: 1px solid rgba(0,212,255,.3); font-family: var(--font-mono);
+}
+.tag::before { content: '#'; color: var(--text-dim); }
+.metadata-summary {
+  font-family: var(--font-hangul);
+  color: var(--text-secondary); font-size: 14px; line-height: 1.7;
+  max-width: 720px; margin-top: 10px;
+  padding: 10px 14px; background: var(--bg-primary);
+  border-left: 2px solid var(--accent);
+}
+
+/* Stat grid — terminal style */
+.stat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px; margin: 28px 0 40px;
+}
+.stat-card {
+  padding: 16px 18px; background: var(--bg-secondary);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  position: relative; transition: all .15s;
+}
+.stat-card:hover { border-color: var(--accent); background: var(--bg-tertiary); }
+.stat-card::before {
+  content: ''; position: absolute; top: 8px; right: 8px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 8px var(--accent);
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot { 50% { opacity: .4; } }
+.stat-value { font-family: var(--font-mono); font-size: 26px; font-weight: 700; color: var(--accent); letter-spacing: -.01em; text-shadow: 0 0 10px var(--accent-glow); }
+.stat-label { font-size: 10px; color: var(--amber); text-transform: uppercase; letter-spacing: .1em; margin-top: 4px; font-family: var(--font-mono); }
+
+/* Part divider */
+.part-divider { display: flex; align-items: center; gap: 16px; margin: 80px 0 32px; }
+.part-line { flex: 1; height: 0; border-top: 1px dashed var(--border); }
+.part-label {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  letter-spacing: .25em; color: var(--amber);
+  padding: 4px 14px; border: 1px solid var(--amber);
+  background: var(--bg-primary);
+  box-shadow: 0 0 15px var(--amber-glow);
+}
+.part-label::before { content: '== '; }
+.part-label::after { content: ' =='; }
+
+/* Headings */
+article h1 {
+  font-family: var(--font-mono); font-size: 26px; font-weight: 700;
+  margin: 56px 0 20px; color: var(--accent);
+  letter-spacing: -.01em; line-height: 1.3;
+  text-shadow: 0 0 12px var(--accent-glow);
+  display: flex; align-items: baseline; gap: 12px;
+}
+article h1::before { content: '##'; color: var(--amber); }
+article h1 .part-marker { color: var(--amber); opacity: .8; font-size: 24px; }
+article h2 {
+  font-family: var(--font-mono); font-size: 22px; font-weight: 700;
+  margin: 48px 0 16px; color: var(--accent);
+  letter-spacing: -.005em; line-height: 1.35;
+  padding-bottom: 6px; border-bottom: 1px dashed var(--border);
+}
+article h2::before { content: '### '; color: var(--amber); font-weight: 400; }
+article h3 {
+  font-family: var(--font-mono); font-size: 17px; font-weight: 600;
+  margin: 32px 0 12px; color: var(--text-primary);
+}
+article h3::before { content: '#### '; color: var(--text-muted); font-weight: 400; }
+article h4 { font-family: var(--font-mono); font-size: 14px; font-weight: 600; margin: 22px 0 8px; color: var(--text-primary); }
+article h4::before { content: '##### '; color: var(--text-muted); font-weight: 400; }
+
+article p { margin: 0 0 14px; color: var(--text-secondary); font-family: var(--font-hangul); line-height: 1.8; font-size: 14.5px; }
+article strong { color: var(--accent); font-weight: 600; }
+article em { color: var(--amber); font-style: normal; }
+article em::before, article em::after { content: '*'; color: var(--text-dim); }
+article a { color: var(--cyan); text-decoration: underline; text-decoration-style: dotted; }
+article a:hover { color: var(--accent); text-shadow: 0 0 6px var(--accent-glow); }
+
+/* Lists */
+article ul, article ol { margin: 0 0 18px; padding-left: 24px; font-family: var(--font-hangul); }
+article li { margin-bottom: 6px; color: var(--text-secondary); line-height: 1.75; }
+article ul li { list-style: none; position: relative; padding-left: 18px; }
+article ul li::before { content: '▸'; position: absolute; left: 0; color: var(--accent); }
+article ol { counter-reset: item; list-style: none; padding-left: 0; }
+article ol li { counter-increment: item; position: relative; padding-left: 40px; }
+article ol li::before { content: '[' counter(item, decimal-leading-zero) ']'; position: absolute; left: 0; color: var(--amber); font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+
+/* Task list */
+.task-list { list-style: none; padding-left: 4px; }
+.task-list li { position: relative; padding-left: 30px; margin-bottom: 8px; font-family: var(--font-hangul); }
+.task-list li::before { content: ''; display: none; }
+.task-list li input[type="checkbox"] { position: absolute; left: 0; top: 6px; accent-color: var(--accent); width: 14px; height: 14px; }
+
+/* Criteria */
+.criteria-list { list-style: none !important; padding-left: 0 !important; margin-top: 14px; }
+.criteria-list li {
+  position: relative; padding: 8px 0 8px 30px !important;
+  color: var(--text-secondary); font-size: 13.5px;
+  font-family: var(--font-hangul);
+}
+.criteria-list li::before {
+  content: '[ ]' !important;
+  position: absolute; left: 0; top: 8px;
+  width: auto; height: auto; border: none !important;
+  border-radius: 0 !important;
+  background: none !important;
+  color: var(--accent); font-family: var(--font-mono);
+  font-weight: 700; font-size: 13px;
+}
+.criteria-list li::after {
+  content: '' !important; display: none;
+}
+.criteria-list li:hover::before { content: '[x]' !important; }
+
+/* Inline code */
+code:not(pre code) {
+  background: var(--bg-primary); color: var(--amber);
+  padding: 1px 6px; border-radius: var(--radius);
+  font-family: var(--font-mono); font-size: .85em;
+  border: 1px solid var(--border);
+}
+
+/* Code blocks */
+.code-block { position: relative; margin: 20px 0; }
+pre {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px;
+  overflow-x: auto; font-family: var(--font-mono); font-size: 12.5px;
+  line-height: 1.7; color: var(--text-primary); position: relative;
+  box-shadow: inset 0 0 20px rgba(0,255,102,.02);
+}
+pre[data-lang]::before {
+  content: attr(data-lang); position: absolute; top: 6px; right: 12px;
+  font-size: 10px; color: var(--amber);
+  letter-spacing: .1em; text-transform: uppercase; font-weight: 700;
+}
+pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+.copy-btn {
+  position: absolute; top: 6px; right: 6px;
+  width: 28px; height: 28px; padding: 0;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s;
+}
+.code-block:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Highlight.js tokens */
+.hljs-keyword, .hljs-tag { color: var(--magenta); }
+.hljs-string, .hljs-attr-value { color: var(--accent); }
+.hljs-comment, .hljs-quote { color: var(--text-dim); font-style: italic; }
+.hljs-number, .hljs-built_in, .hljs-literal { color: var(--cyan); }
+.hljs-variable, .hljs-attr, .hljs-attribute { color: var(--amber); }
+.hljs-function, .hljs-title, .hljs-name { color: #ff66ff; }
+
+/* Blockquote / Callout */
+blockquote {
+  margin: 18px 0; padding: 12px 18px;
+  background: var(--bg-secondary);
+  border-left: 2px solid var(--accent);
+  color: var(--text-secondary); font-size: 14px;
+  font-family: var(--font-hangul);
+}
+blockquote::before { content: '> '; color: var(--accent); font-family: var(--font-mono); }
+
+.callout {
+  display: flex; gap: 14px; margin: 20px 0;
+  padding: 14px 18px; border-radius: var(--radius);
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-hangul);
+}
+.callout-icon { font-size: 18px; line-height: 1.3; flex-shrink: 0; }
+.callout-body { flex: 1; }
+.callout-body p { margin: 0 0 6px; color: var(--text-secondary); }
+.callout-body p:last-child { margin-bottom: 0; }
+.callout-tip, .callout-note { border-left-color: var(--cyan); }
+.callout-warn { border-left-color: var(--amber); }
+.callout-ok { border-left-color: var(--accent); }
+.callout-alert, .callout-danger { border-left-color: var(--red); }
+.callout-goal { border-left-color: var(--amber); }
+.callout-pin, .callout-highlight, .callout-magic { border-left-color: var(--magenta); }
+
+/* Phase card */
+.phase-card {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px 28px;
+  margin: 36px 0; position: relative;
+  box-shadow: 0 0 40px rgba(0,255,102,.03);
+}
+.phase-card::before {
+  content: 'PHASE_' attr(data-phase);
+  position: absolute; top: -11px; left: 20px;
+  padding: 2px 12px; background: var(--bg-primary);
+  color: var(--accent); font-family: var(--font-mono);
+  font-size: 11px; font-weight: 700; letter-spacing: .15em;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+.phase-card:nth-of-type(2)::before { color: var(--amber); border-color: var(--amber); box-shadow: 0 0 10px var(--amber-glow); }
+.phase-card:nth-of-type(3)::before { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 10px rgba(0,212,255,.2); }
+.phase-card:nth-of-type(4)::before { color: var(--magenta); border-color: var(--magenta); box-shadow: 0 0 10px rgba(255,0,170,.2); }
+.phase-card > h2:first-child { margin-top: 4px; padding: 0; border: none; }
+.phase-card > h2:first-child::before { content: ''; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 22px 0; border: 1px solid var(--border); border-radius: var(--radius); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--bg-secondary); font-family: var(--font-mono); }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px dashed var(--border); }
+th {
+  font-weight: 700; color: var(--accent); font-size: 10.5px;
+  letter-spacing: .1em; text-transform: uppercase;
+  background: var(--bg-primary); cursor: pointer; user-select: none;
+}
+th:hover { color: var(--accent-hover); }
+th::before { content: '[ '; color: var(--text-dim); }
+th::after { content: ' ]'; color: var(--text-dim); }
+td { color: var(--text-secondary); font-family: var(--font-hangul); }
+td code { font-family: var(--font-mono); }
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(0,255,102,.03); color: var(--text-primary); }
+
+/* HR */
+hr { border: none; height: 0; border-top: 1px dashed var(--accent); margin: 40px 0; opacity: .4; }
+
+/* Mermaid */
+.mermaid, pre.mermaid {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 20px; margin: 24px 0;
+  display: flex; justify-content: center; overflow-x: auto;
+}
+
+/* Chart */
+.chart-container { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 24px 0; }
+
+/* Images */
+article img { max-width: 100%; height: auto; border-radius: var(--radius); margin: 14px 0; border: 1px solid var(--border); filter: saturate(.9) hue-rotate(-10deg) contrast(1.1); }
+
+.theme-float { display: none; }
+
+/* Animations */
+.animate-on-scroll { opacity: 0; transform: translateY(10px); transition: opacity .5s ease, transform .5s ease; }
+.animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Terminal scrollbar — phosphor green thumb, black track ── */
+/* Firefox */
+* { scrollbar-color: #00ff66 #000000; scrollbar-width: thin; }
+/* Chromium / WebKit */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #000000; }
+::-webkit-scrollbar-thumb { background: #00ff66; border-radius: 0; box-shadow: 0 0 6px rgba(0,255,102,.6); }
+::-webkit-scrollbar-thumb:hover { background: #33ff88; box-shadow: 0 0 10px rgba(51,255,136,.8); }
+::-webkit-scrollbar-corner { background: #000000; }
+
+@media print {
+  body::before { display: none; }
+  .toc-sidebar, .tools-sidebar, .mobile-bar, .drawer, .drawer-overlay,
+  .progress-bar, .copy-btn { display: none !important; }
+  body { background: white; color: black; text-shadow: none; }
+}
+
+/* 코멘트 기능: 블록에 hover 시 💬 버튼 표시 */
+.commentable { position: relative; }
+.commentable > .comment-btn {
+  position: absolute; top: 4px; right: -28px;
+  width: 22px; height: 22px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text-muted); cursor: pointer;
+  opacity: 0; transition: opacity 0.15s ease, color 0.15s ease;
+  z-index: 5;
+}
+.commentable:hover > .comment-btn { opacity: 0.7; }
+.commentable > .comment-btn:hover { opacity: 1; color: var(--accent); }
+.commentable > .comment-btn.has-comment {
+  opacity: 1;
+  color: #fff;
+  background: linear-gradient(135deg, #f59e0b, #f43f5e);
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.3);
+}
+/* 코멘트 달린 블록은 좌측 노란 보더 + 살짝 배경 */
+.commentable:has(> .comment-btn.has-comment),
+.commentable.has-user-comment {
+  border-left: 3px solid #f59e0b;
+  padding-left: 12px;
+  background: rgba(245, 158, 11, 0.05);
+  border-radius: 4px;
+}
+.commentable > .comment-dot {
+  position: absolute; top: 2px; right: -10px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #3b82f6; color: transparent; font-size: 0; line-height: 0;
+  box-shadow: 0 0 0 2px var(--bg-primary);
+  pointer-events: none;
+}
+/* li는 marker와 버튼이 겹치지 않게 오른쪽 안쪽으로 */
+li.commentable > .comment-btn { right: 4px; top: 2px; }
+li.commentable > .comment-dot { right: -8px; top: 6px; }
+/* 코드블록/테이블은 내부 위젯과 안 겹치게 */
+.code-block.commentable > .comment-btn { top: 8px; right: 44px; }
+.table-wrap > .comment-btn { top: 8px; right: -28px; }
+
+/* 코멘트 박스 (블록 아래로 확장) */
+.comment-box {
+  margin: 8px 0 14px; padding: 12px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: none;
+}
+.comment-box.open { display: block; }
+.comment-box textarea {
+  width: 100%; min-height: 72px; padding: 8px 10px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text-primary);
+  font-family: var(--font-body); font-size: 13px; line-height: 1.5;
+  resize: vertical;
+}
+.comment-box textarea:focus { outline: none; border-color: var(--accent); }
+.comment-box-actions { margin-top: 8px; display: flex; gap: 8px; justify-content: flex-end; }
+.comment-box-actions button {
+  padding: 5px 12px; font-size: 12px; cursor: pointer;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+.comment-box-actions button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.comment-box-actions button:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.comment-box-actions button.primary:hover { background: var(--accent-hover); color: white; }
+
+/* 모바일: 코멘트 버튼 항상 표시 + 위치 조정 */
+@media (max-width: 768px) {
+  .commentable > .comment-btn { opacity: 0.5; right: 2px; top: 2px; }
+  .commentable > .comment-dot { right: 24px; }
+  li.commentable > .comment-btn { right: 4px; }
+  .code-block.commentable > .comment-btn { right: 44px; }
+  .table-wrap > .comment-btn { right: 2px; }
+}
+
+/* -c 모드 코멘트 패널 토글 버튼 (우하단 고정 → tools-sidebar 와 겹침 없음) */
+.comment-panel-toggle {
+  position: fixed; bottom: 24px; right: 20px; z-index: 998;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--bg-card, #161b22); color: var(--text-primary, #e6edf3);
+  border: 1px solid var(--border, #30363d); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.15s ease;
+}
+.comment-panel-toggle:hover { border-color: var(--accent, #3b82f6); color: var(--accent, #3b82f6); box-shadow: 0 4px 16px rgba(59,130,246,0.25); }
+.comment-count-badge {
+  position: absolute; top: -3px; right: -3px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  background: #3b82f6; color: white;
+  border-radius: 9px; font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 0 2px var(--bg-primary, #0d1117);
+}
+
+/* 코멘트 패널 (우측 고정 슬라이드) */
+.comment-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 320px; max-width: 88vw;
+  background: var(--bg-secondary, #0d1117);
+  border-left: 1px solid var(--border, #30363d);
+  box-shadow: -4px 0 16px rgba(0,0,0,0.3);
+  z-index: 999;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  display: flex; flex-direction: column;
+}
+.comment-panel.open { transform: translateX(0); }
+.comment-panel-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border, #30363d);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-shrink: 0;
+  background: var(--bg-card, #161b22);
+}
+.comment-panel-title {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; color: var(--text-primary, #e6edf3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1; min-width: 0;
+}
+.comment-panel-count-pill {
+  background: var(--bg-tertiary, #21262d); color: var(--text-muted, #7d8590);
+  padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600;
+  flex-shrink: 0;
+}
+.comment-panel-header-btns {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+}
+/* 헤더 내 경량 버튼 공통 */
+.cpanel-btn {
+  height: 28px; padding: 0 10px; font-size: 11px; cursor: pointer;
+  border-radius: 5px; border: 1px solid var(--border, #30363d);
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap; transition: all 0.15s ease;
+  font-family: inherit; line-height: 1;
+}
+.cpanel-primary {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white; border-color: transparent;
+}
+.cpanel-primary:hover { opacity: 0.88; }
+.cpanel-primary[data-copied="1"] { background: #22c55e !important; border-color: #22c55e !important; }
+.cpanel-ghost {
+  background: transparent; color: var(--text-muted, #7d8590);
+}
+.cpanel-ghost:hover { background: var(--bg-tertiary, #21262d); color: var(--text-primary, #e6edf3); border-color: var(--border-hover, #444c56); }
+.cpanel-close { padding: 0; width: 28px; justify-content: center; }
+
+/* dropdown 메뉴 */
+.cpanel-more-wrap { position: relative; }
+.cpanel-menu {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 1010;
+  background: var(--bg-card, #161b22);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  padding: 4px;
+  list-style: none; margin: 0;
+  min-width: 180px;
+}
+.cpanel-menu[hidden] { display: none; }
+.cpanel-menu-item {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; font-size: 12px; cursor: pointer;
+  background: transparent; border: none; border-radius: 5px;
+  color: var(--text-secondary, #adbac7); text-align: left;
+  transition: all 0.12s ease; font-family: inherit;
+  white-space: nowrap;
+}
+.cpanel-menu-item:hover { background: var(--bg-tertiary, #21262d); color: var(--text-primary, #e6edf3); }
+.cpanel-menu-danger { color: #f87171; }
+.cpanel-menu-danger:hover { background: rgba(248,113,113,0.12); color: #fca5a5; }
+.cpanel-menu-sep { height: 1px; background: var(--border, #30363d); margin: 4px 0; }
+.comment-panel-list {
+  flex: 1; overflow-y: auto; padding: 8px;
+}
+.comment-panel-empty {
+  padding: 40px 20px; text-align: center;
+  color: var(--text-muted, #7d8590); font-size: 12px; line-height: 1.6;
+}
+.comment-item {
+  padding: 12px; margin-bottom: 8px;
+  background: var(--bg-card, #161b22);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px; cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.comment-item:hover { border-color: var(--accent, #3b82f6); }
+.comment-item-num {
+  font-size: 10px; color: var(--text-muted, #7d8590);
+  font-weight: 600; letter-spacing: 0.05em;
+  margin-bottom: 6px; text-transform: uppercase;
+}
+.comment-item-context {
+  font-size: 12px; line-height: 1.5;
+  color: var(--text-secondary, #adbac7);
+  padding: 8px 10px; margin-bottom: 8px;
+  background: var(--bg-secondary, #0d1117);
+  border-left: 3px solid var(--border, #30363d);
+  border-radius: 3px;
+  max-height: 80px; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+}
+.comment-item-comment {
+  font-size: 13px; line-height: 1.5;
+  color: var(--text-primary, #e6edf3);
+  white-space: pre-wrap; word-break: break-word;
+}
+.comment-item-delete {
+  float: right; padding: 2px 6px; font-size: 11px;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-muted, #7d8590);
+  opacity: 0; transition: opacity 0.15s;
+}
+.comment-item:hover .comment-item-delete { opacity: 0.7; }
+.comment-item-delete:hover { opacity: 1 !important; color: #f87171; }
+
+/* 타입별 색상 구분 */
+.comment-item.type-block { border-left: 3px solid #3b82f6; }
+.comment-item.type-annotation { border-left: 3px solid #eab308; }
+.comment-item.type-sticky { border-left: 3px solid #f97316; }
+
+/* 텍스트 선택 annotation 하이라이트 */
+mark.user-annotation {
+  background: rgba(234, 179, 8, 0.25);
+  color: inherit;
+  padding: 0 2px; border-radius: 2px;
+  border-bottom: 2px solid #eab308;
+  cursor: help;
+}
+
+/* 선택 시 플로팅 버튼 */
+.sel-popup {
+  position: absolute; z-index: 1002;
+  background: var(--bg-card, #161b22);
+  border: 1px solid var(--border, #30363d);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  padding: 2px;
+}
+.sel-add-btn {
+  padding: 6px 10px; font-size: 12px; cursor: pointer;
+  background: transparent; border: none;
+  color: var(--text-primary, #e6edf3);
+  display: inline-flex; align-items: center; gap: 5px;
+  border-radius: 4px;
+}
+.sel-add-btn:hover { background: var(--bg-tertiary, #21262d); color: var(--accent, #3b82f6); }
+
+/* 선택 코멘트 박스 */
+.sel-comment-box .sel-preview {
+  font-size: 11px; color: var(--text-muted, #7d8590);
+  margin-bottom: 8px; padding: 6px 8px;
+  background: rgba(234, 179, 8, 0.1);
+  border-left: 2px solid #eab308;
+  border-radius: 3px; line-height: 1.4;
+}
+
+/* Sticky Note (자유 좌표 코멘트) */
+.sticky-note {
+  position: absolute; z-index: 997;
+  width: 260px; min-height: 120px;
+  background: #fef3c7; color: #1e293b;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  display: flex; flex-direction: column;
+}
+.sticky-drag-handle {
+  padding: 6px 10px; cursor: move;
+  font-size: 11px; font-weight: 600; color: #78350f;
+  background: #fde68a; border-bottom: 1px solid #f59e0b;
+  border-radius: 6px 6px 0 0;
+  user-select: none;
+}
+.sticky-note textarea {
+  flex: 1; padding: 8px 10px; border: none;
+  background: transparent; color: #1e293b;
+  font-family: var(--font-body, inherit); font-size: 13px;
+  line-height: 1.4; resize: none; outline: none;
+  min-height: 80px;
+}
+.sticky-close {
+  position: absolute; top: 4px; right: 4px;
+  width: 20px; height: 20px; padding: 0;
+  background: transparent; border: none;
+  color: #78350f; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px;
+}
+.sticky-close:hover { background: rgba(0,0,0,0.1); color: #b91c1c; }
+
+/* 모바일: 패널 전체폭 */
+@media (max-width: 768px) {
+  .comment-panel { width: 100%; }
+  .comment-panel-toggle { bottom: 16px; right: 16px; }
+  .sticky-note { width: 220px; }
+}
+
+  /* ── Session meta table (Agent/Session/Build/Skill) ── */
+  table.session-meta {
+    border-collapse: collapse;
+    margin: 0 0 18px 0;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    width: fit-content;
+    min-width: 360px;
+  }
+  table.session-meta th,
+  table.session-meta td {
+    padding: 6px 14px;
+    text-align: left;
+    border-bottom: 1px solid rgba(99,102,241,0.15);
+  }
+  table.session-meta tr:last-child th,
+  table.session-meta tr:last-child td { border-bottom: none; }
+  table.session-meta th {
+    color: #94a3b8;
+    font-weight: 500;
+    background: rgba(99,102,241,0.05);
+    width: 90px;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  table.session-meta td {
+    color: #c7d2fe;
+    font-weight: 600;
+  }
+  table.session-meta td code {
+    background: rgba(99,102,241,0.18);
+    padding: 1px 8px;
+    border-radius: 4px;
+    color: #a5b4fc;
+    font-size: 12px;
+  }
+  table.session-meta td code.path {
+    font-size: 11.5px;
+    word-break: break-all;
+    user-select: all;
+  }
+  body.light-theme table.session-meta {
+    background: rgba(99,102,241,0.04);
+    border-color: rgba(99,102,241,0.2);
+  }
+  body.light-theme table.session-meta th {
+    background: rgba(99,102,241,0.03);
+    color: #64748b;
+  }
+  body.light-theme table.session-meta td { color: #4338ca; }
+  body.light-theme table.session-meta td code {
+    background: rgba(99,102,241,0.1);
+    color: #4f46e5;
+  }
+  </style>
+  <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mermaid-js/tiny@11/dist/mermaid.tiny.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/ninja-keys"></script>
+  <script>
+    // MathJax 3 — LaTeX 수식 렌더링 ($...$, $$...$$, \(...\), \[...\])
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script','noscript','style','textarea','pre','code'],
+        ignoreHtmlClass: 'no-mathjax'
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body class="">
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="mobile-bar">
+    <button onclick="toggleDrawer()"><span class="iconify" data-icon="lucide:menu" data-width="20"></span></button>
+    <span>"The Architect Scene — Neo M…</span>
+    <div>
+      <button onclick="toggleTheme()"><span class="iconify" data-icon="lucide:sun-moon" data-width="18"></span></button>
+      <button onclick="openSearch()"><span class="iconify" data-icon="lucide:search" data-width="18"></span></button>
+    </div>
+  </div>
+  <div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+  <div class="drawer" id="drawer"><h3 style="font-family:var(--font-heading,var(--font-body));font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:16px">목차</h3><ul class="toc-list"><li class="toc-h2"><a href="#장면-좌표" class="toc-link" data-level="2">📍 장면 좌표</a></li><li class="toc-h2"><a href="#장면-구조-3-막" class="toc-link" data-level="2">🎬 장면 구조 (3 막)</a></li><li class="toc-h2"><a href="#핵심-대사-12선" class="toc-link" data-level="2">💬 핵심 대사 12선</a></li><li class="toc-h3"><a href="#1-the-opening-첫-만남" class="toc-link" data-level="3">1. The Opening — 첫 만남</a></li><li class="toc-h3"><a href="#2-neo-is-the-anomaly" class="toc-link" data-level="3">2. Neo Is The Anomaly</a></li><li class="toc-h3"><a href="#3-choice-illusion" class="toc-link" data-level="3">3. Choice = Illusion</a></li><li class="toc-h3"><a href="#4-the-99-solution-선택의-환상" class="toc-link" data-level="3">4. The 99% Solution — 선택의 환상</a></li><li class="toc-h3"><a href="#5-the-anomaly-systemic" class="toc-link" data-level="3">5. The Anomaly = Systemic</a></li><li class="toc-h3"><a href="#6-the-6-cycles-neo-is-the-6th" class="toc-link" data-level="3">6. The 6 Cycles — Neo Is The 6th</a></li><li class="toc-h3"><a href="#7-the-5-predecessors-love" class="toc-link" data-level="3">7. The 5 Predecessors — Love</a></li><li class="toc-h3"><a href="#8-the-trap-trinity-will-die" class="toc-link" data-level="3">8. The Trap — Trinity Will Die</a></li><li class="toc-h3"><a href="#9-the-two-doors" class="toc-link" data-level="3">9. The Two Doors</a></li><li class="toc-h3"><a href="#10-hope-the-greatest-weakness" class="toc-link" data-level="3">10. Hope — The Greatest Weakness</a></li><li class="toc-h3"><a href="#11-neo-39-s-reply" class="toc-link" data-level="3">11. Neo&#39;s Reply</a></li><li class="toc-h3"><a href="#12-the-walk-out-door-to-the-left" class="toc-link" data-level="3">12. The Walk Out — Door to the Left</a></li><li class="toc-h2"><a href="#핵심-개념-7개" class="toc-link" data-level="2">🧩 핵심 개념 7개</a></li><li class="toc-h3"><a href="#a-the-one-the-anomaly" class="toc-link" data-level="3">A. The One (The Anomaly)</a></li><li class="toc-h3"><a href="#b-the-6-cycles" class="toc-link" data-level="3">B. The 6 Cycles</a></li><li class="toc-h3"><a href="#c-choice-illusion-99-rule" class="toc-link" data-level="3">C. Choice = Illusion (99% Rule)</a></li><li class="toc-h3"><a href="#d-architect-vs-oracle" class="toc-link" data-level="3">D. Architect vs Oracle</a></li><li class="toc-h3"><a href="#e-the-23-rebuilders" class="toc-link" data-level="3">E. The 23 Rebuilders</a></li><li class="toc-h3"><a href="#f-trinity-trap-specific-love" class="toc-link" data-level="3">F. Trinity Trap (Specific Love)</a></li><li class="toc-h3"><a href="#g-the-source" class="toc-link" data-level="3">G. The Source</a></li><li class="toc-h2"><a href="#영화-안-위치-가이드" class="toc-link" data-level="2">🎯 영화 안 위치 가이드</a></li><li class="toc-h2"><a href="#왜-어려운-대화인가-kenny-시각" class="toc-link" data-level="2">🎬 왜 어려운 대화인가? (Kenny 시각)</a></li><li class="toc-h2"><a href="#reloaded-revolutions" class="toc-link" data-level="2">🔚 Reloaded → Revolutions</a></li></ul></div>
+  <div class="layout">
+    <aside class="toc-sidebar"><h3>목차</h3><ul class="toc-list"><li class="toc-h2"><a href="#장면-좌표" class="toc-link" data-level="2">📍 장면 좌표</a></li><li class="toc-h2"><a href="#장면-구조-3-막" class="toc-link" data-level="2">🎬 장면 구조 (3 막)</a></li><li class="toc-h2"><a href="#핵심-대사-12선" class="toc-link" data-level="2">💬 핵심 대사 12선</a></li><li class="toc-h3"><a href="#1-the-opening-첫-만남" class="toc-link" data-level="3">1. The Opening — 첫 만남</a></li><li class="toc-h3"><a href="#2-neo-is-the-anomaly" class="toc-link" data-level="3">2. Neo Is The Anomaly</a></li><li class="toc-h3"><a href="#3-choice-illusion" class="toc-link" data-level="3">3. Choice = Illusion</a></li><li class="toc-h3"><a href="#4-the-99-solution-선택의-환상" class="toc-link" data-level="3">4. The 99% Solution — 선택의 환상</a></li><li class="toc-h3"><a href="#5-the-anomaly-systemic" class="toc-link" data-level="3">5. The Anomaly = Systemic</a></li><li class="toc-h3"><a href="#6-the-6-cycles-neo-is-the-6th" class="toc-link" data-level="3">6. The 6 Cycles — Neo Is The 6th</a></li><li class="toc-h3"><a href="#7-the-5-predecessors-love" class="toc-link" data-level="3">7. The 5 Predecessors — Love</a></li><li class="toc-h3"><a href="#8-the-trap-trinity-will-die" class="toc-link" data-level="3">8. The Trap — Trinity Will Die</a></li><li class="toc-h3"><a href="#9-the-two-doors" class="toc-link" data-level="3">9. The Two Doors</a></li><li class="toc-h3"><a href="#10-hope-the-greatest-weakness" class="toc-link" data-level="3">10. Hope — The Greatest Weakness</a></li><li class="toc-h3"><a href="#11-neo-39-s-reply" class="toc-link" data-level="3">11. Neo&#39;s Reply</a></li><li class="toc-h3"><a href="#12-the-walk-out-door-to-the-left" class="toc-link" data-level="3">12. The Walk Out — Door to the Left</a></li><li class="toc-h2"><a href="#핵심-개념-7개" class="toc-link" data-level="2">🧩 핵심 개념 7개</a></li><li class="toc-h3"><a href="#a-the-one-the-anomaly" class="toc-link" data-level="3">A. The One (The Anomaly)</a></li><li class="toc-h3"><a href="#b-the-6-cycles" class="toc-link" data-level="3">B. The 6 Cycles</a></li><li class="toc-h3"><a href="#c-choice-illusion-99-rule" class="toc-link" data-level="3">C. Choice = Illusion (99% Rule)</a></li><li class="toc-h3"><a href="#d-architect-vs-oracle" class="toc-link" data-level="3">D. Architect vs Oracle</a></li><li class="toc-h3"><a href="#e-the-23-rebuilders" class="toc-link" data-level="3">E. The 23 Rebuilders</a></li><li class="toc-h3"><a href="#f-trinity-trap-specific-love" class="toc-link" data-level="3">F. Trinity Trap (Specific Love)</a></li><li class="toc-h3"><a href="#g-the-source" class="toc-link" data-level="3">G. The Source</a></li><li class="toc-h2"><a href="#영화-안-위치-가이드" class="toc-link" data-level="2">🎯 영화 안 위치 가이드</a></li><li class="toc-h2"><a href="#왜-어려운-대화인가-kenny-시각" class="toc-link" data-level="2">🎬 왜 어려운 대화인가? (Kenny 시각)</a></li><li class="toc-h2"><a href="#reloaded-revolutions" class="toc-link" data-level="2">🔚 Reloaded → Revolutions</a></li></ul></aside>
+    <main class="main-content">
+      <div class="metadata-card"><table class="session-meta" title="이 문서를 생성한 Claude 세션">
+    <tr><th>Agent</th><td>Mr. Anderson (Claude)</td></tr>
+    <tr><th>Session</th><td><code>b7ade4d0</code></td></tr>
+    <tr><th>Build</th><td>2026-05-17 15:49</td></tr>
+    <tr><th>Skill</th><td>visual (terminal)</td></tr>
+    <tr><th>Path</th><td><code class="path">C:\NewtonHQ\00_meta</code></td></tr>
+  </table><h1>"The Architect Scene — Neo Meets His Maker"</h1><div class="metadata-meta">
+    
+    
+    
+  </div>
+  
+  </div>
+      
+      <article class="content"><div class="commentable" data-block-id="the-architect-scene"><h1 id="the-architect-scene">THE ARCHITECT SCENE</h1><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b1"><p><em>&quot;Hello, Neo.&quot;</em>
+<em>&quot;Who are you?&quot;</em>
+<em>&quot;I am the Architect. I created the Matrix. I&#39;ve been waiting for you.&quot;</em></p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><hr>
+<div class="commentable" data-block-id="장면-좌표"><h2 id="장면-좌표">📍 장면 좌표</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="table-wrap"><div class="commentable table-wrap" data-block-id="b83"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>영화</td>
+<td>The Matrix Reloaded (2003)</td>
+</tr>
+<tr>
+<td>감독</td>
+<td>Wachowski Sisters</td>
+</tr>
+<tr>
+<td>위치</td>
+<td>The Source / The Architect&#39;s chamber (흰 방, 수많은 TV 모니터)</td>
+</tr>
+<tr>
+<td>Timestamp</td>
+<td>약 1시간 49분 ~ 1시간 57분 (영화 후반 climax 직전)</td>
+</tr>
+<tr>
+<td>길이</td>
+<td>약 7분 30초</td>
+</tr>
+<tr>
+<td>등장</td>
+<td>Neo (Keanu Reeves) · The Architect (Helmut Bakaitis)</td>
+</tr>
+<tr>
+<td>도착 경로</td>
+<td>Keymaker 의 문 → 긴 복도 → 흰 방</td>
+</tr>
+<tr>
+<td>직후 사건</td>
+<td>Neo 가 왼쪽 문 선택 → Trinity 구출 → Reloaded ending</td>
+</tr>
+</tbody></table><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div></div>
+<hr>
+<div class="commentable" data-block-id="장면-구조-3-막"><h2 id="장면-구조-3-막">🎬 장면 구조 (3 막)</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="callout callout-goal"><div class="callout-icon">🎯</div><div class="callout-body"><div class="commentable" data-block-id="b2"><p><strong>1막</strong> — Architect 자기소개 / Matrix 의 진짜 역사 (1, 2, 3차 Matrix)
+🎯 <strong>2막</strong> — The One = anomaly / 6 cycle / Neo = 6번째
+🎯 <strong>3막</strong> — 두 개의 문 / Zion 파괴 vs Trinity 죽음 / Neo 의 선택</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</div></div><hr>
+<div class="commentable" data-block-id="핵심-대사-12선"><h2 id="핵심-대사-12선">💬 핵심 대사 12선</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="commentable" data-block-id="1-the-opening-첫-만남"><h3 id="1-the-opening-첫-만남">1. The Opening — 첫 만남</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b3"><p><strong>EN</strong> &quot;Hello, Neo.&quot;
+<strong>KR</strong> &quot;안녕, 네오.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><blockquote><div class="commentable" data-block-id="b4"><p><strong>EN</strong> &quot;Your life is the sum of a remainder of an unbalanced equation inherent to the programming of the matrix.&quot;
+<strong>KR</strong> &quot;너의 인생은, Matrix 라는 프로그램 안에 내재된, 균형 잡히지 않은 방정식의 — 나머지(remainder) 의 합이다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b5"><p>💡 <strong>풀이</strong>:
+Matrix 는 완벽한 방정식이 아님. 항상 나누어 떨어지지 않는 &quot;나머지&quot; 가 생김. Neo 는 그 나머지의 누적 결과. → Neo = 버그가 아니라 <strong>&quot;수학적으로 예측된 anomaly&quot;</strong>.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="2-neo-is-the-anomaly"><h3 id="2-neo-is-the-anomaly">2. Neo Is The Anomaly</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b6"><p><strong>EN</strong> &quot;You are the eventuality of an anomaly, which despite my sincerest efforts I have been unable to eliminate from what is otherwise a harmony of mathematical precision.&quot;
+<strong>KR</strong> &quot;너는 한 anomaly (변칙) 의 필연적 결말이다. 내가 아무리 정성껏 제거하려 해도, 수학적으로 정밀한 조화에서 사라지지 않는 그 변칙.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b7"><p>💡 <strong>풀이</strong>:
+Architect 입장에서 Matrix = 거대한 수식. 그 수식에 자꾸 끼는 오류 = The One. 6번째 그 오류 = 지금 Neo. Neo 의 &quot;특별함&quot; 은 <strong>버그가 아니라 시스템이 만든 안전장치</strong>.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="3-choice-illusion"><h3 id="3-choice-illusion">3. Choice = Illusion</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b8"><p><strong>EN</strong> &quot;The first matrix I designed was quite naturally perfect, it was a work of art — flawless, sublime. A triumph equaled only by its monumental failure.&quot;
+<strong>KR</strong> &quot;내가 처음 설계한 Matrix 는 너무 자연스럽게 완벽했다. 예술 작품이었지. 결함도 흠도 없는. 그 위대함에 비길 만한 건, 그 위대한 실패뿐이었다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b9"><p>💡 <strong>풀이</strong>:
+1차 Matrix = 천국. 모두가 행복한 세상. → 인간이 거부함. 인간 뇌가 &quot;이건 가짜다&quot; 라고 인식 → 시스템 붕괴. 인간은 <strong>완벽한 행복을 거부</strong>.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<blockquote><div class="commentable" data-block-id="b10"><p><strong>EN</strong> &quot;Which led me to a second iteration. I believe that, as a species, human beings define their reality through misery and suffering.&quot;
+<strong>KR</strong> &quot;그래서 두 번째 버전을 만들었다. 내 결론은 — 인간이라는 종(種)은, 고통과 불행을 통해 자기 현실을 정의한다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><blockquote><div class="commentable" data-block-id="b11"><p><strong>EN</strong> &quot;The answer was found by another, an intuitive program, initially created to investigate certain aspects of the human psyche.&quot;
+<strong>KR</strong> &quot;답은 다른 누군가가 찾았다. 직관적인 프로그램. 처음엔 인간 정신의 어떤 측면을 연구하려고 만든 것이었지.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b12"><p>💡 <strong>풀이</strong>:
+&quot;다른 누군가&quot; = <strong>The Oracle</strong>. Architect = 논리 (남성). Oracle = 직관 (여성). 둘이 부부 같은 한 쌍 — Matrix 의 음양. Oracle 이 해결책 찾음: <strong>&quot;선택권을 줘라. 무의식 수준이라도.&quot;</strong></p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="4-the-99-solution-선택의-환상"><h3 id="4-the-99-solution-선택의-환상">4. The 99% Solution — 선택의 환상</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b13"><p><strong>EN</strong> &quot;She stumbled upon a solution whereby nearly 99% of all test subjects accepted the program, as long as they were given a choice, even if they were only aware of the choice at a near unconscious level.&quot;
+<strong>KR</strong> &quot;Oracle 은 우연히 해답을 발견했다. 인간의 99% 가 프로그램을 받아들인다 — 단, 그들에게 &#39;선택권&#39; 이 있다는 사실만 보장되면. 그 선택을 거의 무의식적으로만 인지하더라도.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b14"><p>💡 <strong>풀이</strong>:
+&quot;빨간약/파란약&quot; 의 진짜 의미. Neo 가 빨간약 고른 것 = Neo 의 자유의지가 아니라 <strong>시스템이 깔아둔 99% 통계의 일부</strong>. Matrix 가 작동하는 이유 = 인간이 &quot;내가 선택했다&quot; 고 느끼게 해주는 것.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<div class="commentable" data-block-id="b15"><p>🎯 <strong>Kenny 통계 익숙한 영역</strong>:
+99% acceptance rate. 1% 거부자 = &quot;깨어난 자&quot; = Zion 시민. → Matrix 는 1% 를 <strong>버리지 않고</strong>, <strong>격리(Zion) 해서 관리</strong>.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="5-the-anomaly-systemic"><h3 id="5-the-anomaly-systemic">5. The Anomaly = Systemic</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b16"><p><strong>EN</strong> &quot;While this answer functioned, it was obviously fundamentally flawed, thus creating the otherwise contradictory systemic anomaly that, if left unchecked, might threaten the system itself.&quot;
+<strong>KR</strong> &quot;이 해답은 작동했지만, 근본적으로 결함이 있었다. 그래서 시스템 그 자체를 위협할 수도 있는, 모순적인 &#39;시스템적 anomaly&#39; 가 만들어졌다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b17"><p>💡 <strong>풀이</strong>:
+&quot;선택권 환상&quot; 의 부작용 = 100명 중 1명은 진짜 깨어남. 그 1명이 누적되어 = The One. Neo 의 존재 = <strong>버그가 아니라 99% 솔루션의 수학적 부산물</strong>.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="6-the-6-cycles-neo-is-the-6th"><h3 id="6-the-6-cycles-neo-is-the-6th">6. The 6 Cycles — Neo Is The 6th</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b18"><p><strong>EN</strong> &quot;The function of the One is now to return to the source, allowing a temporary dissemination of the code you carry, reinserting the prime program, after which you will be required to select from the matrix 23 individuals — 16 female, 7 male — to rebuild Zion.&quot;
+<strong>KR</strong> &quot;The One 의 임무는 이것이다 — Source 로 돌아와, 네가 운반하는 코드를 일시적으로 시스템에 환원하라. 그러면 prime program 이 재삽입된다. 그 후 너는 Matrix 안에서 23명을 선택하라 — 여성 16명, 남성 7명 — Zion 을 재건하기 위해.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b19"><p>💡 <strong>풀이</strong>:
+<strong>충격적 진실</strong>: Zion 은 진짜 인간 저항의 본거지가 아님. <strong>Matrix 시스템의 안전밸브</strong>. 100년마다 Matrix 가 reload 됨:</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<ol>
+<li class="commentable" data-block-id="b45">1차 cycle → The One #1 → Zion 파괴 → 23명으로 재건<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b46">2차 cycle → The One #2 → 같은 패턴<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b47">... 5차까지 반복<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b48"><strong>Neo = 6번째 The One</strong>. 같은 운명 예정.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ol>
+<div class="commentable" data-block-id="b20"><p>🎯 <strong>Kenny 수학 영역</strong>:
+23 = 16 female + 7 male. Fibonacci 근접 (13/21/34). 인간 유전 다양성 최소 sample size 추정 가능.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="7-the-5-predecessors-love"><h3 id="7-the-5-predecessors-love">7. The 5 Predecessors — Love</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b21"><p><strong>EN</strong> &quot;Your 5 predecessors were, by design, based on a similar predication — a contingent affirmation that was meant to create a profound attachment to the rest of your species. While the others experienced this in a very general way, your experience is far more specific — vis a vis, love.&quot;
+<strong>KR</strong> &quot;너의 5명의 선임자들도 같은 설계 원리로 만들어졌다 — 인류 전체에 대한 깊은 애착을 유발하는 조건부 긍정. 다른 5명은 그것을 매우 일반적인 방식으로 경험했지만 — 너의 경험은 훨씬 더 구체적이다. 사랑이라는 형태로.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b22"><p>💡 <strong>풀이</strong>:
+<strong>Trinity 의 정체 노출</strong>:</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<ul>
+<li class="commentable" data-block-id="b49">옛 5명의 The One → &quot;전 인류를 사랑함&quot; (general love)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b50">Neo → &quot;한 사람을 사랑함 (Trinity)&quot; (specific love)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b51">Architect 가 의도적으로 Neo 에게 깔아둔 변수 = <strong>Trinity</strong>.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="b23"><p>→ Neo 의 사랑은 <strong>자발적이 아니라 설계된 함정</strong>. 영화 전체에서 가장 잔인한 대사 중 하나.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="8-the-trap-trinity-will-die"><h3 id="8-the-trap-trinity-will-die">8. The Trap — Trinity Will Die</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b24"><p><strong>EN</strong> &quot;Already I can see the chain reaction, the chemical precursors that signal the onset of emotion, designed specifically to overwhelm logic, and reason. An emotion that is already blinding you from the simple, and obvious truth: she is going to die, and there is nothing that you can do to stop it.&quot;
+<strong>KR</strong> &quot;이미 보인다. 연쇄 반응이. 감정의 시작을 알리는 화학적 전조. 논리와 이성을 압도하도록 설계된 그것. 그 감정이 지금 너에게서 단순하고 명백한 진실을 가린다 — 그녀는 죽을 것이고, 네가 막을 방법은 없다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b25"><p>💡 <strong>풀이</strong>:
+Architect = 신경화학 read 가능. Neo 의 분노/공포를 데이터로 봄. Kenny 의 game theory 영역: <strong>Architect 는 Neo 의 감정을 변수로 모델링</strong>. &quot;사랑&quot; 을 통계적 weakness 로 인식.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="9-the-two-doors"><h3 id="9-the-two-doors">9. The Two Doors</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b26"><p><strong>EN</strong> &quot;The door to your right leads to the Source, and the salvation of Zion. The door to your left leads back to the Matrix, to her, and to the end of your species.&quot;
+<strong>KR</strong> &quot;오른쪽 문은 Source 로 이어진다. 그리고 Zion 의 구원으로. 왼쪽 문은 Matrix 로 돌아간다. 그녀에게로 — 그리고 인류의 종말로.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b27"><p>🎯 <strong>The Choice — Trolley Problem 의 궁극 버전</strong>:</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<div class="table-wrap"><div class="commentable table-wrap" data-block-id="b84"><table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>Zion (현재 25만명)</th>
+<th>Trinity (한 사람)</th>
+<th>인류 (60억)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>오른쪽 문</td>
+<td>살아남음</td>
+<td>죽음</td>
+<td>살아남음</td>
+</tr>
+<tr>
+<td>왼쪽 문</td>
+<td>멸망</td>
+<td>살아남음</td>
+<td>멸망</td>
+</tr>
+</tbody></table><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div></div>
+<div class="commentable" data-block-id="b28"><p>💡 <strong>수학적으로는 오른쪽이 답</strong> (25만+60억 vs 1). 옛 5명 The One = 전부 오른쪽 선택. <strong>Neo = 6번째 = 왼쪽 선택</strong> (영화의 reveal).</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="10-hope-the-greatest-weakness"><h3 id="10-hope-the-greatest-weakness">10. Hope — The Greatest Weakness</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b29"><p><strong>EN</strong> &quot;Hope, it is the quintessential human delusion, simultaneously the source of your greatest strength, and your greatest weakness.&quot;
+<strong>KR</strong> &quot;희망 — 그것은 인간의 본질적 망상이다. 동시에 — 너의 가장 큰 힘이자, 가장 큰 약점이다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b30"><p>💡 <strong>풀이</strong>:
+영화 시리즈 전체를 관통하는 한 문장. Architect 의 결론:</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<ul>
+<li class="commentable" data-block-id="b52">희망 = 인간을 움직이는 연료 (strength)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b53">희망 = 인간이 비합리적 선택을 하게 만드는 버그 (weakness)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b54">Neo 가 왼쪽 문을 고를 줄 알고 깔아둔 함정.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="b31"><p>🎯 <strong>Kenny 가설검정 영역</strong>:
+H₀ = &quot;Neo 는 다른 The One 과 같다 (right door)&quot;
+H₁ = &quot;Neo 는 다르다 (left door)&quot;
+Architect 의 expected outcome = H₀ accept. 영화의 reveal = H₀ reject.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="11-neo-39-s-reply"><h3 id="11-neo-39-s-reply">11. Neo&#39;s Reply</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b32"><p><strong>EN</strong> &quot;I know what I have to do.&quot;
+<strong>KR</strong> &quot;내가 뭘 해야 하는지 안다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><blockquote><div class="commentable" data-block-id="b33"><p><strong>EN</strong> &quot;If I were you, I would hope that we don&#39;t meet again.&quot;
+<strong>KR</strong> &quot;내가 너라면, 우리가 다시 만나지 않기를 바랄 것이다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><blockquote><div class="commentable" data-block-id="b34"><p><strong>EN</strong> <em>(Architect, smiling)</em> &quot;We won&#39;t.&quot;
+<strong>KR</strong> <em>(Architect, 미소)</em> &quot;그럴 일 없다.&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b35"><p>💡 <strong>풀이</strong>:
+Reloaded 의 마지막 mic drop. Architect = 6번째 cycle 의 끝을 확신. Neo = 시스템을 깨려 시도 → 다음 영화 Revolutions 로 이어짐.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="12-the-walk-out-door-to-the-left"><h3 id="12-the-walk-out-door-to-the-left">12. The Walk Out — Door to the Left</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b36"><p><strong>EN</strong> <em>(Neo turns, walks toward the left door)</em>
+<strong>KR</strong> <em>(Neo, 왼쪽 문을 향해 걸어감)</em></p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b37"><p>💡 <strong>풀이</strong>:
+대사 없는 그 장면이 영화 최대 turning point. <strong>Neo = 첫 번째 The One who chose love over species</strong>. 6 cycle 의 패턴이 깨지는 순간.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="commentable" data-block-id="핵심-개념-7개"><h2 id="핵심-개념-7개">🧩 핵심 개념 7개</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="commentable" data-block-id="a-the-one-the-anomaly"><h3 id="a-the-one-the-anomaly">A. The One (The Anomaly)</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><ul>
+<li class="commentable" data-block-id="b55">Matrix 시스템의 수학적 부산물<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b56">99% acceptance solution 의 1% 잔여<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b57">6번 cycle 의 일부 — Neo = 6번째<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="b-the-6-cycles"><h3 id="b-the-6-cycles">B. The 6 Cycles</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><blockquote><div class="commentable" data-block-id="b38"><p>1차 → Zion 1세대 파괴 → 23명 재건
+2차 → 같은 패턴
+...
+6차 → <strong>현재 Neo</strong></p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</blockquote><div class="commentable" data-block-id="b39"><p>→ Zion 은 시스템의 일부. 진짜 외부 저항이 아님.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<div class="commentable" data-block-id="c-choice-illusion-99-rule"><h3 id="c-choice-illusion-99-rule">C. Choice = Illusion (99% Rule)</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><ul>
+<li class="commentable" data-block-id="b58">1차 Matrix (perfect) → 인간 거부 → 실패<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b59">2차 Matrix (suffering) → 95% only → 부분 성공<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b60">3차 Matrix (choice illusion, Oracle 작) → <strong>99% acceptance</strong><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b61">1% = The One 의 씨앗<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="d-architect-vs-oracle"><h3 id="d-architect-vs-oracle">D. Architect vs Oracle</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="table-wrap"><div class="commentable table-wrap" data-block-id="b85"><table>
+<thead>
+<tr>
+<th>Architect</th>
+<th>Oracle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>논리 / 수학 / 남성 / 백색 / TV 벽</td>
+<td>직관 / 감정 / 여성 / 부엌 / 쿠키</td>
+</tr>
+<tr>
+<td>시스템의 父</td>
+<td>시스템의 母</td>
+</tr>
+<tr>
+<td>Neo 를 시험</td>
+<td>Neo 를 가이드</td>
+</tr>
+</tbody></table><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div></div>
+<div class="commentable" data-block-id="b40"><p>→ 둘 다 프로그램. 둘 다 Matrix 의 일부.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<div class="commentable" data-block-id="e-the-23-rebuilders"><h3 id="e-the-23-rebuilders">E. The 23 Rebuilders</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><ul>
+<li class="commentable" data-block-id="b62">16 female + 7 male<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b63">Zion 재건의 seed sample<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b64">유전 다양성 최소값<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b65">영화 안 명시되지 않은 옛 cycle 의 흔적<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="f-trinity-trap-specific-love"><h3 id="f-trinity-trap-specific-love">F. Trinity Trap (Specific Love)</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><ul>
+<li class="commentable" data-block-id="b66">옛 5 The One = general love (전 인류)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b67">Neo (6번째) = <strong>specific love (Trinity)</strong><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b68">Architect 가 의도적으로 설계<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b69">Neo 의 약점 = 동시에 패턴 파괴 도구<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="g-the-source"><h3 id="g-the-source">G. The Source</h3><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><ul>
+<li class="commentable" data-block-id="b70">Matrix 의 운영체제 root<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b71">The One 이 자기 코드를 환원하는 곳<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b72">Architect 의 거주지<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b73">물리적으로 Machine City 안<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<hr>
+<div class="commentable" data-block-id="영화-안-위치-가이드"><h2 id="영화-안-위치-가이드">🎯 영화 안 위치 가이드</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="code-block commentable" data-block-id="b82"><button class="copy-btn" onclick="copyCode(this)"><span class="iconify" data-icon="lucide:copy" data-width="14"></span></button><pre><code>Reloaded (2003) 전체 138분
+
+00:00 ┃ Opening
+00:30 ┃ Council of Zion
+01:00 ┃ Burly Brawl (Smith 100명)
+01:20 ┃ Freeway chase
+01:45 ┃ Keymaker 의 문 시퀀스
+01:49 ┃ ▶ ARCHITECT SCENE START
+01:57 ┃ ▶ ARCHITECT SCENE END (Neo 왼쪽 문 선택)
+02:00 ┃ Trinity 구출 + 죽음 + 부활
+02:15 ┃ Hospital ending (Neo 코마)
+02:18 ┃ END</code></pre><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><hr>
+<div class="commentable" data-block-id="왜-어려운-대화인가-kenny-시각"><h2 id="왜-어려운-대화인가-kenny-시각">🎬 왜 어려운 대화인가? (Kenny 시각)</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><ol>
+<li class="commentable" data-block-id="b74"><strong>단어 자체가 academic</strong>: &quot;eventuality of an anomaly&quot;, &quot;contingent affirmation&quot;, &quot;systemic anomaly&quot; — 일상 영어 아님.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b75"><strong>3중 메타</strong>: Architect 가 Neo 에게 말하면서, 동시에 1편 (Matrix 1999) 의 모든 사건을 retroactively 재해석함.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b76"><strong>수학 + 철학 + 신경과학</strong>: 통계 (99%), 자유의지, 감정 화학반응 — 세 영역 동시에.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b77"><strong>첫 시청 시 자막 따라가기 불가</strong>: 한국어 자막조차 직역하면 더 어려움.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b78"><strong>Wachowski 가 의도한 난이도</strong>: 영화 자체가 &quot;관객이 한 번에 이해 못 하길&quot; 바랐음. Reloaded reviewer 대부분이 이 장면에서 길을 잃었다고 보고.<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ol>
+<hr>
+<div class="commentable" data-block-id="reloaded-revolutions"><h2 id="reloaded-revolutions">🔚 Reloaded → Revolutions</h2><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div><div class="commentable" data-block-id="b41"><p>Neo 의 왼쪽 문 선택 = 6 cycle 깨기 → Revolutions 에서:</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<ul>
+<li class="commentable" data-block-id="b79">Smith 가 Matrix 자체를 위협 (Architect 도 통제 불가)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b80">Neo + Machine 평화 조약 (Architect 가 Oracle 에게 굴복)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+<li class="commentable" data-block-id="b81">&quot;Peace&quot; 결말 → 7th cycle 없음 (시스템 변경)<button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></li>
+</ul>
+<div class="commentable" data-block-id="b42"><p>→ Architect 의 99% 해법 = Neo 가 깨뜨림. Hope = 진짜 strength 였음.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+<hr>
+<div class="callout callout-tip"><div class="callout-icon">💡</div><div class="callout-body"><div class="commentable" data-block-id="b43"><p><strong>Kenny 한 줄 요약</strong>:
+Architect 장면 = &quot;당신의 자유의지는 통계적으로 99% 가짜다. 그런데 너는 1% 다. 어쩔래?&quot;</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</div></div><div class="callout callout-launch"><div class="callout-icon">🚀</div><div class="callout-body"><div class="commentable" data-block-id="b44"><p><strong>다음 단계</strong>:
+이 visual 보면서 Reloaded 다시 보기 → Architect 대사 받아쓰기 가능해질 것.</p><button class="comment-btn" type="button" aria-label="코멘트" onclick="toggleComment(this)"><span class="iconify" data-icon="lucide:message-square" data-width="14"></span></button><span class="comment-dot" hidden>•</span></div>
+</div></div></article>
+    </main>
+    
+  </div>
+  
+  <button class="comment-panel-toggle" onclick="toggleCommentPanel()" title="코멘트 패널 열기/닫기" id="commentPanelToggle">
+    <span class="iconify" data-icon="lucide:message-square" data-width="15"></span>
+    <span class="comment-count-badge" id="commentCountBadge" hidden>0</span>
+  </button>
+  <aside class="comment-panel" id="commentPanel">
+    <header class="comment-panel-header">
+      <div class="comment-panel-title">
+        <span class="iconify" data-icon="lucide:message-square" data-width="13"></span>
+        <span>코멘트</span>
+        <span class="comment-panel-count-pill" id="commentPanelCount">0</span>
+      </div>
+      <div class="comment-panel-header-btns">
+        <button onclick="copyAll(this)" class="cpanel-btn cpanel-primary" id="cpCopyBtn" title="현 페이지 코멘트 카피">
+          <span class="iconify" data-icon="lucide:clipboard-copy" data-width="13"></span> 카피
+        </button>
+        <div class="cpanel-more-wrap">
+          <button onclick="toggleCpanelMenu()" class="cpanel-btn cpanel-ghost" title="더 보기" id="cpMoreBtn">
+            <span class="iconify" data-icon="lucide:more-horizontal" data-width="13"></span>
+          </button>
+          <ul class="cpanel-menu" id="cpanelMenu" hidden>
+            <li><button onclick="copyAll(document.getElementById('cpCopyBtn'));closeCpanelMenu()" class="cpanel-menu-item"><span class="iconify" data-icon="lucide:clipboard-copy" data-width="12"></span> 현 페이지 카피</button></li>
+            <li><button onclick="copyAllPages(this);closeCpanelMenu()" class="cpanel-menu-item"><span class="iconify" data-icon="lucide:clipboard-list" data-width="12"></span> 모든 페이지 카피</button></li>
+            <li class="cpanel-menu-sep"></li>
+            <li><button onclick="addSticky();closeCpanelMenu()" class="cpanel-menu-item"><span class="iconify" data-icon="lucide:sticky-note" data-width="12"></span> 자유 코멘트 추가</button></li>
+            <li class="cpanel-menu-sep"></li>
+            <li><button onclick="clearAllComments(this);closeCpanelMenu()" class="cpanel-menu-item cpanel-menu-danger"><span class="iconify" data-icon="lucide:trash-2" data-width="12"></span> 현 페이지 지우기</button></li>
+            <li><button onclick="clearAllPages(this);closeCpanelMenu()" class="cpanel-menu-item cpanel-menu-danger"><span class="iconify" data-icon="lucide:trash-2" data-width="12"></span> 모든 페이지 지우기</button></li>
+          </ul>
+        </div>
+        <button onclick="toggleCommentPanel()" class="cpanel-btn cpanel-ghost cpanel-close" title="닫기">
+          <span class="iconify" data-icon="lucide:x" data-width="13"></span>
+        </button>
+      </div>
+    </header>
+    <div class="comment-panel-list" id="commentPanelList">
+      <div class="comment-panel-empty">아직 코멘트가 없습니다.<br/>본문 블록 옆 💬 아이콘을 눌러 달아보세요.</div>
+    </div>
+  </aside>
+  <ninja-keys id="ninjaKeys"></ninja-keys>
+
+  <script type="text/markdown" id="source-md">
+# THE ARCHITECT SCENE
+
+> *"Hello, Neo."*
+> *"Who are you?"*
+> *"I am the Architect. I created the Matrix. I've been waiting for you."*
+
+---
+
+## 📍 장면 좌표
+
+| 항목 | 값 |
+|------|----|
+| 영화 | The Matrix Reloaded (2003) |
+| 감독 | Wachowski Sisters |
+| 위치 | The Source / The Architect's chamber (흰 방, 수많은 TV 모니터) |
+| Timestamp | 약 1시간 49분 ~ 1시간 57분 (영화 후반 climax 직전) |
+| 길이 | 약 7분 30초 |
+| 등장 | Neo (Keanu Reeves) · The Architect (Helmut Bakaitis) |
+| 도착 경로 | Keymaker 의 문 → 긴 복도 → 흰 방 |
+| 직후 사건 | Neo 가 왼쪽 문 선택 → Trinity 구출 → Reloaded ending |
+
+---
+
+## 🎬 장면 구조 (3 막)
+
+> 🎯 **1막** — Architect 자기소개 / Matrix 의 진짜 역사 (1, 2, 3차 Matrix)
+> 🎯 **2막** — The One = anomaly / 6 cycle / Neo = 6번째
+> 🎯 **3막** — 두 개의 문 / Zion 파괴 vs Trinity 죽음 / Neo 의 선택
+
+---
+
+## 💬 핵심 대사 12선
+
+### 1. The Opening — 첫 만남
+
+> **EN** "Hello, Neo."
+> **KR** "안녕, 네오."
+
+> **EN** "Your life is the sum of a remainder of an unbalanced equation inherent to the programming of the matrix."
+> **KR** "너의 인생은, Matrix 라는 프로그램 안에 내재된, 균형 잡히지 않은 방정식의 — 나머지(remainder) 의 합이다."
+
+💡 **풀이**:
+Matrix 는 완벽한 방정식이 아님. 항상 나누어 떨어지지 않는 "나머지" 가 생김. Neo 는 그 나머지의 누적 결과. → Neo = 버그가 아니라 **"수학적으로 예측된 anomaly"**.
+
+---
+
+### 2. Neo Is The Anomaly
+
+> **EN** "You are the eventuality of an anomaly, which despite my sincerest efforts I have been unable to eliminate from what is otherwise a harmony of mathematical precision."
+> **KR** "너는 한 anomaly (변칙) 의 필연적 결말이다. 내가 아무리 정성껏 제거하려 해도, 수학적으로 정밀한 조화에서 사라지지 않는 그 변칙."
+
+💡 **풀이**:
+Architect 입장에서 Matrix = 거대한 수식. 그 수식에 자꾸 끼는 오류 = The One. 6번째 그 오류 = 지금 Neo. Neo 의 "특별함" 은 **버그가 아니라 시스템이 만든 안전장치**.
+
+---
+
+### 3. Choice = Illusion
+
+> **EN** "The first matrix I designed was quite naturally perfect, it was a work of art — flawless, sublime. A triumph equaled only by its monumental failure."
+> **KR** "내가 처음 설계한 Matrix 는 너무 자연스럽게 완벽했다. 예술 작품이었지. 결함도 흠도 없는. 그 위대함에 비길 만한 건, 그 위대한 실패뿐이었다."
+
+💡 **풀이**:
+1차 Matrix = 천국. 모두가 행복한 세상. → 인간이 거부함. 인간 뇌가 "이건 가짜다" 라고 인식 → 시스템 붕괴. 인간은 **완벽한 행복을 거부**.
+
+> **EN** "Which led me to a second iteration. I believe that, as a species, human beings define their reality through misery and suffering."
+> **KR** "그래서 두 번째 버전을 만들었다. 내 결론은 — 인간이라는 종(種)은, 고통과 불행을 통해 자기 현실을 정의한다."
+
+> **EN** "The answer was found by another, an intuitive program, initially created to investigate certain aspects of the human psyche."
+> **KR** "답은 다른 누군가가 찾았다. 직관적인 프로그램. 처음엔 인간 정신의 어떤 측면을 연구하려고 만든 것이었지."
+
+💡 **풀이**:
+"다른 누군가" = **The Oracle**. Architect = 논리 (남성). Oracle = 직관 (여성). 둘이 부부 같은 한 쌍 — Matrix 의 음양. Oracle 이 해결책 찾음: **"선택권을 줘라. 무의식 수준이라도."**
+
+---
+
+### 4. The 99% Solution — 선택의 환상
+
+> **EN** "She stumbled upon a solution whereby nearly 99% of all test subjects accepted the program, as long as they were given a choice, even if they were only aware of the choice at a near unconscious level."
+> **KR** "Oracle 은 우연히 해답을 발견했다. 인간의 99% 가 프로그램을 받아들인다 — 단, 그들에게 '선택권' 이 있다는 사실만 보장되면. 그 선택을 거의 무의식적으로만 인지하더라도."
+
+💡 **풀이**:
+"빨간약/파란약" 의 진짜 의미. Neo 가 빨간약 고른 것 = Neo 의 자유의지가 아니라 **시스템이 깔아둔 99% 통계의 일부**. Matrix 가 작동하는 이유 = 인간이 "내가 선택했다" 고 느끼게 해주는 것.
+
+🎯 **Kenny 통계 익숙한 영역**:
+99% acceptance rate. 1% 거부자 = "깨어난 자" = Zion 시민. → Matrix 는 1% 를 **버리지 않고**, **격리(Zion) 해서 관리**.
+
+---
+
+### 5. The Anomaly = Systemic
+
+> **EN** "While this answer functioned, it was obviously fundamentally flawed, thus creating the otherwise contradictory systemic anomaly that, if left unchecked, might threaten the system itself."
+> **KR** "이 해답은 작동했지만, 근본적으로 결함이 있었다. 그래서 시스템 그 자체를 위협할 수도 있는, 모순적인 '시스템적 anomaly' 가 만들어졌다."
+
+💡 **풀이**:
+"선택권 환상" 의 부작용 = 100명 중 1명은 진짜 깨어남. 그 1명이 누적되어 = The One. Neo 의 존재 = **버그가 아니라 99% 솔루션의 수학적 부산물**.
+
+---
+
+### 6. The 6 Cycles — Neo Is The 6th
+
+> **EN** "The function of the One is now to return to the source, allowing a temporary dissemination of the code you carry, reinserting the prime program, after which you will be required to select from the matrix 23 individuals — 16 female, 7 male — to rebuild Zion."
+> **KR** "The One 의 임무는 이것이다 — Source 로 돌아와, 네가 운반하는 코드를 일시적으로 시스템에 환원하라. 그러면 prime program 이 재삽입된다. 그 후 너는 Matrix 안에서 23명을 선택하라 — 여성 16명, 남성 7명 — Zion 을 재건하기 위해."
+
+💡 **풀이**:
+**충격적 진실**: Zion 은 진짜 인간 저항의 본거지가 아님. **Matrix 시스템의 안전밸브**. 100년마다 Matrix 가 reload 됨:
+1. 1차 cycle → The One #1 → Zion 파괴 → 23명으로 재건
+2. 2차 cycle → The One #2 → 같은 패턴
+3. ... 5차까지 반복
+4. **Neo = 6번째 The One**. 같은 운명 예정.
+
+🎯 **Kenny 수학 영역**:
+23 = 16 female + 7 male. Fibonacci 근접 (13/21/34). 인간 유전 다양성 최소 sample size 추정 가능.
+
+---
+
+### 7. The 5 Predecessors — Love
+
+> **EN** "Your 5 predecessors were, by design, based on a similar predication — a contingent affirmation that was meant to create a profound attachment to the rest of your species. While the others experienced this in a very general way, your experience is far more specific — vis a vis, love."
+> **KR** "너의 5명의 선임자들도 같은 설계 원리로 만들어졌다 — 인류 전체에 대한 깊은 애착을 유발하는 조건부 긍정. 다른 5명은 그것을 매우 일반적인 방식으로 경험했지만 — 너의 경험은 훨씬 더 구체적이다. 사랑이라는 형태로."
+
+💡 **풀이**:
+**Trinity 의 정체 노출**:
+- 옛 5명의 The One → "전 인류를 사랑함" (general love)
+- Neo → "한 사람을 사랑함 (Trinity)" (specific love)
+- Architect 가 의도적으로 Neo 에게 깔아둔 변수 = **Trinity**.
+
+→ Neo 의 사랑은 **자발적이 아니라 설계된 함정**. 영화 전체에서 가장 잔인한 대사 중 하나.
+
+---
+
+### 8. The Trap — Trinity Will Die
+
+> **EN** "Already I can see the chain reaction, the chemical precursors that signal the onset of emotion, designed specifically to overwhelm logic, and reason. An emotion that is already blinding you from the simple, and obvious truth: she is going to die, and there is nothing that you can do to stop it."
+> **KR** "이미 보인다. 연쇄 반응이. 감정의 시작을 알리는 화학적 전조. 논리와 이성을 압도하도록 설계된 그것. 그 감정이 지금 너에게서 단순하고 명백한 진실을 가린다 — 그녀는 죽을 것이고, 네가 막을 방법은 없다."
+
+💡 **풀이**:
+Architect = 신경화학 read 가능. Neo 의 분노/공포를 데이터로 봄. Kenny 의 game theory 영역: **Architect 는 Neo 의 감정을 변수로 모델링**. "사랑" 을 통계적 weakness 로 인식.
+
+---
+
+### 9. The Two Doors
+
+> **EN** "The door to your right leads to the Source, and the salvation of Zion. The door to your left leads back to the Matrix, to her, and to the end of your species."
+> **KR** "오른쪽 문은 Source 로 이어진다. 그리고 Zion 의 구원으로. 왼쪽 문은 Matrix 로 돌아간다. 그녀에게로 — 그리고 인류의 종말로."
+
+🎯 **The Choice — Trolley Problem 의 궁극 버전**:
+
+| 옵션 | Zion (현재 25만명) | Trinity (한 사람) | 인류 (60억) |
+|------|------------------|-----------------|------------|
+| 오른쪽 문 | 살아남음 | 죽음 | 살아남음 |
+| 왼쪽 문 | 멸망 | 살아남음 | 멸망 |
+
+💡 **수학적으로는 오른쪽이 답** (25만+60억 vs 1). 옛 5명 The One = 전부 오른쪽 선택. **Neo = 6번째 = 왼쪽 선택** (영화의 reveal).
+
+---
+
+### 10. Hope — The Greatest Weakness
+
+> **EN** "Hope, it is the quintessential human delusion, simultaneously the source of your greatest strength, and your greatest weakness."
+> **KR** "희망 — 그것은 인간의 본질적 망상이다. 동시에 — 너의 가장 큰 힘이자, 가장 큰 약점이다."
+
+💡 **풀이**:
+영화 시리즈 전체를 관통하는 한 문장. Architect 의 결론:
+- 희망 = 인간을 움직이는 연료 (strength)
+- 희망 = 인간이 비합리적 선택을 하게 만드는 버그 (weakness)
+- Neo 가 왼쪽 문을 고를 줄 알고 깔아둔 함정.
+
+🎯 **Kenny 가설검정 영역**:
+H₀ = "Neo 는 다른 The One 과 같다 (right door)"
+H₁ = "Neo 는 다르다 (left door)"
+Architect 의 expected outcome = H₀ accept. 영화의 reveal = H₀ reject.
+
+---
+
+### 11. Neo's Reply
+
+> **EN** "I know what I have to do."
+> **KR** "내가 뭘 해야 하는지 안다."
+
+> **EN** "If I were you, I would hope that we don't meet again."
+> **KR** "내가 너라면, 우리가 다시 만나지 않기를 바랄 것이다."
+
+> **EN** *(Architect, smiling)* "We won't."
+> **KR** *(Architect, 미소)* "그럴 일 없다."
+
+💡 **풀이**:
+Reloaded 의 마지막 mic drop. Architect = 6번째 cycle 의 끝을 확신. Neo = 시스템을 깨려 시도 → 다음 영화 Revolutions 로 이어짐.
+
+---
+
+### 12. The Walk Out — Door to the Left
+
+> **EN** *(Neo turns, walks toward the left door)*
+> **KR** *(Neo, 왼쪽 문을 향해 걸어감)*
+
+💡 **풀이**:
+대사 없는 그 장면이 영화 최대 turning point. **Neo = 첫 번째 The One who chose love over species**. 6 cycle 의 패턴이 깨지는 순간.
+
+---
+
+## 🧩 핵심 개념 7개
+
+### A. The One (The Anomaly)
+
+- Matrix 시스템의 수학적 부산물
+- 99% acceptance solution 의 1% 잔여
+- 6번 cycle 의 일부 — Neo = 6번째
+
+### B. The 6 Cycles
+
+> 1차 → Zion 1세대 파괴 → 23명 재건
+> 2차 → 같은 패턴
+> ...
+> 6차 → **현재 Neo**
+
+→ Zion 은 시스템의 일부. 진짜 외부 저항이 아님.
+
+### C. Choice = Illusion (99% Rule)
+
+- 1차 Matrix (perfect) → 인간 거부 → 실패
+- 2차 Matrix (suffering) → 95% only → 부분 성공
+- 3차 Matrix (choice illusion, Oracle 작) → **99% acceptance**
+- 1% = The One 의 씨앗
+
+### D. Architect vs Oracle
+
+| Architect | Oracle |
+|-----------|--------|
+| 논리 / 수학 / 남성 / 백색 / TV 벽 | 직관 / 감정 / 여성 / 부엌 / 쿠키 |
+| 시스템의 父 | 시스템의 母 |
+| Neo 를 시험 | Neo 를 가이드 |
+
+→ 둘 다 프로그램. 둘 다 Matrix 의 일부.
+
+### E. The 23 Rebuilders
+
+- 16 female + 7 male
+- Zion 재건의 seed sample
+- 유전 다양성 최소값
+- 영화 안 명시되지 않은 옛 cycle 의 흔적
+
+### F. Trinity Trap (Specific Love)
+
+- 옛 5 The One = general love (전 인류)
+- Neo (6번째) = **specific love (Trinity)**
+- Architect 가 의도적으로 설계
+- Neo 의 약점 = 동시에 패턴 파괴 도구
+
+### G. The Source
+
+- Matrix 의 운영체제 root
+- The One 이 자기 코드를 환원하는 곳
+- Architect 의 거주지
+- 물리적으로 Machine City 안
+
+---
+
+## 🎯 영화 안 위치 가이드
+
+```
+Reloaded (2003) 전체 138분
+
+00:00 ┃ Opening
+00:30 ┃ Council of Zion
+01:00 ┃ Burly Brawl (Smith 100명)
+01:20 ┃ Freeway chase
+01:45 ┃ Keymaker 의 문 시퀀스
+01:49 ┃ ▶ ARCHITECT SCENE START
+01:57 ┃ ▶ ARCHITECT SCENE END (Neo 왼쪽 문 선택)
+02:00 ┃ Trinity 구출 + 죽음 + 부활
+02:15 ┃ Hospital ending (Neo 코마)
+02:18 ┃ END
+```
+
+---
+
+## 🎬 왜 어려운 대화인가? (Kenny 시각)
+
+1. **단어 자체가 academic**: "eventuality of an anomaly", "contingent affirmation", "systemic anomaly" — 일상 영어 아님.
+2. **3중 메타**: Architect 가 Neo 에게 말하면서, 동시에 1편 (Matrix 1999) 의 모든 사건을 retroactively 재해석함.
+3. **수학 + 철학 + 신경과학**: 통계 (99%), 자유의지, 감정 화학반응 — 세 영역 동시에.
+4. **첫 시청 시 자막 따라가기 불가**: 한국어 자막조차 직역하면 더 어려움.
+5. **Wachowski 가 의도한 난이도**: 영화 자체가 "관객이 한 번에 이해 못 하길" 바랐음. Reloaded reviewer 대부분이 이 장면에서 길을 잃었다고 보고.
+
+---
+
+## 🔚 Reloaded → Revolutions
+
+Neo 의 왼쪽 문 선택 = 6 cycle 깨기 → Revolutions 에서:
+- Smith 가 Matrix 자체를 위협 (Architect 도 통제 불가)
+- Neo + Machine 평화 조약 (Architect 가 Oracle 에게 굴복)
+- "Peace" 결말 → 7th cycle 없음 (시스템 변경)
+
+→ Architect 의 99% 해법 = Neo 가 깨뜨림. Hope = 진짜 strength 였음.
+
+---
+
+> 💡 **Kenny 한 줄 요약**:
+> Architect 장면 = "당신의 자유의지는 통계적으로 99% 가짜다. 그런데 너는 1% 다. 어쩔래?"
+
+> 🚀 **다음 단계**:
+> 이 visual 보면서 Reloaded 다시 보기 → Architect 대사 받아쓰기 가능해질 것.
+</script>
+
+<script>
+function copyCode(b){var c=b.nextElementSibling.querySelector('code');navigator.clipboard.writeText(c.textContent).then(function(){b.innerHTML='<span class="iconify" data-icon="lucide:check" data-width="14"></span>';setTimeout(function(){b.innerHTML='<span class="iconify" data-icon="lucide:copy" data-width="14"></span>';},2000);})}
+
+// Progress
+window.addEventListener('scroll',function(){var s=document.documentElement.scrollTop,h=document.documentElement.scrollHeight-document.documentElement.clientHeight;var pb=document.getElementById('progressBar');if(pb)pb.style.width=(s/h*100)+'%';});
+
+// TOC active — phase-card 안쪽 요소도 정확히 추적하기 위해
+// offsetTop 대신 getBoundingClientRect().top + scrollY 사용 (절대 좌표)
+var tocLinks=document.querySelectorAll('.toc-sidebar .toc-link, .drawer .toc-link');
+var sectionEls=[];
+document.querySelectorAll('.toc-sidebar .toc-link').forEach(function(l){var el=document.getElementById(l.getAttribute('href').slice(1));if(el)sectionEls.push(el);});
+var _lastActiveId='';
+function updateTOCActive(){
+  var cur='';
+  var scrollY=window.scrollY;
+  sectionEls.forEach(function(s){
+    if(!s)return;
+    var rect=s.getBoundingClientRect();
+    var absoluteTop=rect.top+scrollY;
+    if(scrollY>=absoluteTop-140)cur=s.id;
+  });
+  tocLinks.forEach(function(l){l.classList.toggle('active',l.getAttribute('href')==='#'+cur);});
+  // active 항목을 TOC 사이드바의 세로 중앙으로 자동 스크롤
+  if(cur && cur!==_lastActiveId){
+    _lastActiveId=cur;
+    var sidebar=document.querySelector('.toc-sidebar');
+    var activeLink=sidebar && sidebar.querySelector('.toc-link.active');
+    if(sidebar && activeLink){
+      var linkRect=activeLink.getBoundingClientRect();
+      var sbRect=sidebar.getBoundingClientRect();
+      // 링크의 사이드바 내 상대 위치
+      var linkCenter=linkRect.top-sbRect.top+sidebar.scrollTop+linkRect.height/2;
+      var target=linkCenter-sbRect.height/2;
+      sidebar.scrollTo({top:target, behavior:'smooth'});
+    }
+  }
+}
+window.addEventListener('scroll',updateTOCActive,{passive:true});
+window.addEventListener('resize',updateTOCActive);
+updateTOCActive();  // 초기 1회 실행
+
+// Theme
+function toggleTheme(){document.body.classList.toggle('light-theme');localStorage.setItem('theme',document.body.classList.contains('light-theme')?'light':'dark');if(typeof mermaid!=='undefined')mermaid.initialize({startOnLoad:false,theme:document.body.classList.contains('light-theme')?'default':'dark'});}
+if(localStorage.getItem('theme')==='light')document.body.classList.add('light-theme');
+
+// Drawer
+function toggleDrawer(){var d=document.getElementById('drawer'),o=document.getElementById('drawerOverlay');if(d){d.classList.toggle('open');o.classList.toggle('open');}}
+document.querySelectorAll('.drawer .toc-link').forEach(function(l){l.addEventListener('click',function(){var d=document.getElementById('drawer'),o=document.getElementById('drawerOverlay');if(d){d.classList.remove('open');o.classList.remove('open');}});});
+
+// Scroll animation
+var so=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');so.unobserve(e.target);}});},{threshold:0.1});
+document.querySelectorAll('article h2,article h3,article h4,article table,.code-block,.callout,blockquote,.chart-container,.metadata-card').forEach(function(el){el.classList.add('animate-on-scroll');so.observe(el);});
+
+
+// Cmd+K
+var ninjaData=[{"id":"장면-좌표","title":"📍 장면 좌표","section":"Sections"},{"id":"장면-구조-3-막","title":"🎬 장면 구조 (3 막)","section":"Sections"},{"id":"핵심-대사-12선","title":"💬 핵심 대사 12선","section":"Sections"},{"id":"1-the-opening-첫-만남","title":"1. The Opening — 첫 만남","section":"Subsections"},{"id":"2-neo-is-the-anomaly","title":"2. Neo Is The Anomaly","section":"Subsections"},{"id":"3-choice-illusion","title":"3. Choice = Illusion","section":"Subsections"},{"id":"4-the-99-solution-선택의-환상","title":"4. The 99% Solution — 선택의 환상","section":"Subsections"},{"id":"5-the-anomaly-systemic","title":"5. The Anomaly = Systemic","section":"Subsections"},{"id":"6-the-6-cycles-neo-is-the-6th","title":"6. The 6 Cycles — Neo Is The 6th","section":"Subsections"},{"id":"7-the-5-predecessors-love","title":"7. The 5 Predecessors — Love","section":"Subsections"},{"id":"8-the-trap-trinity-will-die","title":"8. The Trap — Trinity Will Die","section":"Subsections"},{"id":"9-the-two-doors","title":"9. The Two Doors","section":"Subsections"},{"id":"10-hope-the-greatest-weakness","title":"10. Hope — The Greatest Weakness","section":"Subsections"},{"id":"11-neo-39-s-reply","title":"11. Neo&#39;s Reply","section":"Subsections"},{"id":"12-the-walk-out-door-to-the-left","title":"12. The Walk Out — Door to the Left","section":"Subsections"},{"id":"핵심-개념-7개","title":"🧩 핵심 개념 7개","section":"Sections"},{"id":"a-the-one-the-anomaly","title":"A. The One (The Anomaly)","section":"Subsections"},{"id":"b-the-6-cycles","title":"B. The 6 Cycles","section":"Subsections"},{"id":"c-choice-illusion-99-rule","title":"C. Choice = Illusion (99% Rule)","section":"Subsections"},{"id":"d-architect-vs-oracle","title":"D. Architect vs Oracle","section":"Subsections"},{"id":"e-the-23-rebuilders","title":"E. The 23 Rebuilders","section":"Subsections"},{"id":"f-trinity-trap-specific-love","title":"F. Trinity Trap (Specific Love)","section":"Subsections"},{"id":"g-the-source","title":"G. The Source","section":"Subsections"},{"id":"영화-안-위치-가이드","title":"🎯 영화 안 위치 가이드","section":"Sections"},{"id":"왜-어려운-대화인가-kenny-시각","title":"🎬 왜 어려운 대화인가? (Kenny 시각)","section":"Sections"},{"id":"reloaded-revolutions","title":"🔚 Reloaded → Revolutions","section":"Sections"}];
+var ninja=document.getElementById('ninjaKeys');
+if(ninja){ninja.data=ninjaData.map(function(item){return{id:item.id,title:item.title,section:item.section,handler:function(){var el=document.getElementById(item.id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}};});}
+function openSearch(){if(ninja)ninja.open();}
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();openSearch();}});
+
+
+function copyURL(){navigator.clipboard.writeText(window.location.href).then(function(){var b=document.querySelector('.tool-btn[title="Share"]');if(b){b.innerHTML='<span class="iconify" data-icon="lucide:check" data-width="18"></span>';setTimeout(function(){b.innerHTML='<span class="iconify" data-icon="lucide:link" data-width="18"></span>';},2000);}});}
+function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'});}
+
+/* plan template: folder-tree toggle */
+function planTreeToggle(node){var isOpen=node.getAttribute('data-open')==='true';var next=node.nextElementSibling;if(!next||!next.classList.contains('tree-children'))return;if(isOpen){node.setAttribute('data-open','false');next.classList.remove('open');}else{node.setAttribute('data-open','true');next.classList.add('open');}}
+function planCollapseAll(){document.querySelectorAll('.tree-node[data-open]').forEach(function(n){n.setAttribute('data-open','false');var next=n.nextElementSibling;if(next&&next.classList.contains('tree-children'))next.classList.remove('open');});}
+function planExpandAll(){document.querySelectorAll('.tree-node[data-open]').forEach(function(n){n.setAttribute('data-open','true');var next=n.nextElementSibling;if(next&&next.classList.contains('tree-children'))next.classList.add('open');});}
+
+if(typeof mermaid!=='undefined')mermaid.initialize({startOnLoad:true,theme:document.body.classList.contains('light-theme')?'default':'dark',fontSize:18,flowchart:{nodeSpacing:60,rankSpacing:70,padding:20,useMaxWidth:true},themeVariables:{fontSize:'18px',primaryTextColor:'#ffffff',lineColor:'#a1a1aa'}});
+
+
+// Chart.js
+document.querySelectorAll('[data-chart]').forEach(function(canvas){try{var raw=canvas.dataset.chart.replace(/&#39;/g,"'");var lines=raw.split('\n').map(function(l){return l.trim();});var config={};var cd=null;lines.forEach(function(line){if(line.startsWith('type:'))config.type=line.split(':')[1].trim();if(line.startsWith('labels:')){var m=line.match(/\[(.*)\]/);if(m)config.labels=m[1].split(',').map(function(s){return s.trim();});}if(line.startsWith('- label:')){cd={label:line.replace('- label:','').trim(),data:[]};if(!config.datasets)config.datasets=[];config.datasets.push(cd);}if(line.startsWith('data:')&&cd){var m=line.match(/\[(.*)\]/);if(m)cd.data=m[1].split(',').map(Number);}});if(config.type&&config.labels&&config.datasets){var cs=getComputedStyle(document.body);new Chart(canvas,{type:config.type,data:{labels:config.labels,datasets:config.datasets.map(function(ds){return Object.assign({},ds,{backgroundColor:['rgba(20,184,166,0.5)','rgba(34,211,238,0.5)','rgba(52,211,153,0.5)','rgba(251,191,36,0.5)','rgba(248,113,113,0.5)'],borderColor:['#14b8a6','#22d3ee','#34d399','#fbbf24','#f87171'],borderWidth:1});})},options:{responsive:true,plugins:{legend:{labels:{color:cs.getPropertyValue('--text-secondary')}}},scales:{x:{ticks:{color:cs.getPropertyValue('--text-muted')},grid:{color:'rgba(255,255,255,0.05)'}},y:{ticks:{color:cs.getPropertyValue('--text-muted')},grid:{color:'rgba(255,255,255,0.05)'}}}}});}}catch(e){console.error('Chart parse error:',e);}});
+
+
+// Table sorting
+document.querySelectorAll('th').forEach(function(th,ci){th.addEventListener('click',function(){var t=th.closest('table'),tb=t.querySelector('tbody')||t;var rows=Array.from(tb.querySelectorAll('tr')).filter(function(r){return r.querySelector('td');});var asc=th.dataset.sort!=='asc';th.dataset.sort=asc?'asc':'desc';rows.sort(function(a,b){var av=a.children[ci]?a.children[ci].textContent.trim():'',bv=b.children[ci]?b.children[ci].textContent.trim():'';var an=parseFloat(av),bn=parseFloat(bv);if(!isNaN(an)&&!isNaN(bn))return asc?an-bn:bn-an;return asc?av.localeCompare(bv):bv.localeCompare(av);});rows.forEach(function(r){tb.appendChild(r);});});});
+
+// Minimal: checkbox support
+document.querySelectorAll('article li').forEach(function(li){var cb=li.querySelector('input[type="checkbox"]');if(cb){li.classList.add('task-list-item');if(cb.checked)li.classList.add('checked');}});
+
+
+// ===== 코멘트 기능 =====
+var PAGE_SLUG = "matrix-architect-scene";
+var COMMENT_PREFIX = 'visual_comment_' + PAGE_SLUG + '_';
+
+// 블록별로 저장된 코멘트를 읽어와 점 표시 + 블록 강조
+function loadCommentIndicators(){
+  document.querySelectorAll('.commentable[data-block-id]').forEach(function(el){
+    var bid = el.getAttribute('data-block-id');
+    var val = localStorage.getItem(COMMENT_PREFIX + bid);
+    if(val && val.trim()){
+      var dot = el.querySelector(':scope > .comment-dot');
+      if(dot) dot.hidden = false;
+      var btn = el.querySelector(':scope > .comment-btn');
+      if(btn) btn.classList.add('has-comment');
+      el.classList.add('has-user-comment');
+    } else {
+      el.classList.remove('has-user-comment');
+    }
+  });
+}
+
+// 코멘트 박스 열기/닫기
+function toggleComment(btn){
+  var el = btn.closest('.commentable');
+  if(!el) return;
+  var bid = el.getAttribute('data-block-id');
+  var existing = el.querySelector(':scope > .comment-box');
+  if(existing){
+    if(existing.classList.contains('open')){
+      existing.classList.remove('open');
+    } else {
+      existing.classList.add('open');
+      var ta = existing.querySelector('textarea');
+      if(ta) ta.focus();
+    }
+    return;
+  }
+  // 새 박스 생성
+  var saved = localStorage.getItem(COMMENT_PREFIX + bid) || '';
+  var box = document.createElement('div');
+  box.className = 'comment-box open';
+  box.innerHTML = '<textarea placeholder="코멘트를 입력하세요..."></textarea>' +
+    '<div class="comment-box-actions">' +
+      '<button type="button" class="cancel">취소</button>' +
+      '<button type="button" class="primary save">저장</button>' +
+    '</div>';
+  el.appendChild(box);
+  var ta = box.querySelector('textarea');
+  ta.value = saved;
+  ta.focus();
+  box.querySelector('.cancel').addEventListener('click', function(){ box.classList.remove('open'); });
+  box.querySelector('.save').addEventListener('click', function(){
+    var txt = ta.value.trim();
+    var dot = el.querySelector(':scope > .comment-dot');
+    var cbtn = el.querySelector(':scope > .comment-btn');
+    if(!txt){
+      localStorage.removeItem(COMMENT_PREFIX + bid);
+      if(dot) dot.hidden = true;
+      if(cbtn) cbtn.classList.remove('has-comment');
+      el.classList.remove('has-user-comment');
+    } else {
+      localStorage.setItem(COMMENT_PREFIX + bid, txt);
+      if(dot) dot.hidden = false;
+      if(cbtn) cbtn.classList.add('has-comment');
+      el.classList.add('has-user-comment');
+    }
+    box.classList.remove('open');
+  });
+}
+
+// 점(dot) 클릭도 토글로 연결
+document.querySelectorAll('.commentable > .comment-dot').forEach(function(d){
+  d.style.pointerEvents = 'auto';
+  d.style.cursor = 'pointer';
+  d.addEventListener('click', function(){
+    var el = d.closest('.commentable');
+    var btn = el && el.querySelector(':scope > .comment-btn');
+    if(btn) toggleComment(btn);
+  });
+});
+
+loadCommentIndicators();
+
+// ===== 텍스트 선택 기반 코멘트 (신규) =====
+var ANNOT_PREFIX = 'visual_annot_' + PAGE_SLUG + '_';
+var STICKY_PREFIX = 'visual_sticky_' + PAGE_SLUG + '_';
+
+// 페이지 로드시 기존 코멘트 있으면 삭제 여부 prompt
+(function askClearPrevious(){
+  var has = false;
+  for(var i=0; i<localStorage.length; i++){
+    var k = localStorage.key(i);
+    if(!k) continue;
+    if(k.indexOf(COMMENT_PREFIX)===0){ has = true; break; }
+    if(k===ANNOT_PREFIX+'list' || k===STICKY_PREFIX+'list'){
+      var v = localStorage.getItem(k);
+      if(v && v !== '[]') { has = true; break; }
+    }
+  }
+  if(has && confirm('이전 코멘트가 있습니다. 모두 삭제하고 새로 시작할까요?')){
+    var toRemove = [];
+    for(var j=0; j<localStorage.length; j++){
+      var kk = localStorage.key(j);
+      if(kk && kk.indexOf(COMMENT_PREFIX)===0) toRemove.push(kk);
+    }
+    toRemove.forEach(function(k){ localStorage.removeItem(k); });
+    localStorage.removeItem(ANNOT_PREFIX + 'list');
+    localStorage.removeItem(STICKY_PREFIX + 'list');
+    location.reload();
+  }
+})();
+
+function loadAnnotations(){
+  try { return JSON.parse(localStorage.getItem(ANNOT_PREFIX + 'list') || '[]'); }
+  catch(e){ return []; }
+}
+function saveAnnotations(list){
+  localStorage.setItem(ANNOT_PREFIX + 'list', JSON.stringify(list));
+}
+function loadStickies(){
+  try { return JSON.parse(localStorage.getItem(STICKY_PREFIX + 'list') || '[]'); }
+  catch(e){ return []; }
+}
+function saveStickies(list){
+  localStorage.setItem(STICKY_PREFIX + 'list', JSON.stringify(list));
+}
+
+// 선택 시 플로팅 버튼 노출
+var _selPopup = null;
+function hideSelPopup(){ if(_selPopup){ _selPopup.remove(); _selPopup = null; } }
+
+document.addEventListener('mouseup', function(e){
+  if(e.target.closest('.sel-popup, .comment-box, .comment-panel, .sticky-note, .comment-panel-toggle, .comment-btn, .comment-item-delete, .sticky-close')) return;
+  setTimeout(function(){
+    var sel = window.getSelection();
+    if(!sel || sel.isCollapsed || !sel.rangeCount){ hideSelPopup(); return; }
+    var text = sel.toString().trim();
+    if(!text || text.length < 2){ hideSelPopup(); return; }
+    // 선택된 range가 본문 안인지 확인
+    var range = sel.getRangeAt(0);
+    var container = range.commonAncestorContainer;
+    var main = container.nodeType === 1 ? container : container.parentElement;
+    if(!main || !main.closest('article, .main-content, .metadata-card, .hero-section')) return;
+    var rect = range.getBoundingClientRect();
+    showSelPopup(rect, text);
+  }, 10);
+});
+document.addEventListener('mousedown', function(e){
+  if(!e.target.closest('.sel-popup')) hideSelPopup();
+});
+
+function showSelPopup(rect, text){
+  hideSelPopup();
+  var p = document.createElement('div');
+  p.className = 'sel-popup';
+  p.style.top = (window.scrollY + rect.bottom + 6) + 'px';
+  p.style.left = (window.scrollX + rect.left) + 'px';
+  p.innerHTML = '<button class="sel-add-btn"><span class="iconify" data-icon="lucide:message-square-plus" data-width="14"></span> 코멘트 추가</button>';
+  document.body.appendChild(p);
+  _selPopup = p;
+  p.querySelector('.sel-add-btn').addEventListener('click', function(){
+    openSelCommentBox(rect, text);
+    hideSelPopup();
+  });
+}
+
+function openSelCommentBox(rect, selectedText){
+  var box = document.createElement('div');
+  box.className = 'comment-box open sel-comment-box';
+  box.style.position = 'absolute';
+  box.style.top = (window.scrollY + rect.bottom + 6) + 'px';
+  box.style.left = Math.min(window.scrollX + rect.left, window.scrollX + window.innerWidth - 340) + 'px';
+  box.style.width = '320px';
+  box.style.zIndex = '1001';
+  var preview = selectedText.length > 80 ? selectedText.slice(0, 80) + '…' : selectedText;
+  var escHTML = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  box.innerHTML = '<div class="sel-preview">📌 "' + escHTML(preview) + '"</div>' +
+    '<textarea placeholder="선택한 텍스트에 대한 코멘트..."></textarea>' +
+    '<div class="comment-box-actions">' +
+      '<button type="button" class="cancel">취소</button>' +
+      '<button type="button" class="primary save">저장</button>' +
+    '</div>';
+  document.body.appendChild(box);
+  var ta = box.querySelector('textarea');
+  ta.focus();
+  box.querySelector('.cancel').addEventListener('click', function(){ box.remove(); });
+  box.querySelector('.save').addEventListener('click', function(){
+    var txt = ta.value.trim();
+    if(!txt){ box.remove(); return; }
+    var id = 'a' + Date.now() + Math.random().toString(36).slice(2, 6);
+    var list = loadAnnotations();
+    list.push({ id: id, text: selectedText, comment: txt, timestamp: Date.now() });
+    saveAnnotations(list);
+    applyAnnotationHighlight(id, selectedText);
+    box.remove();
+    renderCommentPanel();
+  });
+}
+
+// 저장된 annotation을 DOM에 하이라이트 (기본 구현: 첫 매칭만)
+function applyAnnotationHighlight(id, text){
+  var article = document.querySelector('article');
+  if(!article) return;
+  var walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT, null);
+  var node;
+  while(node = walker.nextNode()){
+    var idx = node.nodeValue.indexOf(text);
+    if(idx !== -1){
+      try {
+        var range = document.createRange();
+        range.setStart(node, idx);
+        range.setEnd(node, idx + text.length);
+        var mark = document.createElement('mark');
+        mark.className = 'user-annotation';
+        mark.setAttribute('data-annot-id', id);
+        range.surroundContents(mark);
+      } catch(e){ /* multi-node range — skip */ }
+      break;
+    }
+  }
+}
+
+function deleteAnnotation(id){
+  
+  var list = loadAnnotations().filter(function(a){ return a.id !== id; });
+  saveAnnotations(list);
+  var mark = document.querySelector('mark.user-annotation[data-annot-id="' + id + '"]');
+  if(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+    parent.removeChild(mark);
+  }
+  renderCommentPanel();
+}
+
+// 페이지 로드 시 저장된 annotation 모두 적용
+loadAnnotations().forEach(function(a){ applyAnnotationHighlight(a.id, a.text); });
+
+// ===== Sticky Note (임의 좌표 코멘트) =====
+function createSticky(x, y, initialText){
+  var id = 's' + Date.now() + Math.random().toString(36).slice(2, 6);
+  var note = buildStickyDOM(id, x, y, initialText || '');
+  document.body.appendChild(note);
+  // 새 note는 즉시 저장 + 포커스
+  var list = loadStickies();
+  list.push({ id: id, x: x, y: y, text: initialText || '' });
+  saveStickies(list);
+  var ta = note.querySelector('textarea');
+  if(ta) ta.focus();
+  renderCommentPanel();
+  return note;
+}
+
+function buildStickyDOM(id, x, y, text){
+  var note = document.createElement('div');
+  note.className = 'sticky-note';
+  note.setAttribute('data-sticky-id', id);
+  note.style.top = y + 'px';
+  note.style.left = x + 'px';
+  note.innerHTML = '<div class="sticky-drag-handle">📌 드래그</div>' +
+    '<textarea placeholder="자유 코멘트..."></textarea>' +
+    '<button class="sticky-close" title="삭제"><span class="iconify" data-icon="lucide:x" data-width="12"></span></button>';
+  var ta = note.querySelector('textarea');
+  ta.value = text;
+  ta.addEventListener('input', function(){
+    var list = loadStickies();
+    var item = list.find(function(s){ return s.id === id; });
+    if(item){ item.text = ta.value; saveStickies(list); }
+    clearTimeout(ta._renderTimer);
+    ta._renderTimer = setTimeout(renderCommentPanel, 400);
+  });
+  note.querySelector('.sticky-close').addEventListener('click', function(){
+    
+    deleteSticky(id);
+  });
+  makeStickyDraggable(note, note.querySelector('.sticky-drag-handle'));
+  return note;
+}
+
+function makeStickyDraggable(el, handle){
+  var sx = 0, sy = 0, startX = 0, startY = 0, dragging = false;
+  handle.addEventListener('mousedown', function(e){
+    dragging = true;
+    sx = e.pageX; sy = e.pageY;
+    startX = parseInt(el.style.left) || 0;
+    startY = parseInt(el.style.top) || 0;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragging) return;
+    var nx = startX + (e.pageX - sx);
+    var ny = startY + (e.pageY - sy);
+    el.style.left = Math.max(0, nx) + 'px';
+    el.style.top = Math.max(0, ny) + 'px';
+  });
+  document.addEventListener('mouseup', function(){
+    if(!dragging) return;
+    dragging = false;
+    var id = el.getAttribute('data-sticky-id');
+    var list = loadStickies();
+    var item = list.find(function(s){ return s.id === id; });
+    if(item){
+      item.x = parseInt(el.style.left) || 0;
+      item.y = parseInt(el.style.top) || 0;
+      saveStickies(list);
+    }
+  });
+}
+
+function deleteSticky(id){
+  var list = loadStickies().filter(function(s){ return s.id !== id; });
+  saveStickies(list);
+  var note = document.querySelector('.sticky-note[data-sticky-id="' + id + '"]');
+  if(note) note.remove();
+  renderCommentPanel();
+}
+
+// 페이지 로드 시 저장된 sticky 복원
+loadStickies().forEach(function(s){
+  var note = buildStickyDOM(s.id, s.x, s.y, s.text);
+  document.body.appendChild(note);
+});
+
+function addSticky(){
+  // 현재 viewport 중앙에 생성
+  var x = window.scrollX + Math.max(100, window.innerWidth/2 - 140);
+  var y = window.scrollY + 120;
+  createSticky(x, y, '');
+}
+
+// ===== 통합 패널 =====
+function getAllComments(){
+  var list = [];
+  // 블록 단위
+  document.querySelectorAll('.commentable[data-block-id]').forEach(function(el){
+    var bid = el.getAttribute('data-block-id');
+    var val = localStorage.getItem(COMMENT_PREFIX + bid);
+    if(!val || !val.trim()) return;
+    var clone = el.cloneNode(true);
+    clone.querySelectorAll('.comment-btn, .comment-dot, .comment-box, .copy-btn').forEach(function(n){ n.remove(); });
+    var ctx = (clone.innerText || clone.textContent || '').trim();
+    list.push({ type: 'block', id: bid, context: ctx, comment: val.trim() });
+  });
+  // 텍스트 선택 annotation
+  loadAnnotations().forEach(function(a){
+    list.push({ type: 'annotation', id: a.id, context: a.text, comment: a.comment });
+  });
+  // Sticky (자유 코멘트)
+  loadStickies().forEach(function(s){
+    if(s.text && s.text.trim()){
+      list.push({ type: 'sticky', id: s.id, context: '(빈 공간 자유 코멘트)', comment: s.text.trim() });
+    }
+  });
+  return list;
+}
+
+function renderCommentPanel(){
+  var listEl = document.getElementById('commentPanelList');
+  var countEl = document.getElementById('commentPanelCount');
+  var badgeEl = document.getElementById('commentCountBadge');
+  if(!listEl) return;
+  var items = getAllComments();
+  if(countEl) countEl.textContent = items.length;
+  if(badgeEl){
+    if(items.length > 0){ badgeEl.hidden = false; badgeEl.textContent = items.length; }
+    else { badgeEl.hidden = true; }
+  }
+  if(items.length === 0){
+    listEl.innerHTML = '<div class="comment-panel-empty">아직 코멘트가 없습니다.<br/>' +
+      '• 블록 옆 💬 아이콘<br/>• 텍스트 드래그 선택<br/>• 아래 <b>+ 자유 코멘트</b> 버튼</div>';
+    return;
+  }
+  var escHTML = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var typeIcon = { block: '📎', annotation: '✨', sticky: '📌' };
+  var typeLabel = { block: '블록', annotation: '선택', sticky: '자유' };
+  listEl.innerHTML = items.map(function(item, i){
+    var ctxShort = item.context.length > 200 ? item.context.slice(0, 200) + '…' : item.context;
+    var delFn = item.type === 'block' ? 'deleteComment' : (item.type === 'annotation' ? 'deleteAnnotation' : 'deleteSticky');
+    var clickFn = item.type === 'block' ? 'scrollToBlock' : (item.type === 'annotation' ? 'scrollToAnnotation' : 'scrollToSticky');
+    return '<div class="comment-item type-' + item.type + '" onclick="' + clickFn + '(\''+ item.id +'\')">' +
+      '<button class="comment-item-delete" onclick="event.stopPropagation(); ' + delFn + '(\''+ item.id +'\')" title="삭제"><span class="iconify" data-icon="lucide:x" data-width="12"></span></button>' +
+      '<div class="comment-item-num">' + typeIcon[item.type] + ' ' + typeLabel[item.type] + ' #' + (i+1) + '</div>' +
+      '<div class="comment-item-context">' + escHTML(ctxShort) + '</div>' +
+      '<div class="comment-item-comment">' + escHTML(item.comment) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function scrollToBlock(bid){
+  var el = document.querySelector('.commentable[data-block-id="' + bid + '"]');
+  if(!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.style.outline = '2px solid var(--accent, #3b82f6)';
+  el.style.outlineOffset = '4px';
+  setTimeout(function(){ el.style.outline = ''; el.style.outlineOffset = ''; }, 1500);
+}
+function scrollToAnnotation(aid){
+  var mark = document.querySelector('mark.user-annotation[data-annot-id="' + aid + '"]');
+  if(!mark) return;
+  mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  mark.style.outline = '2px solid #3b82f6';
+  setTimeout(function(){ mark.style.outline = ''; }, 1500);
+}
+function scrollToSticky(sid){
+  var note = document.querySelector('.sticky-note[data-sticky-id="' + sid + '"]');
+  if(!note) return;
+  note.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  note.style.boxShadow = '0 0 0 3px #3b82f6';
+  setTimeout(function(){ note.style.boxShadow = ''; }, 1500);
+}
+
+function deleteComment(bid){
+  
+  localStorage.removeItem(COMMENT_PREFIX + bid);
+  var el = document.querySelector('.commentable[data-block-id="' + bid + '"]');
+  if(el){
+    var dot = el.querySelector(':scope > .comment-dot');
+    var cbtn = el.querySelector(':scope > .comment-btn');
+    if(dot) dot.hidden = true;
+    if(cbtn) cbtn.classList.remove('has-comment');
+    var box = el.querySelector(':scope > .comment-box');
+    if(box) box.remove();
+  }
+  renderCommentPanel();
+}
+
+function toggleCommentPanel(){
+  var p = document.getElementById('commentPanel');
+  if(!p) return;
+  p.classList.toggle('open');
+  if(p.classList.contains('open')) renderCommentPanel();
+  closeCpanelMenu();
+}
+
+function toggleCpanelMenu(){
+  var m = document.getElementById('cpanelMenu');
+  if(!m) return;
+  m.hidden = !m.hidden;
+}
+function closeCpanelMenu(){
+  var m = document.getElementById('cpanelMenu');
+  if(m) m.hidden = true;
+}
+// 메뉴 바깥 클릭 시 닫기
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.cpanel-more-wrap')) closeCpanelMenu();
+});
+
+// 전체 코멘트 한 번에 삭제 (더블 클릭 확인 방식: 첫 클릭=안내, 두 번째=실행)
+function clearAllComments(btn){
+  if(btn.getAttribute('data-armed')!=='1'){
+    btn.setAttribute('data-armed','1');
+    var origHTML=btn.innerHTML;
+    btn.innerHTML='<span class="iconify" data-icon="lucide:alert-triangle" data-width="14"></span> 한번 더 클릭';
+    setTimeout(function(){
+      btn.removeAttribute('data-armed');
+      btn.innerHTML=origHTML;
+    }, 3000);
+    return;
+  }
+  // 확정 — 3종류 모두 제거
+  // 1) 블록 코멘트 (localStorage의 visual_comment_{slug}_{bid})
+  Object.keys(localStorage).forEach(function(k){
+    if(k.indexOf(COMMENT_PREFIX)===0) localStorage.removeItem(k);
+  });
+  // 2) annotation 리스트
+  localStorage.removeItem(ANNOT_PREFIX + 'list');
+  // 3) sticky 리스트
+  localStorage.removeItem(STICKY_PREFIX + 'list');
+
+  // DOM 정리
+  document.querySelectorAll('.commentable').forEach(function(el){
+    var dot = el.querySelector(':scope > .comment-dot');
+    var cbtn = el.querySelector(':scope > .comment-btn');
+    var box = el.querySelector(':scope > .comment-box');
+    if(dot) dot.hidden = true;
+    if(cbtn) cbtn.classList.remove('has-comment');
+    if(box) box.remove();
+  });
+  document.querySelectorAll('mark.user-annotation').forEach(function(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+    parent.removeChild(mark);
+  });
+  document.querySelectorAll('.sticky-note').forEach(function(n){ n.remove(); });
+
+  btn.removeAttribute('data-armed');
+  btn.innerHTML='<span class="iconify" data-icon="lucide:check" data-width="14"></span> 전체 삭제됨';
+  setTimeout(function(){
+    btn.innerHTML='<span class="iconify" data-icon="lucide:trash-2" data-width="14"></span> 전체 삭제';
+  }, 2000);
+
+  renderCommentPanel();
+}
+
+// save/delete 훅에서 패널 재렌더
+var _origToggle = toggleComment;
+toggleComment = function(btn){
+  _origToggle(btn);
+  var el = btn.closest('.commentable');
+  if(!el) return;
+  var box = el.querySelector(':scope > .comment-box');
+  if(box){
+    var saveBtn = box.querySelector('.save');
+    if(saveBtn && !saveBtn._panelHooked){
+      saveBtn._panelHooked = true;
+      saveBtn.addEventListener('click', function(){ setTimeout(renderCommentPanel, 10); });
+    }
+  }
+};
+
+renderCommentPanel();
+
+// ===== 코멘트 컨텍스트 복사 (플레인 포맷) =====
+function copyAll(toolBtn){
+  var title = "\"The Architect Scene — Neo Meets His Maker\"";
+  var sourceFile = "matrix-architect-scene";
+  var items = getAllComments();
+
+  if(items.length === 0){
+    alert('저장된 코멘트가 없습니다.');
+    return;
+  }
+
+  // blockquote 대신 플레인 + 단순 구분자
+  var out = '[코멘트 피드백] ' + title + '\n';
+  out += '(원본: ' + sourceFile + ' | 총 ' + items.length + '건)\n\n';
+  items.forEach(function(it, i){
+    out += '═══ #' + (i+1) + ' [' + it.type + '] ═══\n';
+    var ctx = it.context;
+    if(ctx.length > 350){
+      ctx = ctx.slice(0, 200) + '\n...(중략)...\n' + ctx.slice(-120);
+    }
+    out += '원문: ' + ctx.replace(/\n+/g, ' / ') + '\n';
+    out += '코멘트: ' + it.comment + '\n\n';
+  });
+  out += '---\n위 피드백 반영해서 원본 파일 수정해줘.\n';
+
+  navigator.clipboard.writeText(out).then(function(){
+    if(toolBtn){
+      var orig = toolBtn.innerHTML;
+      toolBtn.innerHTML = '<span class="iconify" data-icon="lucide:check" data-width="14"></span>';
+      toolBtn.setAttribute('data-copied', '1');
+      setTimeout(function(){ toolBtn.innerHTML = orig; toolBtn.removeAttribute('data-copied'); }, 2000);
+    }
+  }).catch(function(err){ console.error('copy failed', err); alert('복사 실패: ' + err.message); });
+}
+
+// ===== Cross-page operations =====
+function getAllPagesSlugs(){
+  var slugs = new Set();
+  for(var i=0; i<localStorage.length; i++){
+    var k = localStorage.key(i);
+    if(!k) continue;
+    if(k.indexOf('visual_comment_') === 0){
+      var rest = k.slice('visual_comment_'.length);
+      var idx = rest.lastIndexOf('_');
+      if(idx > 0) slugs.add(rest.slice(0, idx));
+    } else if(k.indexOf('visual_annot_') === 0 && k.endsWith('_list')){
+      slugs.add(k.slice('visual_annot_'.length, -('_list'.length)));
+    } else if(k.indexOf('visual_sticky_') === 0 && k.endsWith('_list')){
+      slugs.add(k.slice('visual_sticky_'.length, -('_list'.length)));
+    }
+  }
+  return Array.from(slugs);
+}
+
+function copyAllPages(toolBtn){
+  var slugs = getAllPagesSlugs();
+  if(slugs.length === 0){
+    alert('저장된 코멘트가 없습니다.');
+    return;
+  }
+  var currentSlug = "matrix-architect-scene";
+  var out = '[코멘트 피드백 — 모든 페이지] (' + slugs.length + ' 페이지)\n\n';
+  var totalCount = 0;
+
+  slugs.forEach(function(slug){
+    var pageItems = [];
+
+    // Block comments for this slug
+    for(var i=0; i<localStorage.length; i++){
+      var k = localStorage.key(i);
+      if(k && k.indexOf('visual_comment_' + slug + '_') === 0){
+        var bid = k.slice(('visual_comment_' + slug + '_').length);
+        var comment = localStorage.getItem(k);
+        if(comment && comment.trim()){
+          var ctx = '(다른 페이지의 블록 — 컨텍스트는 해당 페이지에서 확인)';
+          if(slug === currentSlug){
+            var el = document.querySelector('.commentable[data-block-id="' + bid + '"]');
+            if(el){
+              var clone = el.cloneNode(true);
+              clone.querySelectorAll('.comment-btn, .comment-dot, .comment-box, .copy-btn').forEach(function(n){ n.remove(); });
+              ctx = (clone.innerText || clone.textContent || '').trim();
+            }
+          }
+          pageItems.push({ type: 'block', id: bid, context: ctx, comment: comment.trim() });
+        }
+      }
+    }
+
+    // Annotations
+    try {
+      var annotList = JSON.parse(localStorage.getItem('visual_annot_' + slug + '_list') || '[]');
+      annotList.forEach(function(a){
+        pageItems.push({ type: 'annotation', id: a.id, context: a.text, comment: a.comment });
+      });
+    } catch(e){}
+
+    // Stickies
+    try {
+      var stickyList = JSON.parse(localStorage.getItem('visual_sticky_' + slug + '_list') || '[]');
+      stickyList.forEach(function(s){
+        if(s.text && s.text.trim()){
+          pageItems.push({ type: 'sticky', id: s.id, context: '(빈 공간 자유 코멘트)', comment: s.text.trim() });
+        }
+      });
+    } catch(e){}
+
+    if(pageItems.length === 0) return;
+
+    out += '╔═══ 페이지: ' + slug + ' (' + pageItems.length + '건) ═══╗\n\n';
+    pageItems.forEach(function(it, i){
+      out += '#' + (i+1) + ' [' + it.type + ']\n';
+      var ctx = it.context;
+      if(ctx.length > 350){
+        ctx = ctx.slice(0, 200) + '\n...(중략)...\n' + ctx.slice(-120);
+      }
+      out += '원문: ' + ctx.replace(/\n+/g, ' / ') + '\n';
+      out += '코멘트: ' + it.comment + '\n\n';
+    });
+    out += '\n';
+    totalCount += pageItems.length;
+  });
+
+  out += '---\n총 ' + totalCount + '건 (' + slugs.length + ' 페이지). 위 피드백 반영해서 원본 파일 수정해줘.\n';
+
+  navigator.clipboard.writeText(out).then(function(){
+    if(toolBtn){
+      var orig = toolBtn.innerHTML;
+      toolBtn.innerHTML = '<span class="iconify" data-icon="lucide:check" data-width="14"></span> 복사됨!';
+      setTimeout(function(){ toolBtn.innerHTML = orig; }, 2000);
+    }
+  }).catch(function(err){ console.error('copy failed', err); alert('복사 실패: ' + err.message); });
+}
+
+function clearAllPages(btn){
+  if(!btn.hasAttribute('data-armed')){
+    btn.setAttribute('data-armed', '1');
+    var origHTML = btn.innerHTML;
+    btn.innerHTML = '<span class="iconify" data-icon="lucide:alert-triangle" data-width="14"></span> 모든 페이지! 한번 더';
+    setTimeout(function(){
+      btn.removeAttribute('data-armed');
+      btn.innerHTML = origHTML;
+    }, 3000);
+    return;
+  }
+  // Confirmed — remove ALL pages' comments
+  var keysToRemove = [];
+  for(var i=0; i<localStorage.length; i++){
+    var k = localStorage.key(i);
+    if(k && (k.indexOf('visual_comment_') === 0 || k.indexOf('visual_annot_') === 0 || k.indexOf('visual_sticky_') === 0)){
+      keysToRemove.push(k);
+    }
+  }
+  keysToRemove.forEach(function(k){ localStorage.removeItem(k); });
+
+  // Clean current page DOM
+  document.querySelectorAll('.commentable').forEach(function(el){
+    var dot = el.querySelector(':scope > .comment-dot');
+    var cbtn = el.querySelector(':scope > .comment-btn');
+    var box = el.querySelector(':scope > .comment-box');
+    if(dot) dot.hidden = true;
+    if(cbtn) cbtn.classList.remove('has-comment');
+    if(box) box.remove();
+  });
+  document.querySelectorAll('mark.user-annotation').forEach(function(mark){
+    var parent = mark.parentNode;
+    while(mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+    parent.removeChild(mark);
+  });
+  document.querySelectorAll('.sticky-note').forEach(function(n){ n.remove(); });
+
+  alert('모든 페이지의 코멘트가 삭제되었습니다.');
+  if(typeof renderCommentPanel === 'function') renderCommentPanel();
+}
+
+</script>
+</body>
+</html>
