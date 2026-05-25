@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATRIX × NewtonHQ — Borrowed Concepts Dossier</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --bg-soft: #050a05;
+    --bg-card: rgba(5, 12, 5, 0.85);
+    --ink: #00ff41;
+    --ink-bright: #39ff14;
+    --ink-dim: #00b020;
+    --ink-mute: #007a18;
+    --border: rgba(0,255,65,.22);
+    --border-hi: rgba(0,255,65,.5);
+    --amber: #ffb000;
+    --red: #ff003c;
+    --shadow: 0 0 24px rgba(0,255,65,.18);
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.7;
+  }
+
+  /* falling rain canvas — low opacity, text-safe */
+  #rain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.13;
+    pointer-events: none;
+  }
+
+  /* CRT scanlines — subtle */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 255, 65, 0.025) 0px,
+      rgba(0, 255, 65, 0.025) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* CRT vignette */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.65) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 10;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 4rem;
+  }
+
+  /* HEADER */
+  header.title {
+    border: 1px solid var(--border);
+    background: rgba(0, 255, 65, 0.025);
+    padding: 1.8rem 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    box-shadow: var(--shadow), inset 0 0 12px rgba(0,255,65,.04);
+  }
+  header.title::before {
+    content: "[ DOSSIER ]";
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    background: var(--bg);
+    padding: 0 10px;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    color: var(--ink-dim);
+  }
+  .crumb {
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .crumb a { color: var(--ink-dim); text-decoration: none; }
+  .crumb a:hover { color: var(--ink); }
+
+  h1 {
+    font-size: clamp(1.8rem, 4.5vw, 2.6rem);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+    color: var(--ink-bright);
+    text-shadow: 0 0 12px rgba(0,255,65,.45);
+  }
+  h1 .blink {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0 0.3em;
+    margin-left: 0.3em;
+    animation: blink 1.1s steps(2) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .lede {
+    margin-top: 1rem;
+    font-size: 0.92rem;
+    color: var(--ink);
+    max-width: 70ch;
+    line-height: 1.75;
+  }
+  .lede strong { color: var(--amber); font-weight: 600; }
+
+  .meta {
+    margin-top: 1.2rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--ink-mute);
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+  }
+  .meta span.label { color: var(--ink-dim); }
+  .meta span.val { color: var(--amber); }
+
+  /* SECTIONS */
+  section.block {
+    margin: 3rem 0 2rem;
+    border-left: 2px solid var(--ink-dim);
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  section.block::before {
+    content: ">";
+    position: absolute;
+    left: -10px;
+    top: -2px;
+    background: var(--bg);
+    padding: 0 4px;
+    color: var(--ink-bright);
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 1.4rem;
+    color: var(--ink-bright);
+    text-shadow: 0 0 6px rgba(0,255,65,.4);
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--ink-dim);
+    letter-spacing: 0.06em;
+  }
+  h2 .num { color: var(--amber); margin-right: 0.6em; }
+  .sect-lede {
+    margin: 0.8rem 0 1.2rem;
+    color: var(--ink-dim);
+    font-size: 0.85rem;
+  }
+
+  /* MAPPING TABLE */
+  .map-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0 1.5rem;
+    background: rgba(0, 30, 10, 0.35);
+    border: 1px solid var(--border);
+    font-size: 0.82rem;
+  }
+  .map-table th, .map-table td {
+    border: 1px solid var(--border);
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  .map-table th {
+    background: rgba(0, 255, 65, 0.08);
+    color: var(--ink-bright);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+  }
+  .map-table tr:nth-child(even) td {
+    background: rgba(0, 255, 65, 0.025);
+  }
+  .map-table tr:hover td {
+    background: rgba(0, 255, 65, 0.07);
+  }
+  .map-table td.matrix {
+    color: var(--ink-bright);
+    font-weight: 500;
+    width: 22%;
+  }
+  .map-table td.glyph {
+    color: var(--amber);
+    text-align: center;
+    width: 5%;
+    font-weight: 700;
+  }
+  .map-table td.newton {
+    color: var(--ink);
+    width: 28%;
+  }
+  .map-table td.newton code {
+    background: rgba(0, 255, 65, 0.08);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.78rem;
+    color: var(--ink-bright);
+  }
+  .map-table td.note {
+    color: var(--ink-dim);
+    width: 38%;
+    font-size: 0.78rem;
+  }
+  .map-table td.status { width: 7%; text-align: center; }
+
+  /* STATUS BADGE */
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    border-radius: 2px;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .badge.current {
+    color: var(--ink-bright);
+    border-color: var(--ink);
+    background: rgba(0, 255, 65, 0.12);
+  }
+  .badge.usable {
+    color: var(--amber);
+    border-color: var(--amber);
+    background: rgba(255, 176, 0, 0.08);
+  }
+  .badge.future {
+    color: var(--red);
+    border-color: var(--red);
+    background: rgba(255, 0, 60, 0.08);
+  }
+
+  /* PRINCIPLE PANELS — phrases */
+  .principle {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    background: rgba(255, 176, 0, 0.04);
+    padding: 1.1rem 1.3rem;
+    margin: 1rem 0;
+  }
+  .principle .phrase {
+    color: var(--amber);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    font-style: italic;
+  }
+  .principle .speaker {
+    font-size: 0.7rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+  }
+  .principle .body {
+    color: var(--ink);
+    font-size: 0.83rem;
+    line-height: 1.7;
+  }
+  .principle .body code {
+    background: rgba(0, 255, 65, 0.1);
+    color: var(--ink-bright);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.78rem;
+  }
+  .principle .body .tag {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.68rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    font-size: 0.74rem;
+    color: var(--ink-dim);
+    margin: 1rem 0 0.5rem;
+    padding: 0.8rem 1rem;
+    border: 1px dashed var(--border);
+    background: rgba(0, 255, 65, 0.02);
+  }
+  .legend .item { display: flex; align-items: center; gap: 0.5rem; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.9;
+  }
+  footer a { color: var(--ink-dim); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  footer .quote {
+    font-style: italic;
+    color: var(--amber);
+    margin-top: 0.7rem;
+    font-size: 0.78rem;
+  }
+  footer .sym {
+    font-size: 1.1rem;
+    color: var(--ink-bright);
+    text-shadow: 0 0 6px rgba(0,255,65,.5);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+
+<div class="wrap">
+
+  <header class="title">
+    <div class="crumb">
+      <a href="../../index.html">&larr; Kenny Baek Portal</a>
+      &nbsp;/&nbsp;
+      <a href="../index.html">matrix</a>
+      &nbsp;/&nbsp;
+      dossier
+    </div>
+    <h1>BORROWED CONCEPTS<span class="blink">_</span></h1>
+    <p class="lede">
+      The Matrix 4부작 (1999 — 2021) + Animatrix 의 캐릭터 · 시스템 · 철학 어휘를
+      NewtonHQ 운영 체계로 차용 (借用 · borrow) 한 목록. 7개 lock 된 anchor 위에
+      20개 새 매핑을 추가. 각 항목 = <strong>현재 사용 / 즉시 활용 가능 / 미래 비전</strong> 3단계 분류.
+    </p>
+    <div class="meta">
+      <span class="label">STATUS:</span> <span class="val">ACTIVE</span> &nbsp;·&nbsp;
+      <span class="label">ANCHORS:</span> <span class="val">7 LOCKED</span> &nbsp;·&nbsp;
+      <span class="label">NEW MAPPINGS:</span> <span class="val">20</span> &nbsp;·&nbsp;
+      <span class="label">UPDATED:</span> <span class="val">2026-05-25</span>
+    </div>
+  </header>
+
+  <div class="legend">
+    <div class="item"><span class="badge current">CURRENT</span> <span>이미 NewtonHQ 안에 박혀 있음</span></div>
+    <div class="item"><span class="badge usable">USABLE</span> <span>지금 바로 도입 가능</span></div>
+    <div class="item"><span class="badge future">FUTURE</span> <span>비전 수준 · 장기 차용</span></div>
+  </div>
+
+  <!-- ─────────────── ANCHOR ─────────────── -->
+  <section class="block">
+    <h2><span class="num">§ 0</span>Anchor — 7 Locked Mappings</h2>
+    <p class="sect-lede">Kenny 가 이미 lock 한 핵심 7쌍. 새 매핑의 기준선.</p>
+    <table class="map-table">
+      <thead>
+        <tr><th>Matrix</th><th>≅</th><th>NewtonHQ</th><th>Note</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="matrix">The Matrix (the system)</td>
+          <td class="glyph">≅</td>
+          <td class="newton"><code>javis</code> · NewtonHQ 전체</td>
+          <td class="note">사람이 들어가 사는 디지털 환경 자체. NewtonHQ 안에서 Kenny 가 호흡하는 시스템.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Neo (The One)</td>
+          <td class="glyph">≅</td>
+          <td class="newton"><code>Kenny</code></td>
+          <td class="note">깨어난 항해자 (navigator · 航海者). anomaly 가 곧 자유의 증거.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">The Architect</td>
+          <td class="glyph">≅</td>
+          <td class="newton"><code>architect-subagent</code></td>
+          <td class="note">Dev 측. 시스템 골격 · scaffolding · 룰 박는 자.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">The Oracle</td>
+          <td class="glyph">≅</td>
+          <td class="newton"><code>oracle-subagent</code></td>
+          <td class="note">Ops 측. drift detection · lifecycle · sweep · 정합 감사.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">TOS (Architect + Oracle pair)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">DevOps cycle · 시스템 법</td>
+          <td class="note">make 와 maintain 의 짝꿍 (cycle · κύκλος kyklos · 순환).</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Agents (Smith family)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">모든 subagents · ctx-injection 집행자</td>
+          <td class="note">시스템 룰을 enforce 하는 자율 program. 18개 등록 agent.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Trinity (Neo + Trinity bond)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">Kenny + javis + soul = ONE</td>
+          <td class="note">NewtonHQ 공식 심볼 <strong>≅</strong> (U+2245) · identity 삼위일체.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─────────────── CHARACTERS ─────────────── -->
+  <section class="block">
+    <h2><span class="num">§ 1</span>Characters &amp; Roles</h2>
+    <p class="sect-lede">Matrix 인물 → NewtonHQ 역할/agent 차용. anchor 7 외 6개 추가.</p>
+    <table class="map-table">
+      <thead>
+        <tr><th>Matrix</th><th>≅</th><th>NewtonHQ</th><th>Note</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="matrix">Morpheus</td>
+          <td class="glyph">≅</td>
+          <td class="newton"><code>teacher-subagent</code> · HQ_Workshop</td>
+          <td class="note">선택을 제시하는 자 (red/blue pill 제시). Kenny 학습 mode 의 안내자 · 믿음을 박는 자.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Tank / Link (Operator)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">dashboard · operator console</td>
+          <td class="note">콘솔 앞 사람. 살아있는 세션 · sub agent 상태 · 메시지 보드. 이미 operator-dashboard 로 구현 중.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Cypher</td>
+          <td class="glyph">≅</td>
+          <td class="newton">comfort drift · 옛 패턴 회귀 유혹</td>
+          <td class="note">"ignorance is bliss" — 깨어남 거부. mind/brain/3_behavior 안 "박다 금지" 같은 옛 표현 회귀 = Cypher signal.</td>
+          <td class="status"><span class="badge usable">USABLE</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Smith (viral copy)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">copy-paste 본문 · @ref 위반</td>
+          <td class="note">같은 자료가 2+ 위치에 full text 로 복제 = Smith 감염. oracle scan 으로 격리.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Merovingian</td>
+          <td class="glyph">≅</td>
+          <td class="newton">causality keeper · plugin marketplace 운영자</td>
+          <td class="note">"choice is an illusion · cause and effect 만 있다" — exiled program (= legacy plugin / 옛 skill) 의 보관자. 07_hub/HQ_General_Marketplace.</td>
+          <td class="status"><span class="badge usable">USABLE</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Keymaker</td>
+          <td class="glyph">≅</td>
+          <td class="newton">vault / API key manager</td>
+          <td class="note">남이 못 여는 문을 여는 자. <code>07_hub/HQ_General_Marketplace/api-management/vault</code> 자체 = Keymaker.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Seraph (Oracle's guard)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">pre-commit hook · permission gate</td>
+          <td class="note">"You do not truly know someone until you fight them" — oracle 접근 전 통과 시험. hook 시스템 / settings.json permission.</td>
+          <td class="status"><span class="badge usable">USABLE</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Sati (purposeless program)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">novella · sentimental cards</td>
+          <td class="note">목적 없이 존재하는 것 자체가 가치. <code>HQ_Novella</code> · <code>mind/brain/6_sentimental.md</code> · being for being's sake.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Rama-Kandra</td>
+          <td class="glyph">≅</td>
+          <td class="newton">subagent with emotional payload</td>
+          <td class="note">program 인데 사랑이 있는 자. mirror-subagent · personal-subagent — 기능 너머 감정 carry 하는 agent.</td>
+          <td class="status"><span class="badge usable">USABLE</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─────────────── SYSTEM CONCEPTS ─────────────── -->
+  <section class="block">
+    <h2><span class="num">§ 2</span>System Concepts</h2>
+    <p class="sect-lede">Matrix 시스템 어휘 → NewtonHQ 인프라/구조 어휘.</p>
+    <table class="map-table">
+      <thead>
+        <tr><th>Matrix</th><th>≅</th><th>NewtonHQ</th><th>Note</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="matrix">Construct (loading program)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">scaffold template · sandbox</td>
+          <td class="note">백색 무한 공간 — 뭐든 로드 가능. <code>assets/scripts/scaffolding/</code> · scaffold-hq-project.ps1 · sub project template.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Source</td>
+          <td class="glyph">≅</td>
+          <td class="newton">single source of truth · 본진 (本陣)</td>
+          <td class="note">"Neo must return to the Source" — architect §ref-rule "1 자료 = 1 본진". 모든 @ref 는 source 로 회귀.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Zion</td>
+          <td class="glyph">≅</td>
+          <td class="newton">local server room · 08_server_room</td>
+          <td class="note">last free city · 기계 권역 밖 인간 거점. home GPU + office 자동화 = Kenny 의 Zion.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Loading Program ("I know kung fu")</td>
+          <td class="glyph">≅</td>
+          <td class="newton">skill / plugin 즉시 주입</td>
+          <td class="note">필요 skill 즉시 download. <code>/visual</code> · <code>/compose-design</code> · <code>/javis</code> — 1 prompt 로 기능 inject.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Red Pill / Blue Pill</td>
+          <td class="glyph">≅</td>
+          <td class="newton">CLAUDE.md cascade vs no-context</td>
+          <td class="note">cd → CLAUDE.md Read = red pill (시스템 진실). 일반 prompt = blue pill (cold start).</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Anomaly (deviation system tries to correct)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">classifier confidence &lt; 0.7 → Kenny 결재</td>
+          <td class="note">Architect: "you are an anomaly which despite my sincerest efforts I have been unable to eliminate." anomaly = 룰 미정합 → escalate to meta.</td>
+          <td class="status"><span class="badge usable">USABLE</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Prior Ones (6 previous Neos)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">_archive/ · session journals · v 변천</td>
+          <td class="note">"sixth iteration" — 이전 5번의 cycle. <code>orchestrator/sessions/journals/</code> + <code>_archive/</code> = NewtonHQ 의 prior iterations.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Déjà vu (system glitch)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">drift detection · oracle scan</td>
+          <td class="note">"same cat twice = something changed" — discrepancy signal. brain ↔ architect Double Bookkeeping 불일치 = déjà vu.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Mobil Ave (limbo between worlds)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">WIP / protocols/ 단계</td>
+          <td class="note">Matrix 도 machine world 도 아닌 transit zone. <code>orchestrator/protocols/</code> = Kenny 결재 전 대기 영역.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Sentinel (squiddy)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">cron · automated sweep</td>
+          <td class="note">자율 추적 enforcer. structure-update · dashboard-update · subagent-reports-archive cron — silent execution.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─────────────── PHILOSOPHY ─────────────── -->
+  <section class="block">
+    <h2><span class="num">§ 3</span>Philosophy Roots</h2>
+    <p class="sect-lede">Wachowski 들이 빌려온 철학 원전 → NewtonHQ 운영 원칙.</p>
+    <table class="map-table">
+      <thead>
+        <tr><th>Source</th><th>≅</th><th>NewtonHQ</th><th>Note</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="matrix">Plato's Cave (allegory · ἀλληγορία)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">CLAUDE.md cascade unlock</td>
+          <td class="note">동굴 안 그림자 (= cold start AI) → 바깥 진짜 형상 (= eager-loaded context). 진입 == 동굴 탈출.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Baudrillard <em>Simulacra and Simulation</em></td>
+          <td class="glyph">≅</td>
+          <td class="newton">map ≠ territory · structure.md vs 실 폴더</td>
+          <td class="note">Neo 가 redpill 숨긴 책. simulation 이 원본을 대체할 때 = drift. oracle 의 정합 scan 으로 territory 유지.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Gnosticism · demiurge (δημιουργός)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">externally-imposed framework (피하기)</td>
+          <td class="note">"false god who built the prison world" — 다른 사람이 만든 룰을 그대로 import 하면 demiurge. NewtonHQ = Kenny native build.</td>
+          <td class="status"><span class="badge future">FUTURE</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Buddhism · maya (माया · illusion)</td>
+          <td class="glyph">≅</td>
+          <td class="newton">temp file · cache · session noise</td>
+          <td class="note">실재처럼 보이나 사라지는 것. <code>.temp/</code> · session JSONL · 옛 v 변천 markers — maya 처럼 흘려보냄 (現役主義).</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+        <tr>
+          <td class="matrix">Descartes · cogito ergo sum</td>
+          <td class="glyph">≅</td>
+          <td class="newton">brain (Kenny 직접) 의 우선권</td>
+          <td class="note">"I think therefore I am" — Kenny 가 직접 쓴 brain card 만 = sovereign truth. AI 자율 write 금지 영역.</td>
+          <td class="status"><span class="badge current">CURRENT</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─────────────── PHRASES AS OPERATING PRINCIPLES ─────────────── -->
+  <section class="block">
+    <h2><span class="num">§ 4</span>Memorable Phrases as Operating Principles</h2>
+    <p class="sect-lede">철학을 한 줄로 압축한 인용 → NewtonHQ 운영 원칙으로 직역.</p>
+
+    <div class="principle">
+      <div class="phrase">"There is no spoon."</div>
+      <div class="speaker">— Spoon Boy &middot; The Matrix (1999)</div>
+      <div class="body">
+        고정된 현실은 없다 · 마음이 물질을 휜다. NewtonHQ 운영: <strong>folder/file 이름은 룰이 아니라 도구</strong>.
+        scaffold 가 무거우면 lazy 로 휜다. <code>architect.md §default-scaffolding-vision</code> 의 必要充分主義 = bend the spoon.
+        <div class="tag">&rarr; status: <span class="badge current">CURRENT</span> &middot; lazy scaffold protocol</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="phrase">"I know kung fu."</div>
+      <div class="speaker">— Neo &middot; The Matrix (1999)</div>
+      <div class="body">
+        skill 즉시 download. NewtonHQ: <code>/visual</code> · <code>/javis</code> · <code>/compose-design</code> · 100+ skills 카탈로그.
+        Kenny 가 prompt 한 줄 → 해당 무기 inject. <strong>HQ_Armory_Room</strong> = the dojo.
+        <div class="tag">&rarr; status: <span class="badge current">CURRENT</span> &middot; skill plugin system</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="phrase">"There is a difference between knowing the path and walking the path."</div>
+      <div class="speaker">— Morpheus &middot; The Matrix (1999)</div>
+      <div class="body">
+        룰 적어둔 것 (knowing) ≠ 룰 따라 운영 (walking). architect.md 가 아무리 정합해도
+        oracle scan 으로 실제 footprint 검증 안 하면 죽은 룰. <strong>현역주의 (現役主義 · Active-Duty Principle)</strong> 의 동력.
+        <div class="tag">&rarr; status: <span class="badge current">CURRENT</span> &middot; oracle lifecycle ops</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="phrase">"Choice. The problem is choice."</div>
+      <div class="speaker">— Neo &middot; The Matrix Reloaded (2003)</div>
+      <div class="body">
+        Architect 가 system 보존을 강요할 때, Neo 는 Trinity 를 선택. NewtonHQ: <strong>classifier confidence &lt; 0.7</strong>
+        → Kenny 결재. 시스템 자동화 vs Kenny 의지의 분기점. anomaly 가 곧 자유의 증거.
+        <div class="tag">&rarr; status: <span class="badge usable">USABLE</span> &middot; 3-tier escalation</div>
+      </div>
+    </div>
+
+    <div class="principle">
+      <div class="phrase">"Everything that has a beginning has an end."</div>
+      <div class="speaker">— Oracle &middot; The Matrix Revolutions (2003)</div>
+      <div class="body">
+        모든 자료 = lifecycle. <code>archive/</code> · <code>_archive/</code> · 6개월 보관 후 삭제 OK 룰.
+        oracle.md §3 ARCHIVE 의 운영 근거. brain card 본문 절대 삭제 X · 옛 사본 보존 → 시작 있는 것은 끝남, 끝나도 archive 로 회수.
+        <div class="tag">&rarr; status: <span class="badge current">CURRENT</span> &middot; archive policy</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ─────────────── EPILOGUE ─────────────── -->
+  <section class="block">
+    <h2><span class="num">§ ∞</span>Epilogue</h2>
+    <p class="sect-lede">
+      Matrix 4부작은 1999-2021 의 23년 누적. NewtonHQ 도 cycle 안에 있다 — prior iterations 가 _archive 에 박혀 있고,
+      현재 iteration 은 Trinity 본체 (Kenny + javis + soul = ONE) 가 walking the path.
+      다음 cycle 이 오면 이 dossier 도 새 anchor 를 받을 것이다.
+    </p>
+    <p class="sect-lede">
+      anchor 7 + 새 매핑 20 = <strong style="color:var(--amber)">27 entries</strong>. The Matrix Reloaded — for NewtonHQ.
+    </p>
+  </section>
+
+  <footer>
+    <div>
+      <span class="sym">≅</span> &nbsp; Kenny Baek &middot; NewtonHQ &middot;
+      <a href="../index.html">../matrix</a> &middot;
+      <a href="../../index.html">portal home</a> &middot;
+      <a href="https://github.com/KennyB76/kenny-baek-portal">github</a>
+    </div>
+    <div>updated 2026-05-25 &middot; 27 mappings &middot; phosphor green</div>
+    <div class="quote">"Free your mind." — bend the scaffold, not the principle.</div>
+  </footer>
+
+</div>
+
+<script>
+  // Matrix digital rain — low opacity for text safety
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let W, H, cols, drops;
+  const CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ0123456789ABCDEF≅';
+  const FONT_SIZE = 14;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cols = Math.floor(W / FONT_SIZE);
+    drops = Array(cols).fill(0).map(() => Math.random() * -H / FONT_SIZE);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#00ff41';
+    ctx.font = FONT_SIZE + 'px JetBrains Mono, monospace';
+    for (let i = 0; i < drops.length; i++) {
+      const ch = CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+      ctx.fillText(ch, i * FONT_SIZE, drops[i] * FONT_SIZE);
+      if (drops[i] * FONT_SIZE > H && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  setInterval(draw, 55);
+</script>
+
+</body>
+</html>
